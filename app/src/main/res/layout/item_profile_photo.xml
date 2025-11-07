@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="120dp"
+    android:layout_height="match_parent"
+    android:layout_marginEnd="12dp"
+    android:clipToOutline="true"
+    app:cardCornerRadius="24dp"
+    app:cardUseCompatPadding="false"
+    app:strokeColor="@color/profile_chip_stroke"
+    app:strokeWidth="1dp">
+
+    <ImageView
+        android:id="@+id/profilePhotoImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/welcome_person_2" />
+
+</com.google.android.material.card.MaterialCardView>

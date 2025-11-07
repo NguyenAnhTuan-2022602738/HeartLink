@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    app:boxStrokeColor="@color/home_action_primary_end"
+    app:boxCornerRadiusTopStart="16dp"
+    app:boxCornerRadiusTopEnd="16dp"
+    app:boxCornerRadiusBottomStart="16dp"
+    app:boxCornerRadiusBottomEnd="16dp"
+    app:boxBackgroundMode="outline">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/filter_location_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/filter_location_input_hint"
+        android:inputType="textCapWords"
+        android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout>

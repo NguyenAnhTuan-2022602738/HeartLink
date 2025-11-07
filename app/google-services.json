@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "661106646521",
+    "firebase_url": "https://heartlink-8048a-default-rtdb.firebaseio.com",
+    "project_id": "heartlink-8048a",
+    "storage_bucket": "heartlink-8048a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:661106646521:android:d67772dec762ef86a63128",
+        "android_client_info": {
+          "package_name": "vn.haui.heartlink"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "661106646521-qejn3mksds62odsqmbsedfnsj9a79nj5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "vn.haui.heartlink",
+            "certificate_hash": "cbce020994804396983a00e121cab8ff1c892f48"
+          }
+        },
+        {
+          "client_id": "661106646521-trf7h8bcvaesn8iiou11rofbs2qdj9s8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCr6t_zwEDvbYE23OKbElOakS0DcetATys"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "661106646521-trf7h8bcvaesn8iiou11rofbs2qdj9s8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="32dp">
+
+    <View
+        android:id="@+id/filter_handle"
+        android:layout_width="48dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_filter_handle" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/filter_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/filter_title"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textColor="@color/home_title" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filter_clear_button"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filter_action_clear"
+            android:textColor="@color/home_action_primary_end"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/filter_interested_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/filter_interested_in"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:textColor="@color/home_title" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/filter_interested_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:padding="2dp"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filter_interested_female"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/filter_interest_female"
+            app:cornerRadius="24dp"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filter_interested_male"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/filter_interest_male"
+            app:cornerRadius="24dp"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filter_interested_all"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filter_interest_both"
+            app:cornerRadius="24dp"
+            app:iconGravity="textStart" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <LinearLayout
+        android:id="@+id/filter_location_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_filter_location_field"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/filter_location_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_location_label"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="@color/home_subtitle" />
+
+            <TextView
+                android:id="@+id/filter_location_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/filter_location_placeholder"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:textColor="@color/home_title" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/filter_location_progress"
+            style="@android:style/Widget.Material.ProgressBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/filter_location_pick"
+            android:src="@drawable/ic_chevron_right" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/filter_distance_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/filter_distance"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/home_title" />
+
+        <TextView
+            android:id="@+id/filter_distance_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="40km"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:textColor="@color/home_subtitle" />
+    </LinearLayout>
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/filter_distance_slider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:valueFrom="5"
+        android:valueTo="100"
+        android:stepSize="1"
+        app:trackColorActive="@color/home_action_primary_end"
+        app:thumbColor="@color/home_action_primary_end" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/filter_age_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/filter_age"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textColor="@color/home_title" />
+
+        <TextView
+            android:id="@+id/filter_age_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="20-28"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:textColor="@color/home_subtitle" />
+    </LinearLayout>
+
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/filter_age_slider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:valueFrom="18"
+        android:valueTo="60"
+        app:trackColorActive="@color/home_action_primary_end"
+        app:thumbColor="@color/home_action_primary_end" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/filter_apply_button"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:text="@string/filter_action_apply"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        app:backgroundTint="@color/home_action_primary_end"
+        app:cornerRadius="28dp"
+        app:iconGravity="textStart"
+        app:rippleColor="@android:color/transparent"
+        app:strokeWidth="0dp"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>

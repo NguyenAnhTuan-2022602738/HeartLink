@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context=".activities.LocationPermissionActivity">
+
+    <TextView
+        android:id="@+id/location_skip_button"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:fontFamily="@font/montserrat_semibold"
+        android:text="@string/skip"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/location_back_button_container"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="24dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toBottomOf="@id/location_skip_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/location_skip_button">
+
+        <ImageView
+            android:id="@+id/location_back_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/content_desc_navigate_back"
+            android:padding="16dp"
+            android:src="@drawable/ic_back_arrow"
+            android:tint="@color/colorPrimary" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <ProgressBar
+        android:id="@+id/location_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:max="100"
+        android:progress="100"
+        android:progressDrawable="@drawable/progress_interest"
+        app:layout_constraintBottom_toBottomOf="@id/location_back_button_container"
+        app:layout_constraintEnd_toStartOf="@id/location_skip_button"
+        app:layout_constraintStart_toEndOf="@id/location_back_button_container"
+        app:layout_constraintTop_toTopOf="@id/location_back_button_container" />
+
+    <vn.haui.heartlink.views.GradientTextView
+        android:id="@+id/location_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/montserrat_bold"
+        android:gravity="center"
+        android:text="@string/location_permission_title"
+        android:textSize="30sp"
+        app:gradientEndColor="@color/interest_gradient_end"
+        app:gradientStartColor="@color/interest_gradient_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/location_back_button_container" />
+
+    <TextView
+        android:id="@+id/location_subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/montserrat_regular"
+        android:gravity="center"
+        android:text="@string/location_permission_subtitle"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/location_title" />
+
+    <ImageView
+        android:id="@+id/location_illustration"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="64dp"
+        android:src="@drawable/illustration_location"
+        android:contentDescription="@string/location_permission_illustration_desc"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/location_subtitle"
+        app:layout_constraintBottom_toTopOf="@id/location_wave" />
+
+    <vn.haui.heartlink.views.WaveView
+        android:id="@+id/location_wave"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toTopOf="@id/location_allow_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/location_illustration" />
+
+    <Button
+        android:id="@+id/location_allow_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_button_gradient"
+        android:fontFamily="@font/montserrat_bold"
+        android:text="@string/location_permission_allow"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/location_manual_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/location_manual_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="48dp"
+        android:background="@drawable/bg_button_outline_primary"
+        android:fontFamily="@font/montserrat_bold"
+        android:text="@string/location_permission_manual"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimary"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

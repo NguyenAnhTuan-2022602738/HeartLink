@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Base Style for OTP EditText -->
+    <style name="OtpEditTextBase" parent="Widget.AppCompat.EditText">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:maxLength">1</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:focusable">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+    </style>
+
+    <!-- Style for Filled OTP EditText -->
+    <style name="OtpEditTextFilled" parent="OtpEditTextBase">
+        <item name="android:background">@drawable/otp_box_filled</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <!-- Style for Active/Focused OTP EditText -->
+    <style name="OtpEditTextActive" parent="OtpEditTextBase">
+        <item name="android:background">@drawable/otp_box_active</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <!-- Style for Inactive/Empty OTP EditText -->
+    <style name="OtpEditTextInactive" parent="OtpEditTextBase">
+        <item name="android:background">@drawable/otp_box_inactive</item>
+        <item name="android:textColor">@color/textColorSecondary</item>
+    </style>
+
+    <!-- Style for Numpad Buttons -->
+    <style name="NumpadButton">
+        <item name="android:layout_width">80dp</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:layout_margin">4dp</item>
+    </style>
+
+    <!-- Style for Seeking Screen RadioButtons -->
+    <style name="SeekingRadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:background">@drawable/radio_seeking_selector</item>
+        <item name="android:button">@null</item> <!-- Hide default radio button circle -->
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textColor">@color/radio_seeking_text_selector</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Style for MaterialDatePicker Fullscreen -->
+    <style name="ThemeOverlay.App.DatePicker.Fullscreen" parent="ThemeOverlay.MaterialComponents.MaterialCalendar.Fullscreen">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSurface">@android:color/white</item>
+        <item name="colorOnSurface">@color/textColorPrimary</item>
+        <item name="colorSecondary">@color/colorPrimary</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="materialCalendarStyle">@style/Widget.App.MaterialCalendar</item>
+        <item name="materialCalendarHeaderTitle">@style/Widget.App.MaterialCalendar.HeaderTitle</item>
+        <item name="materialCalendarHeaderSelection">@style/Widget.App.MaterialCalendar.HeaderSelection</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.TextButton</item>
+    </style>
+
+    <style name="Widget.App.MaterialCalendar" parent="Widget.MaterialComponents.MaterialCalendar">
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <style name="Widget.App.MaterialCalendar.HeaderTitle" parent="Widget.MaterialComponents.MaterialCalendar.HeaderTitle">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="fontFamily">@font/montserrat_bold</item>
+        <item name="android:textSize">34sp</item>
+    </style>
+
+    <style name="Widget.App.MaterialCalendar.HeaderSelection" parent="Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="fontFamily">@font/montserrat_bold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Widget.App.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="fontFamily">@font/montserrat_bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="rippleColor">@color/colorPrimary</item>
+        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="android:background">@drawable/button_background_primary</item>
+        <item name="android:paddingStart">32dp</item>
+        <item name="android:paddingEnd">32dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="cornerRadius">24dp</item>
+    </style>
+
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <!-- Calendar View Custom Styles -->
+    <style name="CalendarViewCustom" parent="Theme.AppCompat">
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+    </style>
+
+    <style name="CalendarViewDateCustomText" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:fontFamily">@font/montserrat_regular</item>
+    </style>
+
+    <style name="CalendarViewWeekCustomText" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+    </style>
+
+    <!-- Bottom Sheet Dialog Theme -->
+    <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/dialog_bg_rounded</item>
+    </style>
+
+    <style name="Widget.HeartLink.InterestChip" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="android:textColor">@color/interest_chip_text</item>
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="chipBackgroundColor">@color/interest_chip_background</item>
+        <item name="chipStrokeColor">@color/interest_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">24dp</item>
+        <item name="chipIconVisible">false</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipMinHeight">48dp</item>
+        <item name="chipStartPadding">24dp</item>
+        <item name="chipEndPadding">24dp</item>
+        <item name="rippleColor">@color/interest_chip_ripple</item>
+    </style>
+
+    <style name="ProfileSettingsOutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/montserrat_semibold</item>
+        <item name="strokeColor">@color/colorPrimary</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cornerRadius">24dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="rippleColor">@color/colorPrimary</item>
+    </style>
+
+</resources>

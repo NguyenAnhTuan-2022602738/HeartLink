@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context=".activities.ProfileInfoActivity">
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/skip_button"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/montserrat_semibold"
+        android:text="Bỏ qua"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/back_button_profile"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/otp_box_inactive"
+        android:padding="12dp"
+        android:src="@drawable/ic_back_arrow"
+        app:layout_constraintBottom_toBottomOf="@+id/skip_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/skip_button" />
+
+    <ProgressBar
+        android:id="@+id/profile_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:max="100"
+        android:progress="14"
+        android:progressDrawable="@drawable/custom_progress_bar"
+        app:layout_constraintBottom_toBottomOf="@+id/back_button_profile"
+        app:layout_constraintEnd_toStartOf="@+id/skip_button"
+        app:layout_constraintStart_toEndOf="@+id/back_button_profile"
+        app:layout_constraintTop_toTopOf="@+id/back_button_profile" />
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/profile_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/montserrat_bold"
+        android:text="Thông tin cá nhân"
+        android:textColor="@color/colorPrimary"
+        android:textSize="28sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/back_button_profile" />
+
+    <TextView
+        android:id="@+id/profile_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/montserrat_regular"
+        android:text="Hãy cho chúng tôi biết chút\nthông tin về bạn nha"
+        android:textAlignment="center"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_title" />
+
+    <!-- Avatar -->
+    <ImageView
+        android:id="@+id/avatar_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/ic_avatar_placeholder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_subtitle" />
+
+    <ImageView
+        android:id="@+id/add_avatar_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_add_photo"
+        app:layout_constraintBottom_toBottomOf="@+id/avatar_image"
+        app:layout_constraintEnd_toEndOf="@+id/avatar_image"
+        app:layout_constraintStart_toEndOf="@+id/avatar_image" />
+
+    <!-- Input Fields -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_input_layout_lastname"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:hint="Họ đệm"
+        app:boxBackgroundColor="@android:color/white"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxStrokeWidth="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/avatar_image">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_lastname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_regular" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_input_layout_firstname"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:hint="Tên"
+        app:boxBackgroundColor="@android:color/white"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxStrokeWidth="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_input_layout_lastname">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_firstname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserrat_regular" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/birthday_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/otp_box_inactive"
+        android:drawableStart="@drawable/ic_calendar"
+        android:drawablePadding="16dp"
+        android:fontFamily="@font/montserrat_regular"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:text="Chọn ngày sinh của bạn"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/text_input_layout_firstname"
+        app:layout_constraintStart_toStartOf="@+id/text_input_layout_firstname"
+        app:layout_constraintTop_toBottomOf="@+id/text_input_layout_firstname" />
+
+    <!-- Confirm Button -->
+    <Button
+        android:id="@+id/confirm_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="48dp"
+        android:fontFamily="@font/montserrat_bold"
+        android:text="Xác nhận"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        app:backgroundTint="@color/colorPrimary"
+        app:cornerRadius="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/birthday_button"
+        app:layout_constraintStart_toStartOf="@+id/birthday_button" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

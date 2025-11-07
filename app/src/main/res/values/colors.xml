@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- App Theme Colors -->
+    <color name="colorPrimary">#E94057</color>
+    <color name="colorAccent">#F89B29</color> 
+    <color name="colorBackground">#FFEAED</color>
+    <color name="textColorPrimary">#333333</color>
+    <color name="textColorSecondary">#888888</color>
+
+    <!-- Interest Screen Palette -->
+    <color name="interest_gradient_start">#FFA74B</color>
+    <color name="interest_gradient_end">#E94057</color>
+    <color name="interest_chip_stroke_color">#FFE0EA</color>
+    <color name="interest_chip_icon_default">#E94057</color>
+    <color name="interest_chip_text_default">#E94057</color>
+    <color name="interest_chip_shadow">#26E94057</color>
+
+    <!-- Photo Upload Palette -->
+    <color name="photo_slot_placeholder_stroke">#FFF1C9D2</color>
+    <color name="photo_slot_filled_stroke">#FFF5BFD0</color>
+    <color name="photo_slot_background">#FFFFFFFF</color>
+    <color name="photo_slot_plus_background">#FFF34E75</color>
+    <color name="photo_slot_plus_icon">#FFFFFFFF</color>
+    
+    <!-- Avatar Background Colors -->
+    <color name="avatar_bg_yellow">#FFD166</color>
+    <color name="avatar_bg_purple">#CDB4DB</color>
+
+    <!-- Home Screen Palette -->
+    <color name="home_background">#FFF8F9</color>
+    <color name="home_title">#141718</color>
+    <color name="home_subtitle">#6C7278</color>
+    <color name="home_distance_bg">#4D000000</color>
+    <color name="home_overlay_start">#00000000</color>
+    <color name="home_overlay_end">#B3000000</color>
+    <color name="home_action_secondary_bg">#FFFFFFFF</color>
+    <color name="home_action_dislike_icon">#FFEC6A2E</color>
+    <color name="home_action_superlike_icon">#FF7F51F6</color>
+    <color name="home_action_primary_start">#FFE86F7F</color>
+    <color name="home_action_primary_end">#FFE94057</color>
+    <color name="home_nav_inactive">#FFA7ADB5</color>
+    <color name="home_nav_active">#FFE94057</color>
+    <color name="home_nav_indicator">#FFE94057</color>
+
+    <!-- Match Screen Palette -->
+    <color name="match_secondary_button_bg">#FFFCE7ED</color>
+    <color name="matches_divider">#FFE8EAED</color>
+    <color name="matches_action_secondary_bg">#33FFFFFF</color>
+    <color name="matches_overlay_end">#CC000000</color>
+    <color name="matches_status_text">#CCFFFFFF</color>
+    <color name="match_action_primary">#E94057</color>
+    <color name="match_status_online">#3CCF8E</color>
+    <color name="messages_timestamp">#9CA1AB</color>
+    <color name="messages_thread_preview">#6C7278</color>
+    <color name="messages_list_divider">#1A6C7278</color>
+    <color name="chat_background">#FFF6F7F9</color>
+
+    <!-- Profile Detail Palette -->
+    <color name="profile_overlay_start">#00000000</color>
+    <color name="profile_overlay_end">#99000000</color>
+    <color name="profile_content_background">#FFFFFFFF</color>
+    <color name="profile_section_title">#141718</color>
+    <color name="profile_section_subtitle">#6C7278</color>
+    <color name="profile_chip_background">#FFFCE7ED</color>
+    <color name="profile_chip_stroke">#FFF4C7D4</color>
+
+    <!-- Profile Settings Palette -->
+    <color name="profile_settings_header_start">#FFFDF2F6</color>
+    <color name="profile_settings_header_end">#FFFFFFFF</color>
+    <color name="profile_settings_badge_bg">#1AE94057</color>
+
+    <!-- Gradient for Splash -->
+    <color name="splashGradientStart">#E0E0E0</color>
+    <color name="splashGradientEnd">#FFF0F0</color>
+
+</resources>

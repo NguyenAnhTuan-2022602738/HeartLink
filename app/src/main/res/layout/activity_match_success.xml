@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/match_success_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:paddingHorizontal="24dp"
+    tools:context=".activities.MatchSuccessActivity">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/match_card_partner"
+        android:layout_width="220dp"
+        android:layout_height="280dp"
+        android:layout_marginTop="80dp"
+        android:rotation="8"
+        android:translationX="60dp"
+        android:translationY="36dp"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="12dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/match_partner_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/match_partner_image_content_description"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/welcome_person_2" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/match_card_current"
+        android:layout_width="220dp"
+        android:layout_height="280dp"
+        android:layout_marginTop="80dp"
+        android:rotation="-10"
+        android:translationX="-60dp"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="12dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/match_current_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/match_current_image_content_description"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/welcome_person_1" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/match_top_heart"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:translationY="-32dp"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="10dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/match_card_partner">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="18dp"
+            android:src="@drawable/ic_home_like"
+            android:tint="@color/colorPrimary"
+            tools:ignore="ContentDescription" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/match_bottom_heart"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="8dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintBottom_toBottomOf="@id/match_card_current"
+        app:layout_constraintStart_toStartOf="@id/match_card_current">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:src="@drawable/ic_home_like"
+            android:tint="@color/colorPrimary"
+            tools:ignore="ContentDescription" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/match_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:gravity="center"
+        android:text="@string/match_success_title_placeholder"
+        android:textColor="@color/home_title"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/match_card_partner"
+        tools:text="Bạn đã ghép đôi với Tuấn!" />
+
+    <TextView
+        android:id="@+id/match_subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="@string/match_success_subtitle"
+        android:textColor="@color/home_subtitle"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/match_title"
+        tools:text="Hãy bắt đầu cuộc trò chuyện ngay bây giờ." />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/match_wave_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="4dp"
+        android:text="@string/match_success_wave"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/colorPrimary"
+        app:cornerRadius="28dp"
+        app:iconPadding="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/match_subtitle" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/match_continue_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginHorizontal="4dp"
+        android:text="@string/match_success_continue"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/match_secondary_button_bg"
+        app:cornerRadius="28dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/match_wave_button" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

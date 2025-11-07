@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="8dp">
+
+    <FrameLayout
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:background="@drawable/bg_messages_active_ring"
+        android:padding="3dp">
+
+        <ImageView
+            android:id="@+id/active_user_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_avatar_circle"
+            android:clipToOutline="true"
+            android:contentDescription="@string/messages_active_avatar_content_description"
+            android:scaleType="centerCrop"
+            android:src="@drawable/welcome_person_1" />
+
+        <View
+            android:id="@+id/active_user_online_dot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_active_user_online_dot"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/active_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/profile_name_fallback"
+        android:textColor="@color/home_title"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

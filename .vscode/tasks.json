@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Install & Run Debug",
+            "type": "shell",
+            "command": ".\\gradlew.bat installDebug && adb shell am start -n vn.haui.heartlink/.activities.SplashActivity",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Debug APK",
+            "type": "shell",
+            "command": ".\\gradlew.bat assembleDebug",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean Project",
+            "type": "shell",
+            "command": ".\\gradlew.bat clean",
+            "problemMatcher": []
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="interest_names">
+        <item>Chụp ảnh</item>
+        <item>Mua sắm</item>
+        <item>Karaoke</item>
+        <item>Yoga</item>
+        <item>Nấu ăn</item>
+        <item>Tennis</item>
+        <item>Chạy bộ</item>
+        <item>Bơi lội</item>
+        <item>Hội họa</item>
+        <item>Leo núi</item>
+        <item>Nhảy dù</item>
+        <item>Nghe nhạc</item>
+        <item>Uống rượu</item>
+        <item>Chơi game</item>
+    </string-array>
+</resources>
