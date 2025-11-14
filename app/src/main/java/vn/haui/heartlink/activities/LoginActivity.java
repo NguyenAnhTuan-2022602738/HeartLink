@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -30,6 +33,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
@@ -70,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
 
         TextView loginTitle = findViewById(R.id.login_title);
         TextView signUpText = findViewById(R.id.sign_up_text);
+        TextView forgotPasswordText = findViewById(R.id.forgot_password_text);
         editTextEmail = findViewById(R.id.edit_text_email_login);
         editTextPassword = findViewById(R.id.edit_text_password_login);
         textInputLayoutEmail = findViewById(R.id.text_input_layout_email_login);
@@ -89,6 +95,8 @@ public class LoginActivity extends AppCompatActivity {
                 googleSignInLauncher.launch(googleSignInClient.getSignInIntent());
             });
         });
+
+        forgotPasswordText.setOnClickListener(v -> showForgotPasswordDialog());
 
         // Add TextWatchers to clear errors
         editTextEmail.addTextChangedListener(new TextWatcher() {
@@ -237,6 +245,67 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         String message = task.getException() != null ? task.getException().getMessage() : "";
                         Toast.makeText(LoginActivity.this, "Đăng nhập Google thất bại: " + message, Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private void showForgotPasswordDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_forgot_password, null);
+        builder.setView(dialogView);
+
+        final TextInputEditText emailEditText = dialogView.findViewById(R.id.edit_text_email_forgot);
+        final TextInputLayout emailInputLayout = dialogView.findViewById(R.id.text_input_layout_email_forgot);
+
+        emailEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                emailInputLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        builder.setTitle("Quên mật khẩu")
+                .setPositiveButton("Gửi", null) // Set to null. We'll override the listener.
+                .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setOnClickListener(view -> {
+                String email = emailEditText.getText().toString().trim();
+                if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    emailInputLayout.setError("Vui lòng nhập một email hợp lệ");
+                    return;
+                }
+                sendPasswordResetEmail(email, dialog);
+            });
+        });
+
+        dialog.show();
+    }
+
+    private void sendPasswordResetEmail(String email, AlertDialog dialog) {
+        setLoading(true);
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    setLoading(false);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(LoginActivity.this, "Email đặt lại mật khẩu đã được gửi.", Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    } else {
+                        if (task.getException() instanceof FirebaseAuthInvalidUserException) {
+                            Toast.makeText(LoginActivity.this, "Email không tồn tại trong hệ thống.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Không thể gửi email. Vui lòng thử lại.", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
     }
