@@ -6,41 +6,41 @@
     android:layout_margin="8dp"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?attr/selectableItemBackground"
-    app:cardCornerRadius="24dp"
+    android:checkable="true"
+    app:cardBackgroundColor="@color/interest_chip_background"
+    app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    app:strokeColor="@color/interest_chip_stroke_color"
+    app:checkedIcon="@null"
+    app:strokeColor="@color/interest_chip_stroke"
     app:strokeWidth="1dp">
 
     <LinearLayout
-        android:id="@+id/interest_container"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_interest_option_unselected"
+        android:layout_gravity="center"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="20dp"
-        android:paddingTop="18dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="18dp"
-        android:clipToPadding="false">
+        android:paddingStart="16dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="14dp">
 
         <ImageView
             android:id="@+id/interest_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:contentDescription="@null"
-            android:tint="@color/interest_chip_icon_default" />
+            app:tint="@color/interest_chip_text" />
 
         <TextView
             android:id="@+id/interest_label"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_weight="1"
             android:fontFamily="@font/montserrat_semibold"
-            android:textColor="@color/interest_chip_text_default"
-            android:textSize="16sp" />
+            android:singleLine="true"
+            android:textColor="@color/interest_chip_text"
+            android:textSize="15sp" />
 
     </LinearLayout>
 

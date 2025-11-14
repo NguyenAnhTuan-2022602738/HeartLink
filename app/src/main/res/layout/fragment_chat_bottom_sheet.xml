@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_chat_sheet"
+    android:paddingBottom="24dp"
+    tools:context=".ui.ChatBottomSheetFragment">
+
+    <View
+        android:id="@+id/chat_header_notch"
+        android:layout_width="64dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="-8dp"
+        android:background="@drawable/bg_chat_header_notch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/chat_avatar_container"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_messages_active_ring"
+        android:padding="3dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/chat_partner_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_avatar_circle"
+            android:clipToOutline="true"
+            android:contentDescription="@string/chat_partner_avatar_content_description"
+            android:scaleType="centerCrop"
+            android:src="@drawable/welcome_person_2" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/chat_partner_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="4dp"
+        android:text="Thắm"
+        android:textColor="@color/home_title"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/chat_more_button"
+        app:layout_constraintStart_toEndOf="@id/chat_avatar_container"
+        app:layout_constraintTop_toTopOf="@id/chat_avatar_container" />
+
+    <LinearLayout
+        android:id="@+id/chat_partner_status_group"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@id/chat_more_button"
+        app:layout_constraintStart_toEndOf="@id/chat_avatar_container"
+        app:layout_constraintTop_toBottomOf="@id/chat_partner_name">
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_chat_status_dot"
+            app:backgroundTint="@color/match_status_online" />
+
+        <TextView
+            android:id="@+id/chat_partner_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="Đang hoạt động"
+            android:textColor="@color/messages_thread_preview"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/chat_close_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bg_sent_message"
+        android:backgroundTint="@android:color/white"
+        android:elevation="4dp"
+        android:src="@drawable/ic_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/chat_avatar_container"
+        app:tint="@color/textColorPrimary" />
+
+    <ImageButton
+        android:id="@+id/chat_more_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/bg_sent_message"
+        android:backgroundTint="@android:color/white"
+        android:elevation="4dp"
+        android:src="@drawable/ic_home_more_vertical"
+        app:layout_constraintEnd_toStartOf="@id/chat_close_button"
+        app:layout_constraintTop_toTopOf="@id/chat_avatar_container"
+        app:tint="@color/textColorPrimary" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chat_messages_list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android_paddingStart="24dp"
+        android:paddingTop="24dp"
+        android_paddingEnd="24dp"
+        android:paddingBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/chat_input_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chat_avatar_container"
+        tools:listitem="@layout/item_chat_message_outgoing" />
+
+    <LinearLayout
+        android:id="@+id/chat_input_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.vanniktech.emoji.EmojiEditText
+            android:id="@+id/chat_message_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/bg_received_message"
+            android:hint="@string/chat_input_hint"
+            android:imeOptions="actionSend"
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLines="4"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="14dp"
+            android:textColor="@color/home_title"
+            android:textColorHint="@color/messages_thread_preview"
+            android:textSize="15sp" />
+
+        <ImageButton
+            android:id="@+id/chat_emoji_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="-46dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_sentiment_satisfied"
+            app:tint="@color/textColorSecondary" />
+
+
+        <ImageButton
+            android:id="@+id/chat_voice_button"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_sent_message"
+            android:backgroundTint="@android:color/white"
+            android:elevation="4dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_chat_send"
+            app:tint="@color/match_action_primary" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

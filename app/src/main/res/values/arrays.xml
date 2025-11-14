@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <array name="initial_age_range">
+        <item>18</item>
+        <item>35</item>
+    </array>
     <string-array name="interest_names">
-        <item>Chụp ảnh</item>
-        <item>Mua sắm</item>
+        <item>Photography</item>
+        <item>Shopping</item>
         <item>Karaoke</item>
         <item>Yoga</item>
-        <item>Nấu ăn</item>
+        <item>Cooking</item>
         <item>Tennis</item>
-        <item>Chạy bộ</item>
-        <item>Bơi lội</item>
-        <item>Hội họa</item>
-        <item>Leo núi</item>
-        <item>Nhảy dù</item>
-        <item>Nghe nhạc</item>
-        <item>Uống rượu</item>
-        <item>Chơi game</item>
+        <item>Running</item>
+        <item>Swimming</item>
+        <item>Art</item>
+        <item>Traveling</item>
+        <item>Extreme</item>
+        <item>Music</item>
+        <item>Drink</item>
+        <item>Video games</item>
     </string-array>
 </resources>

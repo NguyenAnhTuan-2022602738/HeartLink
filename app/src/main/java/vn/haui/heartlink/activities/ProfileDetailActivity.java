@@ -56,6 +56,7 @@ import java.util.concurrent.Executors;
 import vn.haui.heartlink.R;
 import vn.haui.heartlink.adapters.ProfilePhotoAdapter;
 import vn.haui.heartlink.models.User;
+import vn.haui.heartlink.utils.MatchRepository;
 import vn.haui.heartlink.utils.UserRepository;
 
 /**
@@ -66,6 +67,7 @@ public class ProfileDetailActivity extends AppCompatActivity {
     private static final String EXTRA_USER_ID = "extra_user_id";
     private static final String EXTRA_DISPLAY_NAME = "extra_display_name";
     private static final String EXTRA_PHOTO_URL = "extra_photo_url";
+    private static final String EXTRA_INTERACTION_STATUS = "extra_interaction_status";
 
     private static final int BIO_COLLAPSED_LINES = 4;
 
@@ -92,6 +94,7 @@ public class ProfileDetailActivity extends AppCompatActivity {
     private ProfilePhotoAdapter photoAdapter;
 
     private String partnerUid;
+    private String interactionStatus;
     private boolean isBioExpanded = false;
 
     public static Intent createIntent(@NonNull Context context,
@@ -108,6 +111,19 @@ public class ProfileDetailActivity extends AppCompatActivity {
         }
         return intent;
     }
+
+     public static Intent createIntent(@NonNull Context context,
+                                      @NonNull String partnerUid,
+                                      @Nullable String fallbackName,
+                                      @Nullable String fallbackPhotoUrl,
+                                      @Nullable String interactionStatus) {
+        Intent intent = createIntent(context, partnerUid, fallbackName, fallbackPhotoUrl);
+        if (!TextUtils.isEmpty(interactionStatus)) {
+            intent.putExtra(EXTRA_INTERACTION_STATUS, interactionStatus);
+        }
+        return intent;
+    }
+
 
     /**
      * Phương thức khởi tạo activity hiển thị chi tiết profile.
@@ -206,6 +222,8 @@ public class ProfileDetailActivity extends AppCompatActivity {
     private void hydrateFromIntent() {
         Intent intent = getIntent();
         partnerUid = intent.getStringExtra(EXTRA_USER_ID);
+        interactionStatus = intent.getStringExtra(EXTRA_INTERACTION_STATUS);
+
         if (TextUtils.isEmpty(partnerUid)) {
             Toast.makeText(this, R.string.error_generic, Toast.LENGTH_SHORT).show();
             finish();
@@ -234,7 +252,7 @@ public class ProfileDetailActivity extends AppCompatActivity {
      * Phương thức tải thông tin profile của partner từ Firebase.
      */
     private void loadPartnerProfile() {
-    showContent(false);
+        showContent(false, false);
         Task<DataSnapshot> partnerTask = userRepository.getUserData(partnerUid);
         partnerTask
                 .addOnSuccessListener(snapshot -> {
@@ -264,7 +282,8 @@ public class ProfileDetailActivity extends AppCompatActivity {
         bindBio(partner);
         bindInterests(partner);
         resolveLocation(partner);
-        showContent(true);
+        boolean showActions = MatchRepository.STATUS_RECEIVED_LIKE.equals(interactionStatus);
+        showContent(true, showActions);
     }
 
     /**
@@ -497,11 +516,11 @@ public class ProfileDetailActivity extends AppCompatActivity {
      *
      * @param show true để hiển thị, false để ẩn
      */
-    private void showContent(boolean show) {
+    private void showContent(boolean show, boolean showActions) {
         if (show) {
             loadingView.setVisibility(View.GONE);
             scrollView.setVisibility(View.VISIBLE);
-            primaryActions.setVisibility(View.VISIBLE);
+            primaryActions.setVisibility(showActions ? View.VISIBLE : View.GONE);
             contentContainer.setVisibility(View.VISIBLE);
         } else {
             loadingView.setVisibility(View.VISIBLE);

@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -25,6 +27,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +40,7 @@ import vn.haui.heartlink.utils.NavigationHelper;
 public class LoginActivity extends AppCompatActivity {
 
     private TextInputEditText editTextEmail, editTextPassword;
+    private TextInputLayout textInputLayoutEmail, textInputLayoutPassword;
     private Button buttonLogin, buttonGoogleLogin;
     private ProgressBar progressBar;
     private FirebaseHelper firebaseHelper;
@@ -61,13 +65,15 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_login);
-        
+
         configureGoogleSignIn();
 
         TextView loginTitle = findViewById(R.id.login_title);
         TextView signUpText = findViewById(R.id.sign_up_text);
         editTextEmail = findViewById(R.id.edit_text_email_login);
         editTextPassword = findViewById(R.id.edit_text_password_login);
+        textInputLayoutEmail = findViewById(R.id.text_input_layout_email_login);
+        textInputLayoutPassword = findViewById(R.id.text_input_layout_password_login);
         buttonLogin = findViewById(R.id.button_login);
         buttonGoogleLogin = findViewById(R.id.button_google_login);
         progressBar = findViewById(R.id.progress_bar_login);
@@ -82,6 +88,33 @@ public class LoginActivity extends AppCompatActivity {
             googleSignInClient.signOut().addOnCompleteListener(this, task -> {
                 googleSignInLauncher.launch(googleSignInClient.getSignInIntent());
             });
+        });
+
+        // Add TextWatchers to clear errors
+        editTextEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                textInputLayoutEmail.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        editTextPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                textInputLayoutPassword.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
     }
 
@@ -150,13 +183,22 @@ public class LoginActivity extends AppCompatActivity {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
+        textInputLayoutEmail.setError(null);
+        textInputLayoutPassword.setError(null);
+
+        boolean isValid = true;
+
         if (TextUtils.isEmpty(email)) {
-            Toast.makeText(this, "Vui lòng nhập email", Toast.LENGTH_SHORT).show();
-            return;
+            textInputLayoutEmail.setError("Vui lòng nhập email");
+            isValid = false;
         }
 
         if (TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Vui lòng nhập mật khẩu", Toast.LENGTH_SHORT).show();
+            textInputLayoutPassword.setError("Vui lòng nhập mật khẩu");
+            isValid = false;
+        }
+
+        if (!isValid) {
             return;
         }
 
@@ -172,8 +214,7 @@ public class LoginActivity extends AppCompatActivity {
                             // Don't call finish() here - NavigationHelper will handle clearing activities
                             NavigationHelper.checkProfileAndNavigate(LoginActivity.this, task.getResult().getUser());
                         } else {
-                            Toast.makeText(LoginActivity.this, "Đăng nhập thất bại: " + task.getException().getMessage(),
-                                    Toast.LENGTH_LONG).show();
+                            textInputLayoutPassword.setError("Email hoặc mật khẩu không đúng.");
                         }
                     }
                 });

@@ -7,12 +7,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -36,6 +38,7 @@ public class LocationPermissionActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private Button allowButton;
     private Button manualButton;
+    private boolean isEditMode = false;
 
     /**
      * Phương thức khởi tạo activity yêu cầu quyền truy cập vị trí.
@@ -47,6 +50,8 @@ public class LocationPermissionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_permission);
+
+        isEditMode = getIntent().getBooleanExtra("IS_EDIT_MODE", false);
 
         setupPermissionLauncher();
         setupUi();
@@ -72,17 +77,25 @@ public class LocationPermissionActivity extends AppCompatActivity {
      * Gán sự kiện cho các button skip, back, allow và manual input.
      */
     private void setupUi() {
-        TextView skipButton = findViewById(R.id.location_skip_button);
-        View backContainer = findViewById(R.id.location_back_button_container);
-        ImageView backIcon = findViewById(R.id.location_back_button);
+        View header = findViewById(R.id.header);
+        ImageView backButton = header.findViewById(R.id.back_button);
+        TextView skipButton = header.findViewById(R.id.skip_button);
+        ProgressBar progressBar = header.findViewById(R.id.progress_bar);
+
         allowButton = findViewById(R.id.location_allow_button);
         manualButton = findViewById(R.id.location_manual_button);
 
-    View.OnClickListener finishFlow = v -> navigateToNotification();
+        if (isEditMode) {
+            skipButton.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        } else {
+            progressBar.setProgress(100);
+        }
+
+        View.OnClickListener finishFlow = v -> navigateToNotification();
 
         skipButton.setOnClickListener(finishFlow);
-        backContainer.setOnClickListener(v -> finish());
-        backIcon.setOnClickListener(v -> finish());
+        backButton.setOnClickListener(v -> finish());
 
         allowButton.setOnClickListener(v -> requestLocationPermission());
         manualButton.setOnClickListener(v -> onManualInputSelected());
@@ -103,6 +116,13 @@ public class LocationPermissionActivity extends AppCompatActivity {
      * Bắt đầu lấy vị trí hiện tại với độ chính xác cao.
      */
     private void onPermissionGranted() {
+        // Kiểm tra lại permission trước khi sử dụng location API
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, R.string.location_permission_denied_message, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         setProcessing(true);
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, tokenSource.getToken())
@@ -124,6 +144,14 @@ public class LocationPermissionActivity extends AppCompatActivity {
      * Được gọi khi không thể lấy vị trí hiện tại.
      */
     private void fetchLastKnownLocation() {
+        // Kiểm tra permission trước khi sử dụng location API
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            setProcessing(false);
+            Toast.makeText(this, R.string.location_permission_denied_message, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this::handleLocationResult)
                 .addOnFailureListener(e -> {
@@ -217,7 +245,6 @@ public class LocationPermissionActivity extends AppCompatActivity {
      */
     private void navigateToNotification() {
         Intent intent = new Intent(this, NotificationPermissionActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }

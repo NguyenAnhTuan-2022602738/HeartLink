@@ -1,10 +1,12 @@
 package vn.haui.heartlink.utils;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.text.TextUtils;
 
@@ -12,9 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.TaskStackBuilder;
+import androidx.core.content.ContextCompat;
 
 import vn.haui.heartlink.R;
-import vn.haui.heartlink.activities.MatchesActivity;
+import vn.haui.heartlink.activities.MainActivity;
 
 /**
  * Helper for posting high-priority notifications when someone likes the current user.
@@ -44,7 +47,7 @@ public final class LikesNotificationManager {
         String title = context.getString(R.string.notification_incoming_like_title);
         String message = context.getString(R.string.notification_incoming_like_message, displayName);
 
-        Intent matchesIntent = new Intent(context, MatchesActivity.class);
+        Intent matchesIntent = new Intent(context, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addNextIntentWithParentStack(matchesIntent);
 
@@ -66,7 +69,17 @@ public final class LikesNotificationManager {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent);
 
-        manager.notify(buildNotificationId(like), builder.build());
+        // Kiểm tra permission trước khi hiển thị notification
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return; // Không có permission, không hiển thị notification
+            }
+        }
+
+        if (manager.areNotificationsEnabled()) {
+            manager.notify(buildNotificationId(like), builder.build());
+        }
     }
 
     /**

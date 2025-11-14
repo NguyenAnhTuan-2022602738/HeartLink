@@ -4,7 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +33,7 @@ public class NotificationPermissionActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<String> notificationPermissionLauncher;
     private Button allowButton;
+    private boolean isEditMode = false;
 
     /**
      * Phương thức khởi tạo activity yêu cầu quyền thông báo.
@@ -41,6 +45,8 @@ public class NotificationPermissionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification_permission);
+
+        isEditMode = getIntent().getBooleanExtra("IS_EDIT_MODE", false);
 
         setupPermissionLauncher();
         setupUi();
@@ -64,12 +70,24 @@ public class NotificationPermissionActivity extends AppCompatActivity {
      * Phương thức thiết lập giao diện người dùng và click listeners.
      */
     private void setupUi() {
-        TextView skipButton = findViewById(R.id.notification_skip_button);
+        View header = findViewById(R.id.header);
+        ImageView backButton = header.findViewById(R.id.back_button);
+        TextView skipButton = header.findViewById(R.id.skip_button);
+        ProgressBar progressBar = header.findViewById(R.id.progress_bar);
+
         allowButton = findViewById(R.id.notification_allow_button);
+
+        if (isEditMode) {
+            skipButton.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        } else {
+            progressBar.setProgress(100);
+        }
 
         skipButton.setOnClickListener(v -> {
             updateNotificationPreference(false);
         });
+        backButton.setOnClickListener(v -> finish());
 
         allowButton.setOnClickListener(v -> requestNotificationPermission());
     }
@@ -81,7 +99,8 @@ public class NotificationPermissionActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (hasNotificationPermission()) {
                 onPermissionGranted();
-            } else {
+            }
+            else {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         } else {

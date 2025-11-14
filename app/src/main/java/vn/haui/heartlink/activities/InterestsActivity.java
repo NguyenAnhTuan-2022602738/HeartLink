@@ -2,12 +2,14 @@ package vn.haui.heartlink.activities;
 
 import android.content.Intent;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import vn.haui.heartlink.R;
+import vn.haui.heartlink.ui.GradientTextView;
 import vn.haui.heartlink.utils.UserRepository;
 
 public class InterestsActivity extends AppCompatActivity {
@@ -37,27 +40,32 @@ public class InterestsActivity extends AppCompatActivity {
 
     private Button continueButton;
     private InterestsAdapter adapter;
+    private boolean isEditMode = false;
 
-    /**
-     * Phương thức khởi tạo activity chọn sở thích.
-     * Thiết lập RecyclerView với GridLayoutManager, tạo danh sách sở thích,
-     * thiết lập adapter và các click listeners cho điều hướng.
-     *
-     * @param savedInstanceState Trạng thái đã lưu của activity (có thể null)
-     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_interests);
 
-        continueButton = findViewById(R.id.continue_button_interests);
-        TextView skipButton = findViewById(R.id.skip_button_interests);
-        RecyclerView recyclerView = findViewById(R.id.interests_recycler_view);
-        MaterialCardView backButtonContainer = findViewById(R.id.back_button_container);
-        View backIcon = findViewById(R.id.back_button_interests);
+        isEditMode = getIntent().getBooleanExtra("IS_EDIT_MODE", false);
 
-        backButtonContainer.setOnClickListener(v -> onBackPressed());
-        backIcon.setOnClickListener(v -> onBackPressed());
+        View header = findViewById(R.id.header);
+        ImageView backButton = header.findViewById(R.id.back_button);
+        TextView skipButton = header.findViewById(R.id.skip_button);
+        ProgressBar progressBar = header.findViewById(R.id.progress_bar);
+
+        continueButton = findViewById(R.id.continue_button_interests);
+        RecyclerView recyclerView = findViewById(R.id.interests_recycler_view);
+
+        if (isEditMode) {
+            continueButton.setText("Lưu");
+            skipButton.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        } else {
+            progressBar.setProgress(60);
+        }
+
+        backButton.setOnClickListener(v -> onBackPressed());
 
         String[] names = getResources().getStringArray(R.array.interest_names);
         int[] icons = new int[]{
@@ -84,43 +92,29 @@ public class InterestsActivity extends AppCompatActivity {
 
         adapter = new InterestsAdapter(items, this::onSelectionChanged);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        int spacing = getResources().getDimensionPixelSize(R.dimen.interests_vertical_spacing);
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, spacing));
+        int spacing = getResources().getDimensionPixelSize(R.dimen.grid_spacing);
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, spacing, true));
         recyclerView.setAdapter(adapter);
 
         updateContinueButton(false);
+
+        if (isEditMode) {
+            loadUserInterests();
+        }
 
         continueButton.setOnClickListener(v -> handleContinue());
         skipButton.setOnClickListener(v -> saveInterestsAndFinish(Collections.emptyList()));
     }
 
-    /**
-     * Phương thức callback được gọi khi số lượng sở thích được chọn thay đổi.
-     * Cập nhật trạng thái của button continue dựa trên số lượng tối thiểu yêu cầu.
-     *
-     * @param selectedCount Số lượng sở thích đã được chọn
-     */
     private void onSelectionChanged(int selectedCount) {
         updateContinueButton(selectedCount >= MIN_INTEREST_SELECTION);
     }
 
-    /**
-     * Phương thức cập nhật trạng thái của button continue.
-     * Kích hoạt button khi có đủ số lượng sở thích tối thiểu,
-     * và làm mờ button khi chưa đủ.
-     *
-     * @param enabled true nếu button được kích hoạt, false nếu bị vô hiệu hóa
-     */
     private void updateContinueButton(boolean enabled) {
         continueButton.setEnabled(enabled);
         continueButton.setAlpha(enabled ? 1f : 0.5f);
     }
 
-    /**
-     * Phương thức xử lý khi người dùng nhấn button continue.
-     * Kiểm tra số lượng sở thích đã chọn có đạt tối thiểu không,
-     * nếu đủ thì lưu và chuyển activity tiếp theo.
-     */
     private void handleContinue() {
         List<String> selected = adapter.getSelectedInterests();
         if (selected.size() < MIN_INTEREST_SELECTION) {
@@ -130,29 +124,43 @@ public class InterestsActivity extends AppCompatActivity {
         saveInterestsAndFinish(selected);
     }
 
-    /**
-     * Phương thức lưu danh sách sở thích đã chọn vào Firebase
-     * và chuyển sang activity tiếp theo (PhotoUploadActivity).
-     * Xử lý cả trường hợp thành công và thất bại khi lưu dữ liệu.
-     *
-     * @param interests Danh sách tên sở thích đã được chọn
-     */
+    private void loadUserInterests() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            UserRepository.getInstance().getUserData(currentUser.getUid()).addOnSuccessListener(dataSnapshot -> {
+                if (dataSnapshot.exists()) {
+                    Map<String, Object> data = (Map<String, Object>) dataSnapshot.getValue();
+                    List<String> interests = (List<String>) data.get("interests");
+                    if (interests != null) {
+                        adapter.setSelectedInterests(interests);
+                    }
+                }
+            });
+        }
+    }
+
     private void saveInterestsAndFinish(List<String> interests) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
-            navigateToPhotoUpload();
+            if (!isEditMode) {
+                navigateToPhotoUpload();
+            }
             return;
         }
 
         Map<String, Object> updates = new HashMap<>();
-    updates.put("interests", interests);
+        updates.put("interests", interests);
 
         continueButton.setEnabled(false);
 
         UserRepository.getInstance().updateUser(currentUser.getUid(), updates, new UserRepository.OnCompleteListener() {
             @Override
             public void onSuccess() {
-                navigateToPhotoUpload();
+                if (isEditMode) {
+                    finish();
+                } else {
+                    navigateToPhotoUpload();
+                }
             }
 
             @Override
@@ -160,18 +168,15 @@ public class InterestsActivity extends AppCompatActivity {
                 Toast.makeText(InterestsActivity.this,
                         getString(R.string.interests_save_error, e.getMessage()),
                         Toast.LENGTH_SHORT).show();
-                navigateToPhotoUpload();
+                if (!isEditMode) {
+                    navigateToPhotoUpload();
+                }
             }
         });
     }
 
-    /**
-     * Phương thức điều hướng đến PhotoUploadActivity.
-     * Tạo Intent với flags để clear task stack và bắt đầu activity mới.
-     */
     private void navigateToPhotoUpload() {
         Intent intent = new Intent(this, PhotoUploadActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
@@ -243,67 +248,85 @@ public class InterestsActivity extends AppCompatActivity {
             return result;
         }
 
+        void setSelectedInterests(List<String> interests) {
+            selectedPositions.clear();
+            for (String interest : interests) {
+                for (int i = 0; i < items.size(); i++) {
+                    if (items.get(i).name.equals(interest)) {
+                        selectedPositions.add(i);
+                        break;
+                    }
+                }
+            }
+            notifyDataSetChanged();
+            if (listener != null) {
+                listener.onSelectionChanged(selectedPositions.size());
+            }
+        }
+
         static class InterestViewHolder extends RecyclerView.ViewHolder {
 
             private final MaterialCardView cardView;
-            private final View container;
             private final ImageView iconView;
             private final TextView titleView;
-            private final int defaultIconColor;
-            private final int defaultTextColor;
-            private final int selectedColor;
-            private final int defaultStrokeWidth;
-            private final float density;
 
             InterestViewHolder(@NonNull View itemView) {
                 super(itemView);
                 cardView = (MaterialCardView) itemView;
-                container = itemView.findViewById(R.id.interest_container);
                 iconView = itemView.findViewById(R.id.interest_icon);
                 titleView = itemView.findViewById(R.id.interest_label);
-                defaultIconColor = ContextCompat.getColor(itemView.getContext(), R.color.interest_chip_icon_default);
-                defaultTextColor = ContextCompat.getColor(itemView.getContext(), R.color.interest_chip_text_default);
-                selectedColor = ContextCompat.getColor(itemView.getContext(), android.R.color.white);
-                this.density = itemView.getResources().getDisplayMetrics().density;
-                defaultStrokeWidth = Math.max(1, Math.round(this.density));
             }
 
             void bind(InterestItem item, boolean selected) {
                 iconView.setImageResource(item.iconRes);
-                iconView.setColorFilter(selected ? selectedColor : defaultIconColor);
                 titleView.setText(item.name);
-                titleView.setTextColor(selected ? selectedColor : defaultTextColor);
+                cardView.setChecked(selected);
 
-                container.setBackgroundResource(selected ?
-                        R.drawable.bg_interest_option_selected :
-                        R.drawable.bg_interest_option_unselected);
-
-                cardView.setCardElevation(selected ? 6f * density : 0f);
-                cardView.setStrokeWidth(selected ? 0 : defaultStrokeWidth);
+                if (selected) {
+                    cardView.setCardElevation(8 * itemView.getResources().getDisplayMetrics().density);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        cardView.setOutlineSpotShadowColor(ContextCompat.getColor(itemView.getContext(), R.color.colorPrimary));
+                        cardView.setOutlineAmbientShadowColor(ContextCompat.getColor(itemView.getContext(), R.color.colorPrimary));
+                        titleView.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.white));
+                        iconView.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.white));
+                    }
+                } else {
+                    cardView.setCardElevation(0);
+                }
             }
         }
     }
 
-    private static class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
-        private final int spanCount;
-        private final int spacing;
+    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+        private int spanCount;
+        private int spacing;
+        private boolean includeEdge;
 
-        GridSpacingItemDecoration(int spanCount, int spacing) {
+        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
             this.spanCount = spanCount;
             this.spacing = spacing;
+            this.includeEdge = includeEdge;
         }
 
         @Override
-        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                                   @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
             int position = parent.getChildAdapterPosition(view);
             int column = position % spanCount;
 
-            outRect.left = spacing - column * spacing / spanCount;
-            outRect.right = (column + 1) * spacing / spanCount;
-            outRect.bottom = spacing;
-            if (position >= spanCount) {
-                outRect.top = spacing;
+            if (includeEdge) {
+                outRect.left = spacing - column * spacing / spanCount;
+                outRect.right = (column + 1) * spacing / spanCount;
+
+                if (position < spanCount) { // top edge
+                    outRect.top = spacing;
+                }
+                outRect.bottom = spacing; // item bottom
+            } else {
+                outRect.left = column * spacing / spanCount;
+                outRect.right = spacing - (column + 1) * spacing / spanCount;
+                if (position >= spanCount) {
+                    outRect.top = spacing;
+                }
             }
         }
     }

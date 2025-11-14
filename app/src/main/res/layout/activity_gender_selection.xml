@@ -4,50 +4,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
+    android:background="@android:color/white"
     tools:context=".activities.GenderSelectionActivity">
 
     <!-- Header -->
-    <TextView
-        android:id="@+id/skip_button_gender"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:fontFamily="@font/montserrat_semibold"
-        android:text="Bỏ qua"
-        android:textAllCaps="false"
-        android:textColor="@color/colorPrimary"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/back_button_gender"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:background="@drawable/otp_box_inactive"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_back_button"
         android:padding="12dp"
         android:src="@drawable/ic_back_arrow"
-        app:layout_constraintBottom_toBottomOf="@+id/skip_button_gender"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/skip_button_gender" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
         android:id="@+id/gender_progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
+        android:layout_width="100dp"
         android:layout_height="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:max="100"
         android:progress="28"
         android:progressDrawable="@drawable/custom_progress_bar"
         app:layout_constraintBottom_toBottomOf="@+id/back_button_gender"
-        app:layout_constraintEnd_toStartOf="@+id/skip_button_gender"
-        app:layout_constraintStart_toEndOf="@+id/back_button_gender"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/back_button_gender" />
 
     <!-- Title -->
@@ -136,6 +120,16 @@
             android:textSize="18sp" />
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/wavy_line"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/welcome_dashed_line"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/female_option" />
 
     <!-- Continue Button -->
     <Button
@@ -145,13 +139,12 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="48dp"
+        android:background="@drawable/button_rounded_red"
         android:fontFamily="@font/montserrat_bold"
         android:text="Tiếp tục"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
         android:textSize="18sp"
-        app:backgroundTint="@color/colorPrimary"
-        app:cornerRadius="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

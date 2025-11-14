@@ -189,6 +189,7 @@ mà chúng tôi gửi bạn"
             android:id="@+id/numpad_action_button"
             style="@style/NumpadButton"
             android:onClick="onNumpadClicked"
+            android:padding="20dp"
             android:src="@drawable/ic_backspace"
             android:tag="backspace" />
 

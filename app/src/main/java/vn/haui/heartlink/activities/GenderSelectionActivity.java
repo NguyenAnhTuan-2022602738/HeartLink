@@ -1,7 +1,9 @@
 package vn.haui.heartlink.activities;
 
 import android.content.Intent;
+import android.graphics.LinearGradient;
 import android.graphics.PorterDuff;
+import android.graphics.Shader;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -15,6 +17,8 @@ import androidx.core.content.ContextCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Map;
+
 import vn.haui.heartlink.R;
 import vn.haui.heartlink.utils.UserRepository;
 
@@ -26,30 +30,41 @@ public class GenderSelectionActivity extends AppCompatActivity {
     private TextView femaleText;
     private ImageView maleIcon;
     private ImageView femaleIcon;
+    private Button continueButton;
 
     private boolean isMaleSelected = true;
+    private boolean isEditMode = false;
 
-    /**
-     * Phương thức khởi tạo activity chọn giới tính.
-     * Thiết lập giao diện người dùng, bind các view và thiết lập
-     * các click listener cho việc chọn giới tính và điều hướng.
-     *
-     * @param savedInstanceState Trạng thái đã lưu của activity (có thể null)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gender_selection);
 
+        isEditMode = getIntent().getBooleanExtra("IS_EDIT_MODE", false);
+
+        TextView genderTitle = findViewById(R.id.gender_title);
+        int startColor = ContextCompat.getColor(this, R.color.interest_gradient_start);
+        int endColor = ContextCompat.getColor(this, R.color.interest_gradient_end);
+
+        Shader shader = new LinearGradient(
+                0, 0, genderTitle.getPaint().measureText(genderTitle.getText().toString()), genderTitle.getTextSize(),
+                new int[]{startColor, endColor},
+                null, Shader.TileMode.CLAMP);
+        genderTitle.getPaint().setShader(shader);
         maleOption = findViewById(R.id.male_option);
         femaleOption = findViewById(R.id.female_option);
         maleText = findViewById(R.id.male_text);
         femaleText = findViewById(R.id.female_text);
         maleIcon = findViewById(R.id.male_icon);
         femaleIcon = findViewById(R.id.female_icon);
-        Button continueButton = findViewById(R.id.continue_button_gender);
+        continueButton = findViewById(R.id.continue_button_gender);
 
-        updateSelectionUI();
+        if (isEditMode) {
+            continueButton.setText("Lưu");
+            loadUserGender();
+        } else {
+            updateSelectionUI();
+        }
 
         maleOption.setOnClickListener(v -> {
             if (!isMaleSelected) {
@@ -72,11 +87,6 @@ public class GenderSelectionActivity extends AppCompatActivity {
         findViewById(R.id.back_button_gender).setOnClickListener(v -> onBackPressed());
     }
 
-    /**
-     * Phương thức cập nhật giao diện người dùng dựa trên lựa chọn giới tính.
-     * Thay đổi background, màu chữ và màu icon cho option được chọn
-     * và option không được chọn.
-     */
     private void updateSelectionUI() {
         if (isMaleSelected) {
             maleOption.setBackgroundResource(R.drawable.gender_option_selected);
@@ -97,11 +107,22 @@ public class GenderSelectionActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Phương thức lưu giới tính đã chọn vào Firebase và chuyển sang activity tiếp theo.
-     * Kiểm tra người dùng hiện tại, cập nhật trường gender trong database,
-     * và điều hướng đến ProfileInfoActivity nếu thành công.
-     */
+    private void loadUserGender() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            UserRepository.getInstance().getUserData(currentUser.getUid()).addOnSuccessListener(dataSnapshot -> {
+                if (dataSnapshot.exists()) {
+                    Map<String, Object> data = (Map<String, Object>) dataSnapshot.getValue();
+                    String gender = (String) data.get("gender");
+                    if (gender != null) {
+                        isMaleSelected = gender.equals("male");
+                        updateSelectionUI();
+                    }
+                }
+            });
+        }
+    }
+
     private void saveGenderAndProceed() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
@@ -113,10 +134,13 @@ public class GenderSelectionActivity extends AppCompatActivity {
         UserRepository.getInstance().updateField(currentUser.getUid(), "gender", selectedGender, new UserRepository.OnCompleteListener() {
             @Override
             public void onSuccess() {
-                // Chuyển sang ProfileInfoActivity để tiếp tục hoàn thiện hồ sơ
-                Intent intent = new Intent(GenderSelectionActivity.this, ProfileInfoActivity.class);
-                startActivity(intent);
-                finish();
+                if (isEditMode) {
+                    finish();
+                } else {
+                    Intent intent = new Intent(GenderSelectionActivity.this, ProfileInfoActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
             }
 
             @Override

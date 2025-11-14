@@ -9,7 +9,7 @@
         tools:targetApi="33" />
 
     <application
-        android:name=".HeartLinkApp"
+        android:name=".HeartLinkApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -68,21 +68,11 @@
             android:name=".activities.MatchSuccessActivity"
             android:exported="false"
             android:theme="@style/Theme.HeartLink"/>
-        <activity
-            android:name=".activities.MatchesActivity"
-            android:exported="false"/>
-        <activity
-            android:name=".activities.MessagesActivity"
-            android:exported="false"/>
-        <activity
-            android:name=".activities.ChatActivity"
-            android:exported="false"/>
+
         <activity
             android:name=".activities.ProfileDetailActivity"
             android:exported="false"/>
-        <activity
-            android:name=".activities.ProfileSettingsActivity"
-            android:exported="false"/>
+
     </application>
 
 </manifest>

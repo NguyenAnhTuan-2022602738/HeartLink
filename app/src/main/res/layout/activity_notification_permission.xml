@@ -4,55 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
+    android:background="@android:color/white"
     tools:context=".activities.NotificationPermissionActivity">
 
-    <TextView
-        android:id="@+id/notification_skip_button"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        android:fontFamily="@font/montserrat_semibold"
-        android:text="@string/skip"
-        android:textAllCaps="false"
-        android:textColor="@color/colorPrimary"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/notification_progress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="10dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="32dp"
-        android:max="100"
-        android:progress="100"
-        android:progressDrawable="@drawable/progress_interest"
-        app:layout_constraintEnd_toEndOf="parent"
+    <include
+        android:id="@+id/header"
+        layout="@layout/layout_onboarding_header"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <ImageView
-        android:id="@+id/notification_illustration"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="64dp"
-        android:src="@drawable/illustration_notifications"
-        android:contentDescription="@string/notification_permission_illustration_desc"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notification_progress"
-        app:layout_constraintBottom_toTopOf="@id/notification_title" />
-
-    <vn.haui.heartlink.views.GradientTextView
+    <vn.haui.heartlink.ui.GradientTextView
         android:id="@+id/notification_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -61,40 +23,54 @@
         android:layout_marginEnd="32dp"
         android:fontFamily="@font/montserrat_bold"
         android:gravity="center"
-        android:text="@string/notification_permission_title"
-        android:textSize="30sp"
-        app:gradientEndColor="@color/interest_gradient_end"
-        app:gradientStartColor="@color/interest_gradient_start"
+        android:text="Bật thông báo"
+        android:textSize="28sp"
+        app:gradientEndColor="@color/colorAccent"
+        app:gradientStartColor="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notification_illustration" />
+        app:layout_constraintTop_toBottomOf="@+id/notification_illustration" />
 
     <TextView
         android:id="@+id/notification_subtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:fontFamily="@font/montserrat_regular"
         android:gravity="center"
-        android:text="@string/notification_permission_subtitle"
+        android:text="Nhận thông báo đẩy khi bạn có lượt ghép đôi hoặc nhận được tin nhắn."
         android:textColor="@color/textColorSecondary"
-        android:textSize="15sp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notification_title" />
+        app:layout_constraintTop_toBottomOf="@+id/notification_title" />
 
-    <vn.haui.heartlink.views.WaveView
-        android:id="@+id/notification_wave"
-        android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+    <ImageView
+        android:id="@+id/notification_illustration"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:src="@drawable/illustration_notifications"
+        android:contentDescription="@string/notification_permission_illustration_desc"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header"
+        app:layout_constraintBottom_toTopOf="@id/notification_title" />
+
+    <ImageView
+        android:id="@+id/wavy_line_notification"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/welcome_dashed_line"
         app:layout_constraintBottom_toTopOf="@id/notification_allow_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/notification_subtitle" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/notification_allow_button"
@@ -102,10 +78,10 @@
         android:layout_height="60dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="48dp"
-        android:background="@drawable/bg_button_gradient"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/button_rounded_red"
         android:fontFamily="@font/montserrat_bold"
-        android:text="@string/notification_permission_allow"
+        android:text="Bật thông báo"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
         android:textSize="18sp"

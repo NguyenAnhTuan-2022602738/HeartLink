@@ -32,6 +32,14 @@ public class UserRepository {
         }
         return instance;
     }
+
+    /**
+     * Lấy DatabaseReference cho node 'users'
+     * @return DatabaseReference trỏ đến node 'users'
+     */
+    public DatabaseReference getUsersRef() {
+        return usersRef;
+    }
     
     /**
      * Lấy dữ liệu người dùng từ Firebase

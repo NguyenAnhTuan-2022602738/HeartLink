@@ -51,7 +51,7 @@ public class MatchSuccessActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_match_success);
 
-        View root = findViewById(R.id.match_success_root);
+        View root = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
             Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -64,12 +64,12 @@ public class MatchSuccessActivity extends AppCompatActivity {
             controller.setAppearanceLightNavigationBars(true);
         }
 
-        ImageView partnerImage = findViewById(R.id.match_partner_image);
-        ImageView currentImage = findViewById(R.id.match_current_image);
-        TextView titleView = findViewById(R.id.match_title);
-        TextView subtitleView = findViewById(R.id.match_subtitle);
-        MaterialButton waveButton = findViewById(R.id.match_wave_button);
-        MaterialButton continueButton = findViewById(R.id.match_continue_button);
+        ImageView partnerImage = findViewById(R.id.partner_avatar_image);
+        ImageView currentImage = findViewById(R.id.current_user_avatar_image);
+        TextView titleView = findViewById(R.id.match_success_title);
+        TextView subtitleView = findViewById(R.id.match_success_subtitle);
+        MaterialButton waveButton = findViewById(R.id.wave_button);
+        MaterialButton continueButton = findViewById(R.id.continue_swiping_button);
 
         Intent intent = getIntent();
         String partnerName = intent.getStringExtra(Constants.EXTRA_MATCH_PARTNER_NAME);

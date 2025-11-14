@@ -42,6 +42,8 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    buildToolsVersion = "36.0.0"
+    ndkVersion = "29.0.14033849 rc4"
 }
 
 dependencies {
@@ -61,6 +63,12 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.cloudinary.core)
     implementation(libs.play.services.auth)
+
+    // Emoji
+    implementation("com.vanniktech:emoji-google:0.8.0")
+
+    // Splash Screen
+    implementation("androidx.core:core-splashscreen:1.2.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

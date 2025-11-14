@@ -1,5 +1,7 @@
 package vn.haui.heartlink.models;
 
+import com.google.firebase.database.ServerValue;
+
 import java.util.List;
 
 /**
@@ -23,6 +25,8 @@ public class User {
     private Double longitude;
     private Boolean locationVisible;
     private Boolean notificationsEnabled;
+    private boolean online;
+    private long lastSeen;
 
     public User() {
         // Default constructor required for Firebase
@@ -32,6 +36,8 @@ public class User {
         this.uid = uid;
         this.email = email;
         this.profileComplete = false;
+        this.online = false;
+        this.lastSeen = 0; // Initialize with a default value
     }
 
     // Getters
@@ -103,6 +109,14 @@ public class User {
         return notificationsEnabled;
     }
 
+    public boolean isOnline() {
+        return online;
+    }
+
+    public long getLastSeen() {
+        return lastSeen;
+    }
+
     // Setters
     public void setUid(String uid) {
         this.uid = uid;
@@ -170,5 +184,13 @@ public class User {
 
     public void setNotificationsEnabled(Boolean notificationsEnabled) {
         this.notificationsEnabled = notificationsEnabled;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
+    public void setLastSeen(long lastSeen) {
+        this.lastSeen = lastSeen;
     }
 }

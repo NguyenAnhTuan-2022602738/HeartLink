@@ -5,32 +5,24 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.button.MaterialButtonToggleGroup;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.RangeSlider;
 import com.google.android.material.slider.Slider;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import vn.haui.heartlink.R;
 import vn.haui.heartlink.models.FilterPreferences;
 
-/**
- * Bottom sheet allowing the user to adjust discovery filters.
- */
 public class FilterBottomSheetDialog extends BottomSheetDialogFragment {
 
     public interface FilterApplyListener {
@@ -45,11 +37,9 @@ public class FilterBottomSheetDialog extends BottomSheetDialogFragment {
     @Nullable
     private FilterApplyListener listener;
     private FilterPreferences workingCopy;
-    private ExecutorService geocodeExecutor;
 
-    private MaterialButtonToggleGroup interestedToggleGroup;
+    private RadioGroup interestedToggleGroup;
     private TextView locationValueText;
-    private ProgressBar locationProgress;
     private Slider distanceSlider;
     private RangeSlider ageRangeSlider;
     private TextView distanceValueText;
@@ -71,27 +61,6 @@ public class FilterBottomSheetDialog extends BottomSheetDialogFragment {
         this.listener = listener;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        geocodeExecutor = Executors.newSingleThreadExecutor();
-    }
-
-    @NonNull
-    @Override
-    public android.app.Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        android.app.Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.setOnShowListener(d -> {
-            if (dialog instanceof com.google.android.material.bottomsheet.BottomSheetDialog) {
-                com.google.android.material.bottomsheet.BottomSheetDialog bottomSheet = (com.google.android.material.bottomsheet.BottomSheetDialog) dialog;
-                View sheet = bottomSheet.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-                if (sheet != null) {
-                    sheet.setBackgroundResource(R.drawable.bg_filter_bottom_sheet);
-                }
-            }
-        });
-        return dialog;
-    }
 
     @Nullable
     @Override
@@ -113,14 +82,12 @@ public class FilterBottomSheetDialog extends BottomSheetDialogFragment {
 
         interestedToggleGroup = view.findViewById(R.id.filter_interested_toggle);
         locationValueText = view.findViewById(R.id.filter_location_value);
-        locationProgress = view.findViewById(R.id.filter_location_progress);
         distanceSlider = view.findViewById(R.id.filter_distance_slider);
         ageRangeSlider = view.findViewById(R.id.filter_age_slider);
-    distanceValueText = view.findViewById(R.id.filter_distance_value);
-    ageValueText = view.findViewById(R.id.filter_age_value);
-        MaterialButton clearButton = view.findViewById(R.id.filter_clear_button);
+        distanceValueText = view.findViewById(R.id.filter_distance_value);
+        ageValueText = view.findViewById(R.id.filter_age_value);
+        TextView clearButton = view.findViewById(R.id.filter_clear_button);
         MaterialButton applyButton = view.findViewById(R.id.filter_apply_button);
-        View locationRow = view.findViewById(R.id.filter_location_row);
 
         setupToggleGroup();
         setupSliders();
@@ -141,7 +108,6 @@ public class FilterBottomSheetDialog extends BottomSheetDialogFragment {
             dismiss();
         });
 
-        locationRow.setOnClickListener(v -> showLocationInputDialog());
     }
 
     private void setupToggleGroup() {
@@ -152,11 +118,11 @@ public class FilterBottomSheetDialog extends BottomSheetDialogFragment {
         } else if (FilterPreferences.INTEREST_MALE.equalsIgnoreCase(interested)) {
             buttonId = R.id.filter_interested_male;
         }
-        interestedToggleGroup.check(buttonId);
-        interestedToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (!isChecked) {
-                return;
-            }
+        RadioButton button = interestedToggleGroup.findViewById(buttonId);
+        if (button != null) {
+            button.setChecked(true);
+        }
+        interestedToggleGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.filter_interested_female) {
                 workingCopy.setInterestedIn(FilterPreferences.INTEREST_FEMALE);
             } else if (checkedId == R.id.filter_interested_male) {
@@ -166,6 +132,7 @@ public class FilterBottomSheetDialog extends BottomSheetDialogFragment {
             }
         });
     }
+
 
     private void setupSliders() {
         float distanceMin = distanceSlider.getValueFrom();
@@ -230,95 +197,11 @@ public class FilterBottomSheetDialog extends BottomSheetDialogFragment {
         }
     }
 
-    private void showLocationInputDialog() {
-    View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.view_location_input_field, null, false);
-    final TextInputEditText input = dialogView.findViewById(R.id.filter_location_input);
-    if (input != null) {
-        input.setText(workingCopy.getLocationLabel());
-    }
-
-    new MaterialAlertDialogBuilder(requireContext())
-        .setTitle(R.string.filter_location_dialog_title)
-        .setView(dialogView)
-                .setPositiveButton(R.string.action_apply, (dialog, which) -> geocodeAndSetLocation(input.getText() != null ? input.getText().toString() : null))
-                .setNegativeButton(android.R.string.cancel, null)
-                .setNeutralButton(R.string.filter_location_use_current, (dialog, which) -> {
-                    workingCopy.setLocationLatitude(null);
-                    workingCopy.setLocationLongitude(null);
-                    workingCopy.setLocationLabel(null);
-                    updateLocationLabel();
-                })
-                .show();
-    }
-
-    private void geocodeAndSetLocation(@Nullable String query) {
-        if (TextUtils.isEmpty(query)) {
-            workingCopy.setLocationLatitude(null);
-            workingCopy.setLocationLongitude(null);
-            workingCopy.setLocationLabel(null);
-            updateLocationLabel();
-            return;
-        }
-
-        locationProgress.setVisibility(View.VISIBLE);
-        geocodeExecutor.execute(() -> {
-            try {
-                android.location.Geocoder geocoder = new android.location.Geocoder(requireContext(), Locale.getDefault());
-                List<android.location.Address> results = geocoder.getFromLocationName(query, 1);
-                if (results != null && !results.isEmpty()) {
-                    android.location.Address address = results.get(0);
-                    Double lat = address.getLatitude();
-                    Double lng = address.getLongitude();
-                    String label = address.getFeatureName();
-                    if (TextUtils.isEmpty(label)) {
-                        label = address.getSubAdminArea();
-                    }
-                    if (TextUtils.isEmpty(label)) {
-                        label = address.getAdminArea();
-                    }
-                    if (TextUtils.isEmpty(label)) {
-                        label = address.getCountryName();
-                    }
-                    final Double finalLat = lat;
-                    final Double finalLng = lng;
-                    final String finalLabel = !TextUtils.isEmpty(label) ? label : query;
-                    requireActivity().runOnUiThread(() -> {
-                        workingCopy.setLocationLatitude(finalLat);
-                        workingCopy.setLocationLongitude(finalLng);
-                        workingCopy.setLocationLabel(finalLabel);
-                        updateLocationLabel();
-                        locationProgress.setVisibility(View.GONE);
-                    });
-                } else {
-                    showGeocodeError();
-                }
-            } catch (Exception e) {
-                showGeocodeError();
-            }
-        });
-    }
-
-    private void showGeocodeError() {
-        requireActivity().runOnUiThread(() -> {
-            locationProgress.setVisibility(View.GONE);
-            android.widget.Toast.makeText(requireContext(), R.string.filter_location_error, android.widget.Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    @Override
-    public void onDismiss(@NonNull android.content.DialogInterface dialog) {
-        super.onDismiss(dialog);
-        if (!geocodeExecutor.isShutdown()) {
-            geocodeExecutor.shutdownNow();
-        }
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         interestedToggleGroup = null;
         locationValueText = null;
-        locationProgress = null;
         distanceSlider = null;
         ageRangeSlider = null;
         distanceValueText = null;
