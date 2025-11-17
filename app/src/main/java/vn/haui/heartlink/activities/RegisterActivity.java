@@ -4,13 +4,15 @@ import android.content.Intent;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -28,46 +30,40 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import vn.haui.heartlink.R;
+import vn.haui.heartlink.utils.DialogHelper;
 import vn.haui.heartlink.utils.FirebaseHelper;
 import vn.haui.heartlink.utils.NavigationHelper;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText editTextEmail, editTextPassword, editTextConfirmPassword;
+    private TextInputLayout textInputLayoutEmail, textInputLayoutPassword, textInputLayoutConfirmPassword;
     private Button buttonRegister, buttonGoogle;
     private ProgressBar progressBar;
     private FirebaseHelper firebaseHelper;
     private GoogleSignInClient googleSignInClient;
     private ActivityResultLauncher<Intent> googleSignInLauncher;
 
-    /**
-     * Khởi tạo activity đăng ký. Thiết lập UI, listeners cho các nút và cấu hình đăng nhập Google.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         firebaseHelper = FirebaseHelper.getInstance();
-        
-        // Register Google Sign-In Activity Result Launcher
+
         googleSignInLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        handleGoogleSignInResult(result);
-                    }
-                }
+                this::handleGoogleSignInResult
         );
-        
+
         setContentView(R.layout.activity_register);
-        
-        // Configure Google Sign-In
+
         configureGoogleSignIn();
 
         // Find Views
@@ -76,11 +72,182 @@ public class RegisterActivity extends AppCompatActivity {
         editTextEmail = findViewById(R.id.edit_text_email);
         editTextPassword = findViewById(R.id.edit_text_password);
         editTextConfirmPassword = findViewById(R.id.edit_text_confirm_password);
+        textInputLayoutEmail = findViewById(R.id.text_input_layout_email);
+        textInputLayoutPassword = findViewById(R.id.text_input_layout_password);
+        textInputLayoutConfirmPassword = findViewById(R.id.text_input_layout_confirm_password);
         buttonRegister = findViewById(R.id.button_register);
         buttonGoogle = findViewById(R.id.button_google);
         progressBar = findViewById(R.id.progress_bar_register);
 
-        // --- Create Gradient for Title ---
+        applyTitleGradient(registerTitle);
+
+        loginLink.setOnClickListener(v -> {
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            startActivity(intent);
+        });
+
+        buttonRegister.setOnClickListener(v -> registerUser());
+
+        buttonGoogle.setOnClickListener(v -> signUpWithGoogle());
+
+        addTextWatchers();
+    }
+
+    private void configureGoogleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+    }
+
+    private void signUpWithGoogle() {
+        setLoading(true);
+        googleSignInClient.signOut().addOnCompleteListener(this, task -> {
+            Intent signInIntent = googleSignInClient.getSignInIntent();
+            googleSignInLauncher.launch(signInIntent);
+        });
+    }
+
+    private void handleGoogleSignInResult(ActivityResult result) {
+        setLoading(false);
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                if (account != null) {
+                    firebaseAuthWithGoogle(account.getIdToken());
+                }
+            } catch (ApiException e) {
+                Log.w("RegisterActivity", "Google sign in failed", e);
+                DialogHelper.showStatusDialog(this, "Đăng ký thất bại", "Không thể đăng ký với Google. Vui lòng thử lại.", false, null);
+            }
+        } else {
+            DialogHelper.showStatusDialog(this, "Đăng ký bị hủy", "Bạn đã hủy quá trình đăng ký với Google.", false, null);
+        }
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        setLoading(true);
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        firebaseHelper.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    setLoading(false);
+                    if (task.isSuccessful()) {
+                        AuthResult authResult = task.getResult();
+                        boolean isNewUser = authResult.getAdditionalUserInfo() != null && authResult.getAdditionalUserInfo().isNewUser();
+
+                        if (isNewUser) {
+                            DialogHelper.showStatusDialog(this, "Đăng ký thành công!", "Chào mừng bạn đến với HeartLink!", true, () ->
+                                    NavigationHelper.checkProfileAndNavigate(RegisterActivity.this, authResult.getUser())
+                            );
+                        } else {
+                            firebaseHelper.signOut();
+                            DialogHelper.showStatusDialog(this, "Tài khoản đã tồn tại", "Email này đã được sử dụng. Vui lòng đăng nhập.", false, () -> {
+                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            });
+                        }
+                    } else {
+                        DialogHelper.showStatusDialog(this, "Xác thực thất bại", "Đã có lỗi xảy ra. Vui lòng thử lại.", false, null);
+                    }
+                });
+    }
+
+    private void registerUser() {
+        if (!validateInput()) {
+            return;
+        }
+
+        String email = editTextEmail.getText().toString().trim();
+        String password = editTextPassword.getText().toString().trim();
+
+        setLoading(true);
+        firebaseHelper.registerUser(email, password)
+                .addOnCompleteListener(this, task -> {
+                    setLoading(false);
+                    if (task.isSuccessful()) {
+                        DialogHelper.showStatusDialog(this, "Đăng ký thành công!", "Chào mừng bạn đến với HeartLink!", true, () ->
+                                NavigationHelper.checkProfileAndNavigate(RegisterActivity.this, task.getResult().getUser())
+                        );
+                    } else {
+                        if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                            textInputLayoutEmail.setError("Email này đã được sử dụng");
+                        } else {
+                            DialogHelper.showStatusDialog(this, "Đăng ký thất bại", "Đã có lỗi xảy ra. Vui lòng thử lại.", false, null);
+                        }
+                    }
+                });
+    }
+
+    private boolean validateInput() {
+        textInputLayoutEmail.setError(null);
+        textInputLayoutPassword.setError(null);
+        textInputLayoutConfirmPassword.setError(null);
+
+        String email = editTextEmail.getText().toString().trim();
+        String password = editTextPassword.getText().toString().trim();
+        String confirmPassword = editTextConfirmPassword.getText().toString().trim();
+
+        boolean isValid = true;
+
+        if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            textInputLayoutEmail.setError("Email không hợp lệ");
+            isValid = false;
+        }
+
+        if (TextUtils.isEmpty(password) || password.length() < 6) {
+            textInputLayoutPassword.setError("Mật khẩu phải có ít nhất 6 ký tự");
+            isValid = false;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            textInputLayoutConfirmPassword.setError("Mật khẩu không khớp");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    private void addTextWatchers() {
+        editTextEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                textInputLayoutEmail.setError(null);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        editTextPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                textInputLayoutPassword.setError(null);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        editTextConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                textInputLayoutConfirmPassword.setError(null);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void applyTitleGradient(TextView registerTitle) {
         int color1 = ContextCompat.getColor(this, R.color.colorPrimary);
         int color2 = ContextCompat.getColor(this, R.color.colorAccent);
 
@@ -89,180 +256,11 @@ public class RegisterActivity extends AppCompatActivity {
                 null, Shader.TileMode.CLAMP);
 
         registerTitle.getPaint().setShader(textShader);
-
-        // --- Set OnClickListener for Login Link ---
-        loginLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // --- Set OnClickListener for Register Button ---
-        buttonRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerUser();
-            }
-        });
-        
-        // --- Set OnClickListener for Google Button ---
-        buttonGoogle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signUpWithGoogle();
-            }
-        });
-    }
-    
-    /**
-     * Cấu hình đăng nhập Google bằng GoogleSignInClient và ActivityResultLauncher.
-     */
-    private void configureGoogleSignIn() {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
-    }
-    
-    /**
-     * Bắt đầu quá trình đăng ký bằng Google, hiển thị loading và khởi chạy Google Sign-In intent.
-     */
-    private void signUpWithGoogle() {
-        progressBar.setVisibility(View.VISIBLE);
-        buttonGoogle.setEnabled(false);
-        buttonRegister.setEnabled(false);
-        
-        // Sign out from Google to force account picker
-        googleSignInClient.signOut().addOnCompleteListener(this, task -> {
-            Intent signInIntent = googleSignInClient.getSignInIntent();
-            googleSignInLauncher.launch(signInIntent);
-        });
-    }
-    
-    /**
-     * Xử lý kết quả từ Google Sign-In intent, lấy account và xác thực với Firebase.
-     * @param result Kết quả từ ActivityResultLauncher.
-     */
-    private void handleGoogleSignInResult(ActivityResult result) {
-        if (result.getResultCode() == RESULT_OK) {
-            Intent data = result.getData();
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                Log.d("RegisterActivity", "firebaseAuthWithGoogle:" + account.getId());
-                firebaseAuthWithGoogle(account.getIdToken());
-            } catch (ApiException e) {
-                Log.w("RegisterActivity", "Google sign in failed", e);
-                Toast.makeText(this, "Đăng ký với Google thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.GONE);
-                buttonGoogle.setEnabled(true);
-                buttonRegister.setEnabled(true);
-            }
-        } else {
-            progressBar.setVisibility(View.GONE);
-            buttonGoogle.setEnabled(true);
-            buttonRegister.setEnabled(true);
-        }
-    }
-    
-    /**
-     * Xác thực với Firebase bằng Google ID Token và điều hướng sau khi đăng ký thành công.
-     * @param idToken ID Token từ Google Sign-In.
-     */
-    private void firebaseAuthWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        firebaseHelper.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressBar.setVisibility(View.GONE);
-                        buttonGoogle.setEnabled(true);
-                        buttonRegister.setEnabled(true);
-                        
-                        if (task.isSuccessful()) {
-                            AuthResult authResult = task.getResult();
-                            boolean isNewUser = authResult.getAdditionalUserInfo() != null 
-                                && authResult.getAdditionalUserInfo().isNewUser();
-                            
-                            if (isNewUser) {
-                                // New user - proceed with registration
-                                Log.d("RegisterActivity", "signInWithCredential:success - NEW USER");
-                                Toast.makeText(RegisterActivity.this, "Đăng ký với Google thành công!", Toast.LENGTH_SHORT).show();
-                                
-                                // Check profile and navigate accordingly (will start onboarding for new user)
-                                // Don't call finish() here - NavigationHelper will handle clearing activities
-                                NavigationHelper.checkProfileAndNavigate(RegisterActivity.this, authResult.getUser());
-                            } else {
-                                // Existing user - should not register again
-                                Log.d("RegisterActivity", "signInWithCredential:success - EXISTING USER");
-                                Toast.makeText(RegisterActivity.this, "Tài khoản đã tồn tại. Vui lòng đăng nhập!", Toast.LENGTH_LONG).show();
-                                
-                                // Sign out and redirect to login
-                                firebaseHelper.signOut();
-                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
-                                finish();
-                            }
-                        } else {
-                            Log.w("RegisterActivity", "signInWithCredential:failure", task.getException());
-                            Toast.makeText(RegisterActivity.this, "Xác thực thất bại: " + task.getException().getMessage(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
     }
 
-    /**
-     * Xử lý đăng ký tài khoản mới bằng email và mật khẩu. Kiểm tra input và gọi FirebaseHelper để tạo tài khoản.
-     */
-    private void registerUser() {
-        String email = editTextEmail.getText().toString().trim();
-        String password = editTextPassword.getText().toString().trim();
-        String confirmPassword = editTextConfirmPassword.getText().toString().trim();
-
-        if (TextUtils.isEmpty(email)) {
-            Toast.makeText(this, "Vui lòng nhập email", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Vui lòng nhập mật khẩu", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (TextUtils.isEmpty(confirmPassword)) {
-            Toast.makeText(this, "Vui lòng xác nhận mật khẩu", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (!password.equals(confirmPassword)) {
-            Toast.makeText(this, "Mật khẩu không khớp", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        firebaseHelper.registerUser(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, create user profile and navigate to onboarding
-                            Log.d("RegisterActivity", "createUserWithEmail:success");
-                            Toast.makeText(RegisterActivity.this, "Đăng ký thành công.", Toast.LENGTH_SHORT).show();
-                            // Check profile and navigate accordingly (will start onboarding for new user)
-                            // Don't call finish() here - NavigationHelper will handle clearing activities
-                            NavigationHelper.checkProfileAndNavigate(RegisterActivity.this, task.getResult().getUser());
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w("RegisterActivity", "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(RegisterActivity.this, "Đăng ký thất bại: " + task.getException().getMessage(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+    private void setLoading(boolean isLoading) {
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        buttonRegister.setEnabled(!isLoading);
+        buttonGoogle.setEnabled(!isLoading);
     }
 }

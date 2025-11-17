@@ -184,32 +184,6 @@
                 android:background="#E0E0E0" />
         </LinearLayout>
 
-        <!-- Facebook Button -->
-        <Button
-            android:id="@+id/button_facebook_login"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            android:layout_marginTop="24dp"
-            android:elevation="4dp"
-            android:fontFamily="@font/montserrat_semibold"
-            android:text="Đăng nhập với Facebook"
-            android:textAllCaps="false"
-            android:textColor="@color/textColorPrimary"
-            android:textSize="16sp"
-            app:backgroundTint="@android:color/white"
-            app:cornerRadius="24dp"
-            app:icon="@drawable/ic_facebook_logo"
-            app:iconGravity="textStart"
-            app:iconPadding="16dp"
-            app:iconTint="@null"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider_layout_login"
-            app:strokeWidth="0dp" />
-
         <!-- Google Button -->
         <Button
             android:id="@+id/button_google_login"
@@ -218,7 +192,7 @@
             android:layout_height="60dp"
             android:layout_marginStart="32dp"
             android:layout_marginEnd="32dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:elevation="4dp"
             android:fontFamily="@font/montserrat_semibold"
             android:text="Đăng nhập với Google"
@@ -233,7 +207,7 @@
             app:iconTint="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button_facebook_login"
+            app:layout_constraintTop_toBottomOf="@id/divider_layout_login"
             app:strokeWidth="0dp" />
 
             <ProgressBar

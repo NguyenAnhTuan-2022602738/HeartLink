@@ -242,4 +242,7 @@ Hãy thử cập nhật bộ lọc hoặc quay lại sau nhé!</string>
     <string name="chat_partner_status_days_ago">Hoạt động %1$d ngày trước</string>
     <string name="chat_extra_action_content_description">Mở tùy chọn nhanh</string>
     <string name="chat_voice_action_content_description">Gửi tin nhắn thoại</string>
+    <string name="chat_user_blocked_message">Bạn đã chặn người dùng này.</string>
+    <string name="chat_user_is_blocked_message">Bạn không thể trả lời cuộc trò chuyện này.</string>
+
 </resources>

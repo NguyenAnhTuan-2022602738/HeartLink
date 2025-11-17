@@ -116,9 +116,9 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android_paddingStart="24dp"
+        android:paddingStart="24dp"
         android:paddingTop="24dp"
-        android_paddingEnd="24dp"
+        android:paddingEnd="24dp"
         android:paddingBottom="12dp"
         app:layout_constraintBottom_toTopOf="@+id/chat_input_container"
         app:layout_constraintEnd_toEndOf="parent"
@@ -177,6 +177,19 @@
             app:tint="@color/match_action_primary" />
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/blocked_info_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Bạn đã chặn người dùng này."
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="#E0E0E0"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

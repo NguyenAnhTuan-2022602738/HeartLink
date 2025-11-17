@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_block_user"
+        android:title="Chặn người dùng này" />
+    <item
+        android:id="@+id/action_unblock_user"
+        android:title="Bỏ chặn người dùng này"
+        android:visible="false" />
+</menu>
