@@ -1,6 +1,9 @@
 package vn.haui.heartlink.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -30,6 +33,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -40,8 +44,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executors;
 
 import vn.haui.heartlink.R;
 import vn.haui.heartlink.activities.GenderSelectionActivity;
@@ -57,6 +63,12 @@ import vn.haui.heartlink.utils.UserRepository;
 
 public class ProfileFragment extends Fragment {
 
+    public interface ProfileInteractionListener {
+        void onLaunchLocationPermission();
+    }
+
+    private ProfileInteractionListener mListener;
+
     private static final DateTimeFormatter DOB_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final UserRepository userRepository = UserRepository.getInstance();
@@ -69,6 +81,7 @@ public class ProfileFragment extends Fragment {
     private TextView nameView;
     private TextView taglineView;
     private TextView locationValueView;
+    private ImageButton editLocationButton;
     private TextView interestsEmptyView;
     private TextView photosEmptyView;
     private TextView likesCountView;
@@ -88,6 +101,17 @@ public class ProfileFragment extends Fragment {
 
     @Nullable
     private FirebaseUser firebaseUser;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof ProfileInteractionListener) {
+            mListener = (ProfileInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement ProfileInteractionListener");
+        }
+    }
 
     @Nullable
     @Override
@@ -109,6 +133,10 @@ public class ProfileFragment extends Fragment {
         loadUserProfile();
     }
 
+    public void refreshProfile() {
+        loadUserProfile();
+    }
+
     private void bindViews(View view) {
         scrollView = view.findViewById(R.id.profile_settings_scroll);
         loadingView = view.findViewById(R.id.profile_settings_loading);
@@ -118,6 +146,7 @@ public class ProfileFragment extends Fragment {
         taglineView = view.findViewById(R.id.profile_settings_tagline);
         editButton = view.findViewById(R.id.profile_settings_edit_button);
         locationValueView = view.findViewById(R.id.profile_settings_location_value);
+        editLocationButton = view.findViewById(R.id.profile_settings_edit_location);
         editInterestsAction = view.findViewById(R.id.profile_settings_edit_interests);
         interestsGroup = view.findViewById(R.id.profile_settings_interests_group);
         interestsEmptyView = view.findViewById(R.id.profile_settings_interests_empty);
@@ -163,6 +192,11 @@ public class ProfileFragment extends Fragment {
             Intent intent = new Intent(getActivity(), SeekingActivity.class);
             intent.putExtra("IS_EDIT_MODE", true);
             startActivity(intent);
+        });
+        editLocationButton.setOnClickListener(v -> {
+            if (mListener != null) {
+                mListener.onLaunchLocationPermission();
+            }
         });
     }
 
@@ -344,14 +378,62 @@ public class ProfileFragment extends Fragment {
     private void updateLocation(@NonNull User user) {
         boolean hasCoordinates = user.getLatitude() != null && user.getLongitude() != null;
         boolean isVisible = user.getLocationVisible() == null || Boolean.TRUE.equals(user.getLocationVisible());
+
         if (hasCoordinates && isVisible) {
-            locationValueView.setText(R.string.profile_settings_location_enabled);
+            getAddressFromCoordinates(user.getLatitude(), user.getLongitude());
         } else if (hasCoordinates) {
             locationValueView.setText(R.string.profile_settings_location_hidden);
         } else {
             locationValueView.setText(R.string.profile_location_placeholder);
         }
     }
+
+    private void getAddressFromCoordinates(double latitude, double longitude) {
+        if (getContext() == null || !Geocoder.isPresent()) {
+            locationValueView.setText(R.string.profile_settings_location_enabled);
+            return;
+        }
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+            String locationText = getString(R.string.profile_settings_location_enabled);
+            try {
+                List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address address = addresses.get(0);
+                    String district = address.getSubAdminArea(); // Huyện/Quận
+                    String province = address.getAdminArea();    // Tỉnh
+                    String country = address.getCountryName();   // Quốc gia
+
+                    // Use LinkedHashSet to maintain order and remove duplicates
+                    LinkedHashSet<String> locationParts = new LinkedHashSet<>();
+                    if (district != null && !district.isEmpty()) {
+                        locationParts.add(district);
+                    }
+                    if (province != null && !province.isEmpty()) {
+                        locationParts.add(province);
+                    }
+                    if (country != null && !country.isEmpty()) {
+                        locationParts.add(country);
+                    }
+
+                    if (!locationParts.isEmpty()) {
+                        locationText = TextUtils.join(", ", locationParts);
+                    }
+                }
+            } catch (IOException e) {
+                // Fallback to the default text
+            } finally {
+                final String finalLocationText = locationText;
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        locationValueView.setText(finalLocationText);
+                    });
+                }
+            }
+        });
+    }
+
 
     private void updateInterests(@Nullable List<String> interests) {
         if (interestsGroup == null || interestsEmptyView == null || getContext() == null) {

@@ -1,14 +1,17 @@
 package vn.haui.heartlink.activities;
 
-import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
-import android.widget.DatePicker;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -17,6 +20,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.cloudinary.android.MediaManager;
@@ -25,14 +30,17 @@ import com.cloudinary.android.callback.UploadCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import vn.haui.heartlink.BuildConfig;
 import vn.haui.heartlink.R;
+import vn.haui.heartlink.adapters.YearAdapter;
 import vn.haui.heartlink.utils.UserRepository;
 
 public class ProfileInfoActivity extends AppCompatActivity {
@@ -102,21 +110,85 @@ public class ProfileInfoActivity extends AppCompatActivity {
     }
 
     private void showDatePickerDialog() {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                android.R.style.Theme_Holo_Light_Dialog_NoActionBar,
-                (view, year, month, dayOfMonth) -> {
-                    selectedYear = year;
-                    selectedMonth = month;
-                    selectedDay = dayOfMonth;
-                    String selectedDate = dayOfMonth + "/" + (month + 1) + "/" + year;
-                    birthdayButton.setText(selectedDate);
-                },
-                selectedYear, selectedMonth, selectedDay);
+        final Dialog dialog = new Dialog(this, R.style.CustomBottomSheetDialogTheme);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_date_picker);
 
-        datePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        datePickerDialog.show();
+        CalendarView calendarView = dialog.findViewById(R.id.calendar_view);
+        TextView selectedYearView = dialog.findViewById(R.id.selected_year);
+        TextView selectedMonthView = dialog.findViewById(R.id.selected_month);
+        ImageView prevMonthButton = dialog.findViewById(R.id.prev_month_button);
+        ImageView nextMonthButton = dialog.findViewById(R.id.next_month_button);
+        Button saveButton = dialog.findViewById(R.id.save_button);
+        RecyclerView yearRecyclerView = dialog.findViewById(R.id.year_recycler_view);
+
+        // Setup Year RecyclerView
+        List<Integer> years = new ArrayList<>();
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        for (int i = currentYear - 100; i <= currentYear; i++) {
+            years.add(i);
+        }
+        YearAdapter yearAdapter = new YearAdapter(years, year -> {
+            selectedYear = year;
+            calendarView.setVisibility(View.VISIBLE);
+            yearRecyclerView.setVisibility(View.GONE);
+            updateDateHeader(selectedYear, selectedMonth, selectedYearView, selectedMonthView);
+            Calendar cal = Calendar.getInstance();
+            cal.set(selectedYear, selectedMonth, selectedDay);
+            calendarView.setDate(cal.getTimeInMillis());
+        });
+        yearRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        yearRecyclerView.setAdapter(yearAdapter);
+
+        // Initial setup
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(selectedYear, selectedMonth, selectedDay);
+        calendarView.setDate(calendar.getTimeInMillis());
+        updateDateHeader(selectedYear, selectedMonth, selectedYearView, selectedMonthView);
+
+        // Click listeners
+        selectedYearView.setOnClickListener(v -> {
+            calendarView.setVisibility(View.GONE);
+            yearRecyclerView.setVisibility(View.VISIBLE);
+        });
+
+        prevMonthButton.setOnClickListener(v -> {
+            calendar.add(Calendar.MONTH, -1);
+            calendarView.setDate(calendar.getTimeInMillis());
+            updateDateHeader(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), selectedYearView, selectedMonthView);
+        });
+
+        nextMonthButton.setOnClickListener(v -> {
+            calendar.add(Calendar.MONTH, 1);
+            calendarView.setDate(calendar.getTimeInMillis());
+            updateDateHeader(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), selectedYearView, selectedMonthView);
+        });
+
+        calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            selectedYear = year;
+            selectedMonth = month;
+            selectedDay = dayOfMonth;
+            updateDateHeader(year, month, selectedYearView, selectedMonthView);
+        });
+
+        saveButton.setOnClickListener(v -> {
+            String selectedDate = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
+            birthdayButton.setText(selectedDate);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
+    private void updateDateHeader(int year, int month, TextView yearView, TextView monthView) {
+        yearView.setText(String.valueOf(year));
+        SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MONTH, month);
+        monthView.setText(monthFormat.format(calendar.getTime()));
+    }
 
     private void loadUserData() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

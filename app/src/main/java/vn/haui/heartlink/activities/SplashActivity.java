@@ -11,6 +11,9 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import vn.haui.heartlink.R;
 
 public class SplashActivity extends AppCompatActivity {
@@ -19,7 +22,8 @@ public class SplashActivity extends AppCompatActivity {
 
     /**
      * Initializes the splash screen activity, sets up the logo animation,
-     * and navigates to WelcomeActivity after a delay.
+     * and navigates to WelcomeActivity or MainActivity after a delay based on
+     * the user's authentication state.
      *
      * @param savedInstanceState Bundle containing the activity's previously saved state
      */
@@ -35,8 +39,16 @@ public class SplashActivity extends AppCompatActivity {
         logo.startAnimation(flyIn);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Intent intent = new Intent(SplashActivity.this, WelcomeActivity.class);
-            startActivity(intent);
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                // User is signed in, navigate to MainActivity
+                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                startActivity(intent);
+            } else {
+                // No user is signed in, navigate to WelcomeActivity
+                Intent intent = new Intent(SplashActivity.this, WelcomeActivity.class);
+                startActivity(intent);
+            }
             finish();
         }, SPLASH_TIME_OUT);
     }

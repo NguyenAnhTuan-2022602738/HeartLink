@@ -1,7 +1,9 @@
 package vn.haui.heartlink.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
@@ -27,11 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import vn.haui.heartlink.R;
+import vn.haui.heartlink.models.User;
 import vn.haui.heartlink.utils.UserRepository;
 
-/**
- * Shows the user a friendly explanation before requesting location permission.
- */
 public class LocationPermissionActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<String> permissionLauncher;
@@ -39,13 +39,18 @@ public class LocationPermissionActivity extends AppCompatActivity {
     private Button allowButton;
     private Button manualButton;
     private boolean isEditMode = false;
+    private boolean locationSharingEnabled = false; // State for location sharing
 
-    /**
-     * Phương thức khởi tạo activity yêu cầu quyền truy cập vị trí.
-     * Thiết lập permission launcher, giao diện người dùng và FusedLocationProviderClient.
-     *
-     * @param savedInstanceState Trạng thái đã lưu của activity (có thể null)
-     */
+    private final ActivityResultLauncher<Intent> mapPickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    double latitude = result.getData().getDoubleExtra(MapPickerActivity.EXTRA_LATITUDE, 0);
+                    double longitude = result.getData().getDoubleExtra(MapPickerActivity.EXTRA_LONGITUDE, 0);
+                    persistLocation(latitude, longitude, true);
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,14 +61,29 @@ public class LocationPermissionActivity extends AppCompatActivity {
         setupPermissionLauncher();
         setupUi();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        loadUserLocationState();
     }
 
-    /**
-     * Phương thức thiết lập ActivityResultLauncher để request quyền truy cập vị trí.
-     * Xử lý kết quả khi permission được cấp hoặc từ chối.
-     */
+    private void loadUserLocationState() {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser == null) return;
+
+        setProcessing(true);
+        UserRepository.getInstance().getUserData(firebaseUser.getUid()).addOnSuccessListener(snapshot -> {
+            User user = snapshot.getValue(User.class);
+            locationSharingEnabled = user != null && user.getLocationVisible() != null && user.getLocationVisible();
+            updateUi();
+            setProcessing(false);
+        }).addOnFailureListener(e -> {
+            locationSharingEnabled = false;
+            updateUi();
+            setProcessing(false);
+        });
+    }
+
     private void setupPermissionLauncher() {
         permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            updateUi();
             if (isGranted) {
                 onPermissionGranted();
             } else {
@@ -72,10 +92,6 @@ public class LocationPermissionActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Phương thức thiết lập giao diện người dùng và các click listeners.
-     * Gán sự kiện cho các button skip, back, allow và manual input.
-     */
     private void setupUi() {
         View header = findViewById(R.id.header);
         ImageView backButton = header.findViewById(R.id.back_button);
@@ -90,35 +106,50 @@ public class LocationPermissionActivity extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
         } else {
             progressBar.setProgress(100);
+            skipButton.setOnClickListener(v -> navigateToNext());
         }
 
-        View.OnClickListener finishFlow = v -> navigateToNotification();
-
-        skipButton.setOnClickListener(finishFlow);
         backButton.setOnClickListener(v -> finish());
-
-        allowButton.setOnClickListener(v -> requestLocationPermission());
+        allowButton.setOnClickListener(v -> handleAllowButtonClick());
         manualButton.setOnClickListener(v -> onManualInputSelected());
     }
 
-    /**
-     * Phương thức request quyền truy cập vị trí từ người dùng.
-     * Sử dụng permission launcher để yêu cầu ACCESS_FINE_LOCATION.
-     */
+    private void updateUi() {
+        if (!hasLocationPermission()) {
+            allowButton.setText("Cho phép truy cập vị trí");
+        } else {
+            if (locationSharingEnabled) {
+                allowButton.setText("Tắt chia sẻ vị trí");
+            } else {
+                allowButton.setText("Bật chia sẻ vị trí");
+            }
+        }
+    }
+
+    private boolean hasLocationPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void handleAllowButtonClick() {
+        if (!hasLocationPermission()) {
+            requestLocationPermission();
+        } else {
+            if (locationSharingEnabled) {
+                persistLocation(null, null, false);
+            } else {
+                onPermissionGranted();
+            }
+        }
+    }
+
     private void requestLocationPermission() {
         if (permissionLauncher != null) {
             permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
         }
     }
 
-    /**
-     * Phương thức được gọi khi quyền truy cập vị trí được cấp.
-     * Bắt đầu lấy vị trí hiện tại với độ chính xác cao.
-     */
     private void onPermissionGranted() {
-        // Kiểm tra lại permission trước khi sử dụng location API
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+        if (!hasLocationPermission()) {
             Toast.makeText(this, R.string.location_permission_denied_message, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -130,23 +161,13 @@ public class LocationPermissionActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> fetchLastKnownLocation());
     }
 
-    /**
-     * Phương thức xử lý khi người dùng chọn nhập vị trí thủ công.
-     * Hiển thị thông báo placeholder và lưu vị trí null (tắt chia sẻ vị trí).
-     */
     private void onManualInputSelected() {
-        Toast.makeText(this, R.string.location_manual_entry_placeholder, Toast.LENGTH_SHORT).show();
-        persistLocation(null, null, false);
+        Intent intent = new Intent(this, MapPickerActivity.class);
+        mapPickerLauncher.launch(intent);
     }
 
-    /**
-     * Phương thức lấy vị trí cuối cùng đã biết từ FusedLocationProviderClient.
-     * Được gọi khi không thể lấy vị trí hiện tại.
-     */
     private void fetchLastKnownLocation() {
-        // Kiểm tra permission trước khi sử dụng location API
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+        if (!hasLocationPermission()) {
             setProcessing(false);
             Toast.makeText(this, R.string.location_permission_denied_message, Toast.LENGTH_SHORT).show();
             return;
@@ -160,12 +181,6 @@ public class LocationPermissionActivity extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Phương thức xử lý kết quả vị trí được trả về từ FusedLocationProviderClient.
-     * Nếu có vị trí thì lưu vào Firebase, nếu không thì hiển thị lỗi.
-     *
-     * @param location Đối tượng Location chứa thông tin vị trí (có thể null)
-     */
     private void handleLocationResult(Location location) {
         if (location != null) {
             persistLocation(location.getLatitude(), location.getLongitude(), true);
@@ -175,40 +190,39 @@ public class LocationPermissionActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Phương thức lưu thông tin vị trí vào Firebase database.
-     * Cập nhật latitude, longitude và locationVisible cho người dùng hiện tại.
-     *
-     * @param latitude Vĩ độ của vị trí (có thể null)
-     * @param longitude Kinh độ của vị trí (có thể null)
-     * @param visible Cờ cho biết có chia sẻ vị trí hay không
-     */
     private void persistLocation(Double latitude, Double longitude, boolean visible) {
         setProcessing(true);
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
-            navigateToNotification();
+            setProcessing(false);
             return;
         }
 
         Map<String, Object> updates = new HashMap<>();
-        if (latitude != null && longitude != null) {
-            updates.put("latitude", latitude);
-            updates.put("longitude", longitude);
-        } else {
-            updates.put("latitude", null);
-            updates.put("longitude", null);
-        }
+        updates.put("latitude", latitude);
+        updates.put("longitude", longitude);
         updates.put("locationVisible", visible);
 
         UserRepository.getInstance().updateUser(currentUser.getUid(), updates, new UserRepository.OnCompleteListener() {
             @Override
             public void onSuccess() {
-        if (visible) {
-            Toast.makeText(LocationPermissionActivity.this,
-                R.string.location_permission_granted_message, Toast.LENGTH_SHORT).show();
-        }
-        navigateToNotification();
+                locationSharingEnabled = visible;
+                setResult(Activity.RESULT_OK);
+
+                if (visible) {
+                    Toast.makeText(LocationPermissionActivity.this,
+                            R.string.location_permission_granted_message, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(LocationPermissionActivity.this,
+                            "Đã tắt chia sẻ vị trí", Toast.LENGTH_SHORT).show();
+                }
+
+                if (isEditMode) {
+                    updateUi();
+                    setProcessing(false);
+                } else {
+                    navigateToNext();
+                }
             }
 
             @Override
@@ -217,33 +231,19 @@ public class LocationPermissionActivity extends AppCompatActivity {
                 Toast.makeText(LocationPermissionActivity.this,
                         getString(R.string.location_save_error, e.getMessage()),
                         Toast.LENGTH_SHORT).show();
+                updateUi();
             }
         });
     }
 
-    /**
-     * Phương thức thiết lập trạng thái processing của giao diện.
-     * Vô hiệu hóa và làm mờ các button khi đang xử lý,
-     * kích hoạt lại khi hoàn thành.
-     *
-     * @param processing true nếu đang xử lý, false nếu đã hoàn thành
-     */
     private void setProcessing(boolean processing) {
-        if (allowButton != null) {
-            allowButton.setEnabled(!processing);
-            allowButton.setAlpha(processing ? 0.5f : 1f);
-        }
-        if (manualButton != null) {
-            manualButton.setEnabled(!processing);
-            manualButton.setAlpha(processing ? 0.5f : 1f);
-        }
+        allowButton.setEnabled(!processing);
+        allowButton.setAlpha(processing ? 0.5f : 1f);
+        manualButton.setEnabled(!processing);
+        manualButton.setAlpha(processing ? 0.5f : 1f);
     }
 
-    /**
-     * Phương thức điều hướng đến NotificationPermissionActivity.
-     * Tạo Intent với flags để clear task stack và bắt đầu activity mới.
-     */
-    private void navigateToNotification() {
+    private void navigateToNext() {
         Intent intent = new Intent(this, NotificationPermissionActivity.class);
         startActivity(intent);
         finish();

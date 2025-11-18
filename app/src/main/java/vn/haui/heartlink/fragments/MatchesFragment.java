@@ -107,12 +107,7 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
     }
 
     private void setupClicks(View view) {
-        ImageButton backButton = view.findViewById(R.id.matches_back_button);
         ImageButton filterButton = view.findViewById(R.id.matches_filter_button);
-
-        // The back button is part of the old Activity layout, hide it in the Fragment
-        backButton.setVisibility(View.GONE);
-
         filterButton.setOnClickListener(v -> Toast.makeText(getContext(), R.string.matches_action_coming_soon, Toast.LENGTH_SHORT).show());
     }
 

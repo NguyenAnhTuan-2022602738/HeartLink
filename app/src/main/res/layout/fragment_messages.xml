@@ -12,10 +12,10 @@
         android:id="@+id/messages_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:text="@string/messages_title"
         android:textColor="@color/home_title"
-        android:textSize="34sp"
+        android:textSize="24dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -62,7 +62,7 @@
                 android:layout_height="20dp"
                 android:contentDescription="@string/messages_search_content_description"
                 android:src="@drawable/ic_search"
-                android:tint="@color/home_subtitle"
+                app:tint="@color/home_subtitle"
                 tools:ignore="VectorPath" />
 
             <EditText
@@ -154,7 +154,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="32dp"
         android:gravity="center"
-        android.text="@string/messages_empty_state"
+        android:text="@string/messages_empty_state"
         android:textAlignment="center"
         android:textColor="@color/home_subtitle"
         android:textSize="16sp"

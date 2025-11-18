@@ -94,6 +94,10 @@ public class DiscoveryFragment extends Fragment {
     private String currentLocationLabel;
     private NavigationListener navigationListener;
 
+    public void forceRefresh() {
+        loadCurrentUser();
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);

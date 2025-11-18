@@ -1,11 +1,14 @@
 package vn.haui.heartlink.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -32,17 +35,30 @@ import vn.haui.heartlink.fragments.MessagesFragment;
 import vn.haui.heartlink.fragments.NavigationListener;
 import vn.haui.heartlink.fragments.ProfileFragment;
 
-public class MainActivity extends AppCompatActivity implements NavigationListener {
+public class MainActivity extends AppCompatActivity implements NavigationListener, ProfileFragment.ProfileInteractionListener {
 
     private View discoverTab, matchesTab, messagesTab, profileTab;
     private ImageView discoverIndicator, matchesIndicator, messagesIndicator, profileIndicator;
 
-    private final Fragment discoveryFragment = new DiscoveryFragment();
+    private final DiscoveryFragment discoveryFragment = new DiscoveryFragment(); // Changed to specific type
     private final Fragment matchesFragment = new MatchesFragment();
     private final Fragment messagesFragment = new MessagesFragment();
-    private final Fragment profileFragment = new ProfileFragment();
+    private final ProfileFragment profileFragment = new ProfileFragment(); // Changed to specific type
     private final FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment = discoveryFragment;
+
+    private final ActivityResultLauncher<Intent> locationPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    // First, switch to the profile tab
+                    selectTab(profileTab);
+                    // Then, refresh the profile
+                    profileFragment.refreshProfile();
+                    // Also refresh the discovery fragment
+                    discoveryFragment.forceRefresh();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +171,13 @@ public class MainActivity extends AppCompatActivity implements NavigationListene
         if ("PROFILE".equals(tabName)) {
             selectTab(profileTab);
         }
+    }
+
+    @Override
+    public void onLaunchLocationPermission() {
+        Intent intent = new Intent(this, LocationPermissionActivity.class);
+        intent.putExtra("IS_EDIT_MODE", true);
+        locationPermissionLauncher.launch(intent);
     }
 
     private void setupPresenceHandling() {

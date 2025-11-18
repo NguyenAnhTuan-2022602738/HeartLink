@@ -62,7 +62,9 @@
         <activity
             android:name=".activities.LocationPermissionActivity"
             android:exported="false"/>
-
+        <activity
+            android:name=".activities.MapPickerActivity"
+            android:exported="false"/>
         <activity
             android:name=".activities.NotificationPermissionActivity"
             android:exported="false"/>
@@ -74,7 +76,7 @@
         <activity
             android:name=".activities.ProfileDetailActivity"
             android:exported="false"/>
-
+        
     </application>
 
 </manifest>

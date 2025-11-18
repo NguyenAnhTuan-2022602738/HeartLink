@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation("androidx.multidex:multidex:2.0.1") // Add Multi-Dex library
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
     implementation("com.github.yuyakaido:CardStackView:v2.3.4")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
@@ -69,6 +70,7 @@ dependencies {
 
     // Splash Screen
     implementation("androidx.core:core-splashscreen:1.2.0")
+    implementation("androidx.preference:preference:1.2.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
