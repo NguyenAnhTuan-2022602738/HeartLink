@@ -32,18 +32,17 @@ import vn.haui.heartlink.R;
 import vn.haui.heartlink.fragments.DiscoveryFragment;
 import vn.haui.heartlink.fragments.MatchesFragment;
 import vn.haui.heartlink.fragments.MessagesFragment;
-import vn.haui.heartlink.fragments.NavigationListener;
 import vn.haui.heartlink.fragments.ProfileFragment;
 
-public class MainActivity extends AppCompatActivity implements NavigationListener, ProfileFragment.ProfileInteractionListener {
+public class MainActivity extends AppCompatActivity implements DiscoveryFragment.NavigationListener, ProfileFragment.ProfileInteractionListener {
 
     private View discoverTab, matchesTab, messagesTab, profileTab;
     private ImageView discoverIndicator, matchesIndicator, messagesIndicator, profileIndicator;
 
-    private final DiscoveryFragment discoveryFragment = new DiscoveryFragment(); // Changed to specific type
+    private final DiscoveryFragment discoveryFragment = new DiscoveryFragment();
     private final Fragment matchesFragment = new MatchesFragment();
     private final Fragment messagesFragment = new MessagesFragment();
-    private final ProfileFragment profileFragment = new ProfileFragment(); // Changed to specific type
+    private final ProfileFragment profileFragment = new ProfileFragment();
     private final FragmentManager fm = getSupportFragmentManager();
     private Fragment activeFragment = discoveryFragment;
 
@@ -51,11 +50,8 @@ public class MainActivity extends AppCompatActivity implements NavigationListene
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    // First, switch to the profile tab
                     selectTab(profileTab);
-                    // Then, refresh the profile
                     profileFragment.refreshProfile();
-                    // Also refresh the discovery fragment
                     discoveryFragment.forceRefresh();
                 }
             });
@@ -127,11 +123,10 @@ public class MainActivity extends AppCompatActivity implements NavigationListene
         fm.beginTransaction().add(R.id.fragment_container, matchesFragment, "2").hide(matchesFragment).commit();
         fm.beginTransaction().add(R.id.fragment_container, discoveryFragment, "1").commit();
 
-        selectTab(discoverTab); // Set initial tab
+        selectTab(discoverTab);
     }
 
     public void selectTab(View tab) {
-        // Deselect all tabs visually
         discoverTab.setSelected(false);
         matchesTab.setSelected(false);
         messagesTab.setSelected(false);
@@ -142,10 +137,8 @@ public class MainActivity extends AppCompatActivity implements NavigationListene
         messagesIndicator.setVisibility(View.INVISIBLE);
         profileIndicator.setVisibility(View.INVISIBLE);
 
-        // Select the clicked tab visually
         tab.setSelected(true);
 
-        // Switch fragments
         FragmentTransaction transaction = fm.beginTransaction();
         if (tab.getId() == R.id.home_nav_discover) {
             discoverIndicator.setVisibility(View.VISIBLE);
@@ -167,23 +160,25 @@ public class MainActivity extends AppCompatActivity implements NavigationListene
     }
 
     @Override
-    public void navigateToTab(String tabName) {
-        if ("PROFILE".equals(tabName)) {
-            selectTab(profileTab);
-        }
-    }
-
-    @Override
     public void onLaunchLocationPermission() {
         Intent intent = new Intent(this, LocationPermissionActivity.class);
         intent.putExtra("IS_EDIT_MODE", true);
         locationPermissionLauncher.launch(intent);
     }
 
+    @Override
+    public void onNavigateToMatches() {
+        selectTab(matchesTab);
+    }
+
+    @Override
+    public void onNavigateToMessages() {
+        selectTab(messagesTab);
+    }
+
     private void setupPresenceHandling() {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
-            // Handle user not logged in, maybe redirect to LoginActivity
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
@@ -202,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements NavigationListene
                     userStatusRef.child("online").onDisconnect().setValue(false);
                     userStatusRef.child("lastSeen").onDisconnect().setValue(ServerValue.TIMESTAMP);
                 } else {
-                    // This part is handled by onDisconnect()
+                    // Handled by onDisconnect()
                 }
             }
 

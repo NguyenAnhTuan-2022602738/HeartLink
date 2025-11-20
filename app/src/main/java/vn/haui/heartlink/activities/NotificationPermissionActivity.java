@@ -2,8 +2,10 @@ package vn.haui.heartlink.activities;
 
 import android.Manifest;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -52,13 +54,20 @@ public class NotificationPermissionActivity extends AppCompatActivity {
         setupUi();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateButtonState();
+    }
+
     /**
      * Phương thức thiết lập ActivityResultLauncher để request quyền thông báo.
      */
     private void setupPermissionLauncher() {
         notificationPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(), isGranted -> {
-                    if (isGranted || isNotificationsEnabled()) {
+                    updateButtonState(); // Cập nhật trạng thái nút sau khi có kết quả
+                    if (isGranted) {
                         onPermissionGranted();
                     } else {
                         onPermissionDenied();
@@ -85,11 +94,28 @@ public class NotificationPermissionActivity extends AppCompatActivity {
         }
 
         skipButton.setOnClickListener(v -> {
-            updateNotificationPreference(false);
+            updateNotificationPreference(false, true);
         });
         backButton.setOnClickListener(v -> finish());
 
-        allowButton.setOnClickListener(v -> requestNotificationPermission());
+        allowButton.setOnClickListener(v -> {
+            if (isNotificationsEnabled()) {
+                // Mở cài đặt thông báo của ứng dụng
+                Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                startActivity(intent);
+            } else {
+                requestNotificationPermission();
+            }
+        });
+    }
+
+    private void updateButtonState() {
+        if (isNotificationsEnabled()) {
+            allowButton.setText("Tắt thông báo");
+        } else {
+            allowButton.setText("Bật thông báo");
+        }
     }
 
     /**
@@ -99,11 +125,11 @@ public class NotificationPermissionActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (hasNotificationPermission()) {
                 onPermissionGranted();
-            }
-            else {
+            } else {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         } else {
+            // Đối với các phiên bản Android cũ hơn, quyền được coi là đã cấp
             onPermissionGranted();
         }
     }
@@ -113,8 +139,11 @@ public class NotificationPermissionActivity extends AppCompatActivity {
      * Cập nhật preference và điều hướng đến MainActivity.
      */
     private void onPermissionGranted() {
-        updateNotificationPreference(true);
+        updateNotificationPreference(true, !isEditMode);
         Toast.makeText(this, R.string.notification_permission_granted, Toast.LENGTH_SHORT).show();
+        if (isEditMode) {
+            finish();
+        }
     }
 
     /**
@@ -122,8 +151,11 @@ public class NotificationPermissionActivity extends AppCompatActivity {
      * Vẫn cập nhật preference và điều hướng đến MainActivity.
      */
     private void onPermissionDenied() {
-        updateNotificationPreference(false);
+        updateNotificationPreference(false, !isEditMode);
         Toast.makeText(this, R.string.notification_permission_denied, Toast.LENGTH_SHORT).show();
+        if (isEditMode) {
+            finish();
+        }
     }
 
     private boolean isNotificationsEnabled() {
@@ -131,23 +163,27 @@ public class NotificationPermissionActivity extends AppCompatActivity {
     }
 
     private boolean hasNotificationPermission() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                == android.content.pm.PackageManager.PERMISSION_GRANTED;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    == android.content.pm.PackageManager.PERMISSION_GRANTED;
+        }
+        return true; // Đối với API < 33, quyền được coi là đã cấp
     }
 
     /**
      * Phương thức cập nhật preference thông báo trong Firebase.
      *
-     * @param enabled true nếu bật thông báo, false nếu tắt
+     * @param enabled      true nếu bật thông báo, false nếu tắt
+     * @param navigateNext true nếu cần điều hướng đến màn hình tiếp theo
      */
-    private void updateNotificationPreference(boolean enabled) {
+    private void updateNotificationPreference(boolean enabled, boolean navigateNext) {
         allowButton.setEnabled(false);
         allowButton.setAlpha(0.5f);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
-            navigateToMain();
+            if (navigateNext) navigateToMain();
+            else finish();
             return;
         }
 
@@ -157,7 +193,12 @@ public class NotificationPermissionActivity extends AppCompatActivity {
         UserRepository.getInstance().updateUser(currentUser.getUid(), updates, new UserRepository.OnCompleteListener() {
             @Override
             public void onSuccess() {
-                navigateToMain();
+                if (navigateNext) navigateToMain();
+                else {
+                    allowButton.setEnabled(true);
+                    allowButton.setAlpha(1f);
+                    if (isEditMode) finish();
+                }
             }
 
             @Override

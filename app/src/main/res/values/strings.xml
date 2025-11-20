@@ -37,7 +37,6 @@
     <string name="location_permission_manual">Nhập thủ công</string>
     <string name="location_permission_granted_message">Đã bật quyền vị trí!</string>
     <string name="location_permission_denied_message">Quyền vị trí chưa được cấp. Bạn có thể nhập thủ công.</string>
-    <string name="location_manual_entry_placeholder">Chức năng nhập thủ công sẽ sớm có mặt.</string>
     <string name="location_permission_illustration_desc">Minh họa quyền truy cập vị trí</string>
     <string name="location_fetch_error">Không thể lấy vị trí hiện tại. Vui lòng thử lại hoặc nhập thủ công.</string>
     <string name="location_save_error">Không thể lưu vị trí: %1$s</string>
@@ -65,8 +64,7 @@
     <string name="home_filter_content_description">Bộ lọc kết đôi</string>
     <string name="home_back_content_description">Quay lại</string>
     <string name="home_location_placeholder">Đang cập nhật vị trí…</string>
-    <string name="home_empty_state">Hiện chưa có gợi ý phù hợp.
-Hãy thử cập nhật bộ lọc hoặc quay lại sau nhé!</string>
+    <string name="home_empty_state">Hiện chưa có gợi ý phù hợp.\nHãy thử cập nhật bộ lọc hoặc quay lại sau nhé!</string>
     <string name="error_generic">Có lỗi xảy ra. Vui lòng thử lại.</string>
 
     <!-- Match Success Screen -->
@@ -97,6 +95,7 @@ Hãy thử cập nhật bộ lọc hoặc quay lại sau nhé!</string>
     <string name="matches_action_like_back">Thích lại</string>
     <string name="matches_action_skip">Bỏ qua</string>
     <string name="matches_action_message">Nhắn tin</string>
+    <string name="matches_action_unlike">Hủy thích</string>
     <string name="matches_action_coming_soon">Tính năng sẽ sớm có mặt!</string>
     <string name="matches_status_matched">Đã ghép đôi</string>
     <string name="matches_status_liked_you">Đã thích bạn</string>
@@ -210,6 +209,7 @@ Hãy thử cập nhật bộ lọc hoặc quay lại sau nhé!</string>
     <string name="action_apply">Áp dụng</string>
 
     <!-- Notifications -->
+    <string name="notification_new_message_channel_name">Tin nhắn mới</string>
     <string name="notification_incoming_like_channel_name">Lượt thích mới</string>
     <string name="notification_incoming_like_channel_description">Thông báo khi có người thích bạn</string>
     <string name="notification_incoming_like_title">Có người thích bạn!</string>

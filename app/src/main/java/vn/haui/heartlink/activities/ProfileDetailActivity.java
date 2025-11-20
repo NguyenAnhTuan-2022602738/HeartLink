@@ -40,6 +40,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -59,19 +61,16 @@ import vn.haui.heartlink.models.User;
 import vn.haui.heartlink.utils.MatchRepository;
 import vn.haui.heartlink.utils.UserRepository;
 
-/**
- * Displays a detailed view of a matched user's profile information.
- */
 public class ProfileDetailActivity extends AppCompatActivity {
 
     private static final String EXTRA_USER_ID = "extra_user_id";
     private static final String EXTRA_DISPLAY_NAME = "extra_display_name";
     private static final String EXTRA_PHOTO_URL = "extra_photo_url";
-    private static final String EXTRA_INTERACTION_STATUS = "extra_interaction_status";
 
     private static final int BIO_COLLAPSED_LINES = 4;
 
     private final UserRepository userRepository = UserRepository.getInstance();
+    private final MatchRepository matchRepository = MatchRepository.getInstance();
     private final ExecutorService geocoderExecutor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -94,7 +93,8 @@ public class ProfileDetailActivity extends AppCompatActivity {
     private ProfilePhotoAdapter photoAdapter;
 
     private String partnerUid;
-    private String interactionStatus;
+    private String currentUid;
+    private ValueEventListener interactionListener;
     private boolean isBioExpanded = false;
 
     public static Intent createIntent(@NonNull Context context,
@@ -112,25 +112,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
         return intent;
     }
 
-     public static Intent createIntent(@NonNull Context context,
-                                      @NonNull String partnerUid,
-                                      @Nullable String fallbackName,
-                                      @Nullable String fallbackPhotoUrl,
-                                      @Nullable String interactionStatus) {
-        Intent intent = createIntent(context, partnerUid, fallbackName, fallbackPhotoUrl);
-        if (!TextUtils.isEmpty(interactionStatus)) {
-            intent.putExtra(EXTRA_INTERACTION_STATUS, interactionStatus);
-        }
-        return intent;
-    }
-
-
-    /**
-     * Phương thức khởi tạo activity hiển thị chi tiết profile.
-     * Thiết lập giao diện và tải thông tin profile của partner.
-     *
-     * @param savedInstanceState Trạng thái đã lưu của activity (có thể null)
-     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,27 +127,23 @@ public class ProfileDetailActivity extends AppCompatActivity {
 
         bindViews();
         setupRecycler();
-        setupActions();
         hydrateFromIntent();
         if (isFinishing()) {
             return;
         }
+        setupActions();
         loadPartnerProfile();
     }
 
-    /**
-     * Phương thức được gọi khi activity bị hủy.
-     * Dọn dẹp các tài nguyên và hủy các tác vụ đang chạy.
-     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
         geocoderExecutor.shutdownNow();
+        if (currentUid != null && partnerUid != null && interactionListener != null) {
+            matchRepository.removeInteractionsListener(currentUid, interactionListener);
+        }
     }
 
-    /**
-     * Phương thức bind các view từ layout vào các biến thành viên.
-     */
     private void bindViews() {
         headerImageView = findViewById(R.id.profileHeaderImage);
         nameView = findViewById(R.id.profileName);
@@ -185,9 +162,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
         loadingView = findViewById(R.id.profileLoading);
     }
 
-    /**
-     * Phương thức thiết lập RecyclerView cho danh sách ảnh.
-     */
     private void setupRecycler() {
         photoAdapter = new ProfilePhotoAdapter();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
@@ -195,34 +169,100 @@ public class ProfileDetailActivity extends AppCompatActivity {
         photosRecycler.setAdapter(photoAdapter);
     }
 
-    /**
-     * Phương thức thiết lập các click listeners cho các action buttons.
-     */
     private void setupActions() {
         ImageButton backButton = findViewById(R.id.profileBackButton);
         backButton.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
+        photosViewAll.setOnClickListener(v -> Toast.makeText(this, R.string.matches_action_coming_soon, Toast.LENGTH_SHORT).show());
+        bioToggleView.setOnClickListener(v -> toggleBioExpand());
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            primaryActions.setVisibility(View.GONE);
+            return;
+        }
+        currentUid = currentUser.getUid();
+
+        interactionListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // We listen to the whole interaction node for the user now, so find the specific partner
+                DataSnapshot partnerInteraction = snapshot.child(partnerUid);
+                String status = partnerInteraction.child("status").getValue(String.class);
+                updateActionButtons(status);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle error
+            }
+        };
+        matchRepository.addInteractionsListener(currentUid, interactionListener);
+    }
+
+    private void updateActionButtons(@Nullable String status) {
         FrameLayout dislikeButton = findViewById(R.id.profileDislikeButton);
         FrameLayout likeButton = findViewById(R.id.profileLikeButton);
         FrameLayout superLikeButton = findViewById(R.id.profileSuperLikeButton);
 
-        View.OnClickListener comingSoonListener = v ->
-                Toast.makeText(this, R.string.matches_action_coming_soon, Toast.LENGTH_SHORT).show();
-        dislikeButton.setOnClickListener(comingSoonListener);
-        likeButton.setOnClickListener(comingSoonListener);
-        superLikeButton.setOnClickListener(comingSoonListener);
+        // Reset to default state first
+        likeButton.setAlpha(1.0f);
+        likeButton.setOnClickListener(v -> performLike(false));
 
-        photosViewAll.setOnClickListener(comingSoonListener);
-        bioToggleView.setOnClickListener(v -> toggleBioExpand());
+        if (MatchRepository.STATUS_LIKED.equals(status)) {
+            likeButton.setAlpha(0.5f); // Visually indicate it's liked
+            likeButton.setOnClickListener(v -> performUnlike());
+        } else if (MatchRepository.STATUS_MATCHED.equals(status)) {
+            // Handle matched state if needed (e.g., show a message button)
+            likeButton.setAlpha(0.5f);
+            likeButton.setOnClickListener(null); // Or open chat
+        }
+
+        // You can add more logic for dislike and superlike here if you want
+        dislikeButton.setOnClickListener(v -> Toast.makeText(this, "Dislike coming soon", Toast.LENGTH_SHORT).show());
+        superLikeButton.setOnClickListener(v -> performLike(true));
     }
 
-    /**
-     * Phương thức lấy dữ liệu từ Intent để hydrate activity.
-     */
+    private void performLike(boolean isSuperLike) {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser == null || partnerUid == null) return;
+
+        userRepository.getUserData(firebaseUser.getUid()).addOnSuccessListener(mySnapshot -> {
+            User me = mySnapshot.getValue(User.class);
+            userRepository.getUserData(partnerUid).addOnSuccessListener(partnerSnapshot -> {
+                User partner = partnerSnapshot.getValue(User.class);
+                if (me != null && partner != null) {
+                    matchRepository.likeUser(me, partner, isSuperLike, new MatchRepository.MatchResultCallback() {
+                        @Override
+                        public void onLikeRecorded() {
+                            Snackbar.make(rootView, isSuperLike ? R.string.match_superlike_sent : R.string.match_like_sent, Snackbar.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onMatchCreated() {
+                            // Handle match success UI
+                        }
+
+                        @Override
+                        public void onError(@NonNull Exception throwable) {
+                            showError(throwable.getMessage());
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    private void performUnlike() {
+        if (currentUid == null || partnerUid == null) return;
+        matchRepository.removeInteraction(currentUid, partnerUid)
+                .addOnSuccessListener(aVoid -> Snackbar.make(rootView, R.string.matches_action_unlike, Snackbar.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> showError(e.getMessage()));
+    }
+
     private void hydrateFromIntent() {
         Intent intent = getIntent();
         partnerUid = intent.getStringExtra(EXTRA_USER_ID);
-        interactionStatus = intent.getStringExtra(EXTRA_INTERACTION_STATUS);
 
         if (TextUtils.isEmpty(partnerUid)) {
             Toast.makeText(this, R.string.error_generic, Toast.LENGTH_SHORT).show();
@@ -248,9 +288,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
         bioView.setMaxLines(BIO_COLLAPSED_LINES);
     }
 
-    /**
-     * Phương thức tải thông tin profile của partner từ Firebase.
-     */
     private void loadPartnerProfile() {
         showContent(false, false);
         Task<DataSnapshot> partnerTask = userRepository.getUserData(partnerUid);
@@ -271,26 +308,15 @@ public class ProfileDetailActivity extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Phương thức bind thông tin partner vào giao diện.
-     *
-     * @param partner Đối tượng User chứa thông tin partner
-     */
     private void bindPartner(@NonNull User partner) {
         nameView.setText(buildDisplayName(partner));
         bindPrimaryPhoto(partner);
         bindBio(partner);
         bindInterests(partner);
         resolveLocation(partner);
-        boolean showActions = MatchRepository.STATUS_RECEIVED_LIKE.equals(interactionStatus);
-        showContent(true, showActions);
+        showContent(true, true);
     }
 
-    /**
-     * Phương thức bind ảnh chính của partner.
-     *
-     * @param partner Đối tượng User chứa thông tin partner
-     */
     private void bindPrimaryPhoto(@NonNull User partner) {
         List<String> photos = partner.getPhotoUrls();
         if (photos != null && !photos.isEmpty()) {
@@ -305,11 +331,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Phương thức bind thông tin bio của partner.
-     *
-     * @param partner Đối tượng User chứa thông tin partner
-     */
     private void bindBio(@NonNull User partner) {
         String bio = partner.getBio();
         if (TextUtils.isEmpty(bio)) {
@@ -331,11 +352,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Phương thức bind danh sách sở thích của partner.
-     *
-     * @param partner Đối tượng User chứa thông tin partner
-     */
     private void bindInterests(@NonNull User partner) {
         List<String> interests = partner.getInterests();
         interestsGroup.removeAllViews();
@@ -380,11 +396,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Phương thức resolve vị trí của partner thành địa chỉ có thể đọc được.
-     *
-     * @param partner Đối tượng User chứa thông tin partner
-     */
     private void resolveLocation(@NonNull User partner) {
         Double lat = partner.getLatitude();
         Double lng = partner.getLongitude();
@@ -427,20 +438,10 @@ public class ProfileDetailActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Phương thức cập nhật text hiển thị vị trí.
-     *
-     * @param locationText Text mô tả vị trí
-     */
     private void postLocation(@NonNull String locationText) {
         mainHandler.post(() -> locationView.setText(locationText));
     }
 
-    /**
-     * Phương thức tải thông tin user hiện tại để tính khoảng cách.
-     *
-     * @param partner Đối tượng User chứa thông tin partner
-     */
     private void fetchCurrentUserForDistance(@NonNull User partner) {
         FirebaseUser current = FirebaseAuth.getInstance().getCurrentUser();
         if (current == null) {
@@ -460,12 +461,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
                 .addOnFailureListener(throwable -> distanceView.setVisibility(View.GONE));
     }
 
-    /**
-     * Phương thức cập nhật hiển thị khoảng cách giữa user hiện tại và partner.
-     *
-     * @param partner Đối tượng User chứa thông tin partner
-     * @param me Đối tượng User chứa thông tin user hiện tại
-     */
     private void updateDistanceForDisplay(@NonNull User partner, @NonNull User me) {
         Double baseLat = me.getLatitude();
         Double baseLng = me.getLongitude();
@@ -485,9 +480,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
         distanceView.setText(formatDistance(distanceKm));
     }
 
-    /**
-     * Phương thức toggle trạng thái mở rộng của bio text.
-     */
     private void toggleBioExpand() {
         if (bioToggleView.getVisibility() != View.VISIBLE) {
             return;
@@ -498,11 +490,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
         bioToggleView.setText(isBioExpanded ? R.string.profile_read_less : R.string.profile_read_more);
     }
 
-    /**
-     * Phương thức tải và hiển thị ảnh profile từ URL.
-     *
-     * @param url URL của ảnh profile
-     */
     private void loadProfileImage(@NonNull String url) {
         Glide.with(this)
                 .load(url)
@@ -511,11 +498,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
                 .into(headerImageView);
     }
 
-    /**
-     * Phương thức hiển thị hoặc ẩn nội dung chính của activity.
-     *
-     * @param show true để hiển thị, false để ẩn
-     */
     private void showContent(boolean show, boolean showActions) {
         if (show) {
             loadingView.setVisibility(View.GONE);
@@ -530,11 +512,6 @@ public class ProfileDetailActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Phương thức hiển thị thông báo lỗi cho người dùng.
-     *
-     * @param message Thông báo lỗi (có thể null)
-     */
     private void showError(@Nullable String message) {
         if (TextUtils.isEmpty(message)) {
             message = getString(R.string.error_generic);

@@ -12,6 +12,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,9 +24,6 @@ import vn.haui.heartlink.models.Match;
 import vn.haui.heartlink.models.User;
 import vn.haui.heartlink.utils.ChatRepository;
 
-/**
- * Handles match- and like-related operations against Firebase Realtime Database.
- */
 public final class MatchRepository {
 
     private static final String TAG = "MatchRepository";
@@ -50,9 +48,6 @@ public final class MatchRepository {
         chatRepository = ChatRepository.getInstance();
     }
 
-    /**
-     * Singleton accessor to reuse the same repository instance.
-     */
     public static synchronized MatchRepository getInstance() {
         if (instance == null) {
             instance = new MatchRepository();
@@ -60,14 +55,6 @@ public final class MatchRepository {
         return instance;
     }
 
-    /**
-     * Record a like (or super like) and detect whether it creates a mutual match.
-     *
-     * @param currentUser the user performing the like
-     * @param targetUser  the user being liked
-     * @param isSuperLike true when this was triggered by a super like action
-     * @param callback    callback receiving the outcome
-     */
     public void likeUser(@Nullable User currentUser,
                          @Nullable User targetUser,
                          boolean isSuperLike,
@@ -84,7 +71,7 @@ public final class MatchRepository {
         final String currentUid = currentUser.getUid();
         final String targetUid = targetUser.getUid();
 
-    DatabaseReference targetMatchesRef = matchInteractionsRef.child(targetUid).child(currentUid);
+        DatabaseReference targetMatchesRef = matchInteractionsRef.child(targetUid).child(currentUid);
         targetMatchesRef.get()
                 .addOnSuccessListener(snapshot -> handleLikeSnapshot(
                         snapshot,
@@ -99,9 +86,6 @@ public final class MatchRepository {
                 });
     }
 
-    /**
-     * Xử lý snapshot từ Firebase khi check like, quyết định tạo match hay chỉ ghi like.
-     */
     private void handleLikeSnapshot(@NonNull DataSnapshot targetSnapshot,
                                      @NonNull User currentUser,
                                      @NonNull User targetUser,
@@ -234,33 +218,18 @@ public final class MatchRepository {
         return sortedUid1 + "_" + sortedUid2;
     }
 
-    /**
-     * Lấy snapshot của tất cả interactions (likes, matches) của một user.
-     *
-     * @param userId ID của user cần lấy interactions
-     * @return Task chứa DataSnapshot của interactions
-     */
-    public Task<DataSnapshot> getInteractionsSnapshot(@NonNull String userId) {
-        return matchInteractionsRef.child(userId).get();
+    public void addInteractionsListener(@NonNull String userId, @NonNull ValueEventListener listener) {
+        matchInteractionsRef.child(userId).addValueEventListener(listener);
     }
 
-    /**
-     * Xóa một interaction giữa hai users.
-     *
-     * @param ownerUid ID của user sở hữu interaction
-     * @param otherUid ID của user kia
-     * @return Task<Void> hoàn thành khi xóa thành công
-     */
+    public void removeInteractionsListener(@NonNull String userId, @NonNull ValueEventListener listener) {
+        matchInteractionsRef.child(userId).removeEventListener(listener);
+    }
+
     public Task<Void> removeInteraction(@NonNull String ownerUid, @NonNull String otherUid) {
         return matchInteractionsRef.child(ownerUid).child(otherUid).removeValue();
     }
 
-    /**
-     * Lấy danh sách tất cả matches mà user tham gia.
-     *
-     * @param userId ID của user cần lấy matches
-     * @return Task chứa List<Match>
-     */
     public Task<List<Match>> getMatchesForUser(@NonNull String userId) {
         return matchesRef.get().continueWith(task -> {
             if (!task.isSuccessful()) {
@@ -290,13 +259,6 @@ public final class MatchRepository {
         });
     }
 
-    /**
-     * Lắng nghe các incoming likes realtime cho một user.
-     *
-     * @param userId ID của user cần lắng nghe
-     * @param listener Callback khi có like mới
-     * @return ChildEventListener để remove sau này
-     */
     public ChildEventListener listenForIncomingLikes(@NonNull String userId,
                                                      @NonNull IncomingLikeListener listener) {
         ChildEventListener childEventListener = new ChildEventListener() {
@@ -312,17 +274,14 @@ public final class MatchRepository {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                // no-op
             }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                // no-op
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // no-op
             }
         };
 
@@ -330,20 +289,11 @@ public final class MatchRepository {
         return childEventListener;
     }
 
-    /**
-     * Ngừng lắng nghe incoming likes cho một user.
-     *
-     * @param userId ID của user
-     * @param listener ChildEventListener cần remove
-     */
     public void removeIncomingLikeListener(@NonNull String userId,
                                             @NonNull ChildEventListener listener) {
         matchInteractionsRef.child(userId).removeEventListener(listener);
     }
 
-    /**
-     * Phát ra event incoming like nếu snapshot có status phù hợp.
-     */
     private void emitIfIncomingLike(@NonNull DataSnapshot snapshot,
                                     @NonNull IncomingLikeListener listener) {
         String status = snapshot.child("status").getValue(String.class);
@@ -377,12 +327,6 @@ public final class MatchRepository {
         return null;
     }
 
-    /**
-     * Kiểm tra xem type có phải là super like không.
-     *
-     * @param type Loại like (like/superlike)
-     * @return true nếu là super like
-     */
     public static boolean isSuperLike(@Nullable String type) {
         return TYPE_SUPERLIKE.equals(type);
     }
@@ -438,9 +382,6 @@ public final class MatchRepository {
         }
     }
 
-    /**
-     * Callback describing the outcome of a like/match operation.
-     */
     public interface MatchResultCallback {
         default void onLikeRecorded() {
         }

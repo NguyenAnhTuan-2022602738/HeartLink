@@ -10,6 +10,7 @@
     <color name="colorBackground">#FFEAED</color>
     <color name="textColorPrimary">#333333</color>
     <color name="textColorSecondary">#888888</color>
+    <color name="colorError">#B00020</color>
 
     <!-- Welcome Screen -->
     <color name="welcome_background">#E94057</color>

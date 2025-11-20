@@ -379,7 +379,7 @@ public class ChatBottomSheetFragment extends BottomSheetDialogFragment {
         if (getContext() == null || TextUtils.isEmpty(partnerId)) {
             return;
         }
-        Intent intent = ProfileDetailActivity.createIntent(getContext(), partnerId, partnerName, partnerPhotoUrl, MatchRepository.STATUS_MATCHED);
+        Intent intent = ProfileDetailActivity.createIntent(getContext(), partnerId, partnerName, partnerPhotoUrl);
         startActivity(intent);
     }
 
@@ -403,12 +403,12 @@ public class ChatBottomSheetFragment extends BottomSheetDialogFragment {
             Toast.makeText(getContext(), "Bạn không thể gửi tin nhắn cho người dùng này.", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (TextUtils.isEmpty(chatId) || TextUtils.isEmpty(currentUid)) return;
+        if (TextUtils.isEmpty(chatId) || TextUtils.isEmpty(currentUid) || TextUtils.isEmpty(partnerId)) return;
         String text = messageInput.getText().toString().trim();
         if (text.isEmpty()) return;
         sendButton.setEnabled(false);
         ChatMessage message = new ChatMessage(chatId, currentUid, text, null, System.currentTimeMillis());
-        chatRepository.sendMessage(message).addOnSuccessListener(unused -> {
+        chatRepository.sendMessage(message, partnerId).addOnSuccessListener(unused -> {
             messageInput.setText("");
             sendButton.setEnabled(true);
             scrollToBottom();

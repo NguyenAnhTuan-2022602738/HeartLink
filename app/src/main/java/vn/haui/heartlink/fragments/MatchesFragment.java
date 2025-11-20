@@ -1,6 +1,5 @@
 package vn.haui.heartlink.fragments;
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -9,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +21,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,7 +49,7 @@ import vn.haui.heartlink.utils.ChatRepository;
 import vn.haui.heartlink.utils.MatchRepository;
 import vn.haui.heartlink.utils.UserRepository;
 
-public class MatchesFragment extends Fragment implements MatchesAdapter.MatchActionListener {
+public class MatchesFragment extends Fragment implements MatchesAdapter.MatchActionListener, MatchesFilterBottomSheetFragment.FilterSelectionListener {
 
     private View rootView;
     private RecyclerView matchesRecyclerView;
@@ -66,6 +66,9 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
     @Nullable
     private String currentUid;
     private final Map<String, MatchInteraction> interactionCache = new HashMap<>();
+    private String currentFilter = "all";
+    private ValueEventListener interactionsListener;
+
 
     @Nullable
     @Override
@@ -80,7 +83,15 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
         bindViews(view);
         setupRecyclerView();
         setupClicks(view);
-        loadMatches();
+        loadInitialData();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (currentUid != null && interactionsListener != null) {
+            matchRepository.removeInteractionsListener(currentUid, interactionsListener);
+        }
     }
 
     private void bindViews(View view) {
@@ -108,10 +119,16 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
 
     private void setupClicks(View view) {
         ImageButton filterButton = view.findViewById(R.id.matches_filter_button);
-        filterButton.setOnClickListener(v -> Toast.makeText(getContext(), R.string.matches_action_coming_soon, Toast.LENGTH_SHORT).show());
+        filterButton.setOnClickListener(v -> showFilterDialog());
     }
 
-    private void loadMatches() {
+    private void showFilterDialog() {
+        MatchesFilterBottomSheetFragment bottomSheet = MatchesFilterBottomSheetFragment.newInstance(currentFilter);
+        bottomSheet.show(getChildFragmentManager(), MatchesFilterBottomSheetFragment.TAG);
+    }
+
+
+    private void loadInitialData() {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
             showError(getString(R.string.error_generic));
@@ -130,7 +147,7 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
                     } else if (TextUtils.isEmpty(currentUser.getUid())) {
                         currentUser.setUid(currentUid);
                     }
-                    loadInteractionSnapshot();
+                    startListeningForInteractions();
                 })
                 .addOnFailureListener(throwable -> {
                     showLoading(false);
@@ -138,20 +155,27 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
                 });
     }
 
-    private void loadInteractionSnapshot() {
+    private void startListeningForInteractions() {
         if (TextUtils.isEmpty(currentUid)) {
             showLoading(false);
             return;
         }
-        matchRepository.getInteractionsSnapshot(currentUid)
-                .addOnSuccessListener(snapshot -> handleInteractionSnapshot(currentUid, snapshot))
-                .addOnFailureListener(throwable -> {
-                    showLoading(false);
-                    showError(throwable.getLocalizedMessage());
-                });
+        interactionsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                handleInteractionSnapshot(snapshot);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                showLoading(false);
+                showError(error.getMessage());
+            }
+        };
+        matchRepository.addInteractionsListener(currentUid, interactionsListener);
     }
 
-    private void handleInteractionSnapshot(@NonNull String currentUid, @Nullable DataSnapshot snapshot) {
+    private void handleInteractionSnapshot(@Nullable DataSnapshot snapshot) {
         List<MatchInteraction> interactions = new ArrayList<>();
         if (snapshot != null) {
             for (DataSnapshot child : snapshot.getChildren()) {
@@ -163,9 +187,11 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
 
                 boolean isMutual = MatchRepository.STATUS_MATCHED.equals(status);
                 boolean isIncomingLike = MatchRepository.STATUS_RECEIVED_LIKE.equals(status);
-                if (!isMutual && !isIncomingLike) {
+                boolean isSentLike = MatchRepository.STATUS_LIKED.equals(status);
+                if (!isMutual && !isIncomingLike && !isSentLike) {
                     continue;
                 }
+
 
                 MatchInteraction interaction = new MatchInteraction(partnerUid);
                 interaction.status = status;
@@ -201,7 +227,7 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
         }
 
         if (detailTasks.isEmpty()) {
-            displayInteractions(interactionMap.values());
+            updateCacheAndDisplay(interactionMap);
             return;
         }
 
@@ -224,27 +250,65 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
                             }
                         }
                     }
-                    displayInteractions(interactionMap.values());
+                    updateCacheAndDisplay(interactionMap);
                 })
                 .addOnFailureListener(throwable -> {
                     showError(throwable.getLocalizedMessage());
-                    displayInteractions(interactionMap.values());
+                    updateCacheAndDisplay(interactionMap);
                 });
     }
 
-    private void displayInteractions(@NonNull Iterable<MatchInteraction> interactions) {
-        List<MatchInteraction> sorted = new ArrayList<>();
-        for (MatchInteraction interaction : interactions) {
-            sorted.add(interaction);
-        }
-        Collections.sort(sorted, (a, b) -> Long.compare(b.timestamp, a.timestamp));
-
+    private void updateCacheAndDisplay(Map<String, MatchInteraction> interactionMap) {
         interactionCache.clear();
-        for (MatchInteraction interaction : sorted) {
-            interactionCache.put(interaction.partnerUid, interaction);
+        interactionCache.putAll(interactionMap);
+        applyFilterAndDisplay();
+    }
+
+
+    private void applyFilterAndDisplay() {
+        if (interactionCache.isEmpty()) {
+            matchesAdapter.submitItems(Collections.emptyList());
+            if (matchesRecyclerView != null) matchesRecyclerView.setVisibility(View.GONE);
+            if (emptyStateView != null) emptyStateView.setVisibility(View.VISIBLE);
+            showLoading(false);
+            return;
         }
 
-        List<MatchesAdapter.ListItem> items = buildAdapterItems(sorted);
+        List<MatchInteraction> filteredInteractions = new ArrayList<>();
+        if ("all".equals(currentFilter)) {
+            filteredInteractions.addAll(interactionCache.values());
+        } else {
+            for (MatchInteraction interaction : interactionCache.values()) {
+                boolean matchesFilter = false;
+                switch (currentFilter) {
+                    case "matched":
+                        if (interaction.isMutualMatch()) matchesFilter = true;
+                        break;
+                    case "liked":
+                        if (interaction.isSentLike() && !MatchRepository.isSuperLike(interaction.type)) {
+                            matchesFilter = true;
+                        }
+                        break;
+                    case "superlike":
+                        if (interaction.isSentLike() && MatchRepository.isSuperLike(interaction.type)) {
+                            matchesFilter = true;
+                        }
+                        break;
+                }
+                if (matchesFilter) {
+                    filteredInteractions.add(interaction);
+                }
+            }
+        }
+
+        displayInteractions(filteredInteractions);
+    }
+
+
+    private void displayInteractions(@NonNull List<MatchInteraction> interactions) {
+        Collections.sort(interactions, (a, b) -> Long.compare(b.timestamp, a.timestamp));
+
+        List<MatchesAdapter.ListItem> items = buildAdapterItems(interactions);
         matchesAdapter.submitItems(items);
 
         showLoading(false);
@@ -267,9 +331,18 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
                 String name = !TextUtils.isEmpty(interaction.displayName)
                         ? interaction.displayName
                         : getString(R.string.home_user_name_age);
-                MatchesAdapter.InteractionState state = interaction.isMutualMatch()
-                        ? MatchesAdapter.InteractionState.MUTUAL_MATCH
-                        : MatchesAdapter.InteractionState.INCOMING_LIKE;
+
+                MatchesAdapter.InteractionState state;
+                if (interaction.isMutualMatch()) {
+                    state = MatchesAdapter.InteractionState.MUTUAL_MATCH;
+                } else if (interaction.isIncomingLike()) {
+                    state = MatchesAdapter.InteractionState.INCOMING_LIKE;
+                } else if (interaction.isSentLike()) {
+                    state = MatchesAdapter.InteractionState.SENT_LIKE;
+                } else { // Fallback, should not happen
+                    state = MatchesAdapter.InteractionState.INCOMING_LIKE;
+                }
+
                 items.add(new MatchesAdapter.CardItem(
                         interaction.partnerUid,
                         name,
@@ -294,6 +367,13 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
             }
             return getString(R.string.matches_status_liked_you);
         }
+        if (interaction.isSentLike()) {
+            if (MatchRepository.isSuperLike(interaction.type)) {
+                return "Bạn đã gửi Super Like";
+            }
+            return "Bạn đã thích";
+        }
+
         return "";
     }
 
@@ -356,6 +436,7 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
         } else if (interaction.isIncomingLike()) {
             respondToIncomingLike(interaction);
         }
+
     }
 
     @Override
@@ -367,6 +448,26 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
         if (interaction.isIncomingLike()) {
             dismissIncomingLike(interaction);
         }
+
+    }
+
+    @Override
+    public void onUnlikeAction(@NonNull MatchesAdapter.CardItem item) {
+        if (TextUtils.isEmpty(currentUid)) {
+            return;
+        }
+        matchRepository.removeInteraction(currentUid, item.getPartnerUid())
+                .addOnCompleteListener(task -> {
+                    if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                        if (!isFragmentActive()) return;
+                        if (!task.isSuccessful()) {
+                            Exception exception = task.getException();
+                            showError(exception != null ? exception.getLocalizedMessage() : getString(R.string.error_generic));
+                        } else {
+                            if (rootView != null) Snackbar.make(rootView, R.string.matches_action_unlike, Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+                });
     }
 
     private void openProfileDetail(@NonNull MatchesAdapter.CardItem item) {
@@ -447,11 +548,7 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
         matchRepository.likeUser(actor, partner, false, new MatchRepository.MatchResultCallback() {
             @Override
             public void onLikeRecorded() {
-                if (getActivity() != null) getActivity().runOnUiThread(() -> {
-                    if (!isFragmentActive()) return;
-                    if (rootView != null) Snackbar.make(rootView, R.string.match_like_sent, Snackbar.LENGTH_SHORT).show();
-                    loadInteractionSnapshot();
-                });
+                // No action needed here, listener will pick up the change
             }
 
             @Override
@@ -459,7 +556,6 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
                 if (getActivity() != null) getActivity().runOnUiThread(() -> {
                     if (!isFragmentActive()) return;
                     launchMatchSuccess(interaction, partner);
-                    loadInteractionSnapshot();
                 });
             }
 
@@ -468,7 +564,6 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
                 if (getActivity() != null) getActivity().runOnUiThread(() -> {
                     if (!isFragmentActive()) return;
                     launchMatchSuccess(interaction, partner);
-                    loadInteractionSnapshot();
                 });
             }
 
@@ -495,9 +590,6 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
                             showError(exception != null ? exception.getLocalizedMessage() : getString(R.string.error_generic));
                         } else {
                             if (rootView != null) Snackbar.make(rootView, R.string.matches_skip_success, Snackbar.LENGTH_SHORT).show();
-                            interactionCache.remove(interaction.partnerUid);
-                            if (matchesAdapter != null) matchesAdapter.removeCard(interaction.partnerUid);
-                            loadInteractionSnapshot();
                         }
                     });
                 });
@@ -552,6 +644,12 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
         }
     }
 
+    @Override
+    public void onFilterSelected(String filter) {
+        this.currentFilter = filter;
+        applyFilterAndDisplay();
+    }
+
 
     private final class MatchInteraction {
         final String partnerUid;
@@ -594,5 +692,10 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
         boolean isIncomingLike() {
             return MatchRepository.STATUS_RECEIVED_LIKE.equals(status);
         }
+
+        boolean isSentLike() {
+            return MatchRepository.STATUS_LIKED.equals(status);
+        }
+
     }
 }

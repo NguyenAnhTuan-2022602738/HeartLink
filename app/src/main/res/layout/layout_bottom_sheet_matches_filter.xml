@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="24dp">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/dialog_handle" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Lọc kết nối"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textColor="?android:attr/textColorPrimary" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/dividerVertical" />
+
+    <TextView
+        android:id="@+id/filter_all"
+        style="@style/BottomSheetFilterOption"
+        android:text="Tất cả"
+        app:drawableStartCompat="@drawable/ic_check" />
+
+    <TextView
+        android:id="@+id/filter_matched"
+        style="@style/BottomSheetFilterOption"
+        android:text="Ghép đôi"
+        app:drawableStartCompat="@drawable/ic_favorite" />
+
+    <TextView
+        android:id="@+id/filter_liked"
+        style="@style/BottomSheetFilterOption"
+        android:text="Đã thích"
+        app:drawableStartCompat="@drawable/ic_home_like" />
+
+    <TextView
+        android:id="@+id/filter_superliked"
+        style="@style/BottomSheetFilterOption"
+        android:text="Super Like"
+        app:drawableStartCompat="@drawable/ic_home_superlike" />
+
+</LinearLayout>

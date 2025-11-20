@@ -24,6 +24,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
 import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackView;
@@ -93,6 +95,7 @@ public class DiscoveryFragment extends Fragment {
     @Nullable
     private String currentLocationLabel;
     private NavigationListener navigationListener;
+    private ValueEventListener interactionsListener;
 
     public void forceRefresh() {
         loadCurrentUser();
@@ -122,6 +125,14 @@ public class DiscoveryFragment extends Fragment {
         setupCardStack();
         hookupActions();
         loadCurrentUser();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (currentUser != null && interactionsListener != null) {
+            matchRepository.removeInteractionsListener(currentUser.getUid(), interactionsListener);
+        }
     }
 
     private void bindViews(View view) {
@@ -247,21 +258,26 @@ public class DiscoveryFragment extends Fragment {
             return;
         }
 
-        matchRepository.getInteractionsSnapshot(currentUser.getUid())
-                .addOnSuccessListener(snapshot -> {
-                    excludedUserIds.clear();
-                    for (DataSnapshot child : snapshot.getChildren()) {
-                        String otherUid = child.getKey();
-                        if (!TextUtils.isEmpty(otherUid)) {
-                            excludedUserIds.add(otherUid);
-                        }
+        interactionsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                excludedUserIds.clear();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String otherUid = child.getKey();
+                    if (!TextUtils.isEmpty(otherUid)) {
+                        excludedUserIds.add(otherUid);
                     }
-                    fetchAllUsers();
-                })
-                .addOnFailureListener(e -> {
-                    excludedUserIds.clear();
-                    fetchAllUsers();
-                });
+                }
+                fetchAllUsers();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                excludedUserIds.clear();
+                fetchAllUsers();
+            }
+        };
+        matchRepository.addInteractionsListener(currentUser.getUid(), interactionsListener);
     }
 
     private void fetchAllUsers() {
@@ -734,5 +750,10 @@ public class DiscoveryFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         geocoderExecutor.shutdownNow();
+    }
+
+    public interface NavigationListener {
+        void onNavigateToMatches();
+        void onNavigateToMessages();
     }
 }

@@ -1,7 +1,10 @@
 package vn.haui.heartlink.fragments;
 
+import androidx.appcompat.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Build;
@@ -10,6 +13,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -17,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
@@ -32,6 +37,8 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -52,6 +59,7 @@ import java.util.concurrent.Executors;
 import vn.haui.heartlink.R;
 import vn.haui.heartlink.activities.GenderSelectionActivity;
 import vn.haui.heartlink.activities.InterestsActivity;
+import vn.haui.heartlink.activities.NotificationPermissionActivity;
 import vn.haui.heartlink.activities.PhotoUploadActivity;
 import vn.haui.heartlink.activities.ProfileInfoActivity;
 import vn.haui.heartlink.activities.SeekingActivity;
@@ -72,6 +80,7 @@ public class ProfileFragment extends Fragment {
     private static final DateTimeFormatter DOB_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final UserRepository userRepository = UserRepository.getInstance();
+    private final MatchRepository matchRepository = MatchRepository.getInstance();
 
     private View rootView;
     private NestedScrollView scrollView;
@@ -98,9 +107,12 @@ public class ProfileFragment extends Fragment {
     private ImageButton editGenderButton;
     private TextView seekingValueView;
     private ImageButton editSeekingButton;
+    private TextView notificationStatusView;
+    private ImageButton editNotificationButton;
 
     @Nullable
     private FirebaseUser firebaseUser;
+    private ValueEventListener interactionsListener;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -133,6 +145,14 @@ public class ProfileFragment extends Fragment {
         loadUserProfile();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (firebaseUser != null && interactionsListener != null) {
+            matchRepository.removeInteractionsListener(firebaseUser.getUid(), interactionsListener);
+        }
+    }
+
     public void refreshProfile() {
         loadUserProfile();
     }
@@ -160,6 +180,8 @@ public class ProfileFragment extends Fragment {
         editGenderButton = view.findViewById(R.id.profile_settings_edit_gender);
         seekingValueView = view.findViewById(R.id.profile_settings_seeking_value);
         editSeekingButton = view.findViewById(R.id.profile_settings_edit_seeking);
+        notificationStatusView = view.findViewById(R.id.profile_settings_notification_status);
+        editNotificationButton = view.findViewById(R.id.profile_settings_edit_notification);
 
         if (photosRecyclerView != null) {
             photosRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -197,6 +219,10 @@ public class ProfileFragment extends Fragment {
             if (mListener != null) {
                 mListener.onLaunchLocationPermission();
             }
+        });
+        editNotificationButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), NotificationPermissionActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -301,6 +327,18 @@ public class ProfileFragment extends Fragment {
         updateInterests(user.getInterests());
         updatePhotos(user.getPhotoUrls());
         loadInteractionStats(user.getUid());
+        updateNotificationStatus();
+    }
+
+    private void updateNotificationStatus() {
+        if (getContext() != null) {
+            boolean areNotificationsEnabled = NotificationManagerCompat.from(getContext()).areNotificationsEnabled();
+            if (areNotificationsEnabled) {
+                notificationStatusView.setText("Đã bật");
+            } else {
+                notificationStatusView.setText("Đã tắt");
+            }
+        }
     }
 
     private void openPhotoManager() {
@@ -311,12 +349,25 @@ public class ProfileFragment extends Fragment {
 
     private void showLogoutDialog() {
         if (getContext() == null) return;
-        new MaterialAlertDialogBuilder(getContext())
-                .setTitle(R.string.profile_settings_logout_confirm_title)
-                .setMessage(R.string.profile_settings_logout_confirm_message)
-                .setNegativeButton(R.string.profile_settings_logout_confirm_negative, null)
-                .setPositiveButton(R.string.profile_settings_logout_confirm_positive, (dialogInterface, i) -> performLogout())
-                .show();
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_logout_confirmation, null);
+        AlertDialog dialog = new MaterialAlertDialogBuilder(getContext())
+                .setView(dialogView)
+                .create();
+
+        Button logoutButton = dialogView.findViewById(R.id.button_logout);
+        logoutButton.setOnClickListener(v -> {
+            performLogout();
+            dialog.dismiss();
+        });
+
+        Button cancelButton = dialogView.findViewById(R.id.button_cancel);
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        }
+
+        dialog.show();
     }
 
     private void performLogout() {
@@ -499,29 +550,36 @@ public class ProfileFragment extends Fragment {
             updateStatsViews(0, 0, 0);
             return;
         }
-        MatchRepository.getInstance().getInteractionsSnapshot(uid)
-                .addOnSuccessListener(snapshot -> {
-                    int likes = 0;
-                    int matches = 0;
-                    int superLikes = 0;
-                    if (snapshot != null) {
-                        for (DataSnapshot child : snapshot.getChildren()) {
-                            String status = child.child("status").getValue(String.class);
-                            String type = child.child("type").getValue(String.class);
-                            if (MatchRepository.STATUS_MATCHED.equals(status)) {
-                                matches++;
-                            } else if (MatchRepository.STATUS_LIKED.equals(status) || MatchRepository.STATUS_RECEIVED_LIKE.equals(status)) {
-                                if (MatchRepository.isSuperLike(type)) {
-                                    superLikes++;
-                                } else {
-                                    likes++;
-                                }
+        interactionsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int likes = 0;
+                int matches = 0;
+                int superLikes = 0;
+                if (snapshot != null) {
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        String status = child.child("status").getValue(String.class);
+                        String type = child.child("type").getValue(String.class);
+                        if (MatchRepository.STATUS_MATCHED.equals(status)) {
+                            matches++;
+                        } else if (MatchRepository.STATUS_LIKED.equals(status) || MatchRepository.STATUS_RECEIVED_LIKE.equals(status)) {
+                            if (MatchRepository.isSuperLike(type)) {
+                                superLikes++;
+                            } else {
+                                likes++;
                             }
                         }
                     }
-                    updateStatsViews(likes, matches, superLikes);
-                })
-                .addOnFailureListener(throwable -> updateStatsViews(0, 0, 0));
+                }
+                updateStatsViews(likes, matches, superLikes);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                updateStatsViews(0, 0, 0);
+            }
+        };
+        matchRepository.addInteractionsListener(uid, interactionsListener);
     }
 
     private void updateStatsViews(int likes, int matches, int superLikes) {

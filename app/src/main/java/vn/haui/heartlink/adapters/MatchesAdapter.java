@@ -98,6 +98,8 @@ public class MatchesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void onPrimaryAction(@NonNull CardItem item);
 
         void onSecondaryAction(@NonNull CardItem item);
+
+        void onUnlikeAction(@NonNull CardItem item);
     }
 
     public abstract static class ListItem {
@@ -184,7 +186,8 @@ public class MatchesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public enum InteractionState {
         MUTUAL_MATCH,
-        INCOMING_LIKE
+        INCOMING_LIKE,
+        SENT_LIKE
     }
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
@@ -250,25 +253,39 @@ public class MatchesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         private void configureActions(@NonNull CardItem item) {
             itemView.setOnClickListener(v -> listener.onCardTapped(item));
-            openButton.setOnClickListener(v -> listener.onPrimaryAction(item));
-            dismissButton.setOnClickListener(v -> listener.onSecondaryAction(item));
 
-            if (item.getState() == InteractionState.MUTUAL_MATCH) {
-                dismissButton.setVisibility(View.GONE);
-                actionDivider.setVisibility(View.GONE);
-                openButton.setVisibility(View.VISIBLE);
-                primaryIcon.setImageResource(R.drawable.ic_home_nav_messages);
-                primaryIcon.setContentDescription(openButton.getContext().getString(R.string.matches_action_message));
-                openButton.setContentDescription(openButton.getContext().getString(R.string.matches_action_message));
-            } else {
-                dismissButton.setVisibility(View.VISIBLE);
-                actionDivider.setVisibility(View.VISIBLE);
-                primaryIcon.setImageResource(R.drawable.ic_home_like);
-                primaryIcon.setContentDescription(openButton.getContext().getString(R.string.matches_action_like_back));
-                openButton.setContentDescription(openButton.getContext().getString(R.string.matches_action_like_back));
-                secondaryIcon.setImageResource(R.drawable.ic_home_dislike);
-                secondaryIcon.setContentDescription(dismissButton.getContext().getString(R.string.matches_action_skip));
-                dismissButton.setContentDescription(dismissButton.getContext().getString(R.string.matches_action_skip));
+            switch (item.getState()) {
+                case MUTUAL_MATCH:
+                    dismissButton.setVisibility(View.GONE);
+                    actionDivider.setVisibility(View.GONE);
+                    openButton.setVisibility(View.VISIBLE);
+                    primaryIcon.setImageResource(R.drawable.ic_home_nav_messages);
+                    primaryIcon.setContentDescription(openButton.getContext().getString(R.string.matches_action_message));
+                    openButton.setContentDescription(openButton.getContext().getString(R.string.matches_action_message));
+                    openButton.setOnClickListener(v -> listener.onPrimaryAction(item));
+                    break;
+                case INCOMING_LIKE:
+                    openButton.setVisibility(View.VISIBLE);
+                    dismissButton.setVisibility(View.VISIBLE);
+                    actionDivider.setVisibility(View.VISIBLE);
+                    primaryIcon.setImageResource(R.drawable.ic_home_like);
+                    primaryIcon.setContentDescription(openButton.getContext().getString(R.string.matches_action_like_back));
+                    openButton.setContentDescription(openButton.getContext().getString(R.string.matches_action_like_back));
+                    openButton.setOnClickListener(v -> listener.onPrimaryAction(item));
+                    secondaryIcon.setImageResource(R.drawable.ic_home_dislike);
+                    secondaryIcon.setContentDescription(dismissButton.getContext().getString(R.string.matches_action_skip));
+                    dismissButton.setContentDescription(dismissButton.getContext().getString(R.string.matches_action_skip));
+                    dismissButton.setOnClickListener(v -> listener.onSecondaryAction(item));
+                    break;
+                case SENT_LIKE:
+                    openButton.setVisibility(View.GONE);
+                    actionDivider.setVisibility(View.GONE);
+                    dismissButton.setVisibility(View.VISIBLE);
+                    secondaryIcon.setImageResource(R.drawable.ic_home_dislike);
+                    secondaryIcon.setContentDescription(dismissButton.getContext().getString(R.string.matches_action_unlike));
+                    dismissButton.setContentDescription(dismissButton.getContext().getString(R.string.matches_action_unlike));
+                    dismissButton.setOnClickListener(v -> listener.onUnlikeAction(item));
+                    break;
             }
         }
     }

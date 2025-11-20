@@ -128,6 +128,15 @@ public class UserRepository {
                 }
             });
     }
+
+    /**
+     * Cập nhật FCM token của người dùng
+     * @param uid ID của người dùng
+     * @param token FCM token mới
+     */
+    public void updateUserToken(String uid, String token) {
+        usersRef.child(uid).child("fcmToken").setValue(token);
+    }
     
     /**
      * Interface callback cho các thao tác bất đồng bộ

@@ -73,6 +73,8 @@ public class MessagesFragment extends Fragment implements
     private Query threadsQuery;
     @Nullable
     private ValueEventListener threadsListener;
+    @Nullable
+    private ValueEventListener interactionsListener;
 
     @Nullable
     private String currentUid;
@@ -94,6 +96,16 @@ public class MessagesFragment extends Fragment implements
         setupRecyclerViews();
         setupClicks(view);
         loadContent();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        detachThreadsListener();
+        detachAllPartnerStatusListeners();
+        if (currentUid != null && interactionsListener != null) {
+            matchRepository.removeInteractionsListener(currentUid, interactionsListener);
+        }
     }
 
     private void bindViews(View view) {
@@ -135,13 +147,20 @@ public class MessagesFragment extends Fragment implements
         }
         currentUid = firebaseUser.getUid();
 
-        matchRepository.getInteractionsSnapshot(currentUid)
-                .addOnSuccessListener(this::handleInteractionsSnapshot)
-                .addOnFailureListener(error -> {
-                    interactionsLoaded = true;
-                    updateLoadingState();
-                    if (getContext() != null) Toast.makeText(getContext(), error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                });
+        interactionsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                handleInteractionsSnapshot(snapshot);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                interactionsLoaded = true;
+                updateLoadingState();
+                if (getContext() != null) Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        };
+        matchRepository.addInteractionsListener(currentUid, interactionsListener);
 
         listenForThreads();
     }
@@ -461,8 +480,6 @@ public class MessagesFragment extends Fragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        detachThreadsListener();
-        detachAllPartnerStatusListeners();
     }
 
     private static final class PartnerInfo {
