@@ -26,19 +26,27 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import vn.haui.heartlink.R;
+import vn.haui.heartlink.admin.AdminActivity;
+import vn.haui.heartlink.models.User;
 import vn.haui.heartlink.utils.DialogHelper;
 import vn.haui.heartlink.utils.FirebaseHelper;
 import vn.haui.heartlink.utils.NavigationHelper;
@@ -58,13 +66,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         firebaseHelper = FirebaseHelper.getInstance();
-
-        FirebaseUser currentUser = firebaseHelper.getCurrentUser();
-        if (currentUser != null) {
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            finish();
-            return;
-        }
 
         setContentView(R.layout.activity_login);
 
@@ -87,9 +88,7 @@ public class LoginActivity extends AppCompatActivity {
         buttonLogin.setOnClickListener(v -> loginUser());
         buttonGoogleLogin.setOnClickListener(v -> {
             setLoading(true);
-            googleSignInClient.signOut().addOnCompleteListener(this, task -> {
-                googleSignInLauncher.launch(googleSignInClient.getSignInIntent());
-            });
+            googleSignInLauncher.launch(googleSignInClient.getSignInIntent());
         });
 
         forgotPasswordText.setOnClickListener(v -> showForgotPasswordDialog());
@@ -141,9 +140,9 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     setLoading(false);
                     if (task.isSuccessful()) {
-                        DialogHelper.showStatusDialog(this, "Đăng nhập thành công", "Chào mừng bạn trở lại!", true, () ->
-                                NavigationHelper.checkProfileAndNavigate(LoginActivity.this, task.getResult().getUser())
-                        );
+                        DialogHelper.showStatusDialog(this, "Đăng nhập thành công!", "Chào mừng trở lại!", true, () -> {
+                            navigateToNextScreen(task.getResult().getUser());
+                        });
                     } else {
                         if (task.getException() instanceof FirebaseAuthInvalidUserException || task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                             textInputLayoutPassword.setError("Email hoặc mật khẩu không đúng.");
@@ -161,13 +160,54 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     setLoading(false);
                     if (task.isSuccessful()) {
-                        DialogHelper.showStatusDialog(this, "Đăng nhập thành công", "Chào mừng bạn đến với HeartLink!", true, () ->
-                                NavigationHelper.checkProfileAndNavigate(LoginActivity.this, task.getResult().getUser())
-                        );
+                        DialogHelper.showStatusDialog(this, "Đăng nhập thành công!", "Chào mừng trở lại!", true, () -> {
+                            navigateToNextScreen(task.getResult().getUser());
+                        });
                     } else {
                         DialogHelper.showStatusDialog(this, "Đăng nhập thất bại", "Đã có lỗi xảy ra. Vui lòng thử lại.", false, null);
                     }
                 });
+    }
+
+    private void navigateToNextScreen(FirebaseUser firebaseUser) {
+        if (firebaseUser == null) return;
+        updateUserStatusOnLogin(firebaseUser.getUid());
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.exists() ? snapshot.getValue(User.class) : null;
+
+                if (user != null && user.isBlocked()) {
+                    firebaseHelper.signOut();
+                    DialogHelper.showStatusDialog(LoginActivity.this, "Tài khoản bị khóa", "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.", false, null);
+                    return;
+                }
+
+                if (user != null && "Admin".equals(user.getRole())) {
+                    Intent intent = new Intent(LoginActivity.this, AdminActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                } else {
+                    NavigationHelper.checkProfileAndNavigate(LoginActivity.this, firebaseUser);
+                }
+                finish();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                firebaseHelper.signOut();
+                DialogHelper.showStatusDialog(LoginActivity.this, "Lỗi", "Không thể đọc dữ liệu người dùng. Vui lòng thử lại.", false, null);
+            }
+        });
+    }
+
+    private void updateUserStatusOnLogin(String userId) {
+        DatabaseReference userStatusRef = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+        Map<String, Object> statusUpdate = new HashMap<>();
+        statusUpdate.put("online", true);
+        userStatusRef.updateChildren(statusUpdate);
     }
 
     private void showForgotPasswordDialog() {
@@ -178,12 +218,6 @@ public class LoginActivity extends AppCompatActivity {
 
         final TextInputEditText emailEditText = dialogView.findViewById(R.id.edit_text_email_forgot);
         final TextInputLayout emailInputLayout = dialogView.findViewById(R.id.text_input_layout_email_forgot);
-
-        emailEditText.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { emailInputLayout.setError(null); }
-            @Override public void afterTextChanged(Editable s) {}
-        });
 
         builder.setTitle("Quên mật khẩu").setPositiveButton("Gửi", null).setNegativeButton("Hủy", (d, w) -> d.dismiss());
         AlertDialog dialog = builder.create();
@@ -199,7 +233,6 @@ public class LoginActivity extends AppCompatActivity {
                 sendPasswordResetEmail(email, dialog, emailInputLayout);
             });
         });
-
         dialog.show();
     }
 
@@ -224,7 +257,6 @@ public class LoginActivity extends AppCompatActivity {
     private boolean validateInput() {
         textInputLayoutEmail.setError(null);
         textInputLayoutPassword.setError(null);
-
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
         boolean isValid = true;
@@ -233,12 +265,10 @@ public class LoginActivity extends AppCompatActivity {
             textInputLayoutEmail.setError("Email không hợp lệ");
             isValid = false;
         }
-
         if (TextUtils.isEmpty(password)) {
             textInputLayoutPassword.setError("Vui lòng nhập mật khẩu");
             isValid = false;
         }
-
         return isValid;
     }
 
@@ -248,7 +278,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { textInputLayoutEmail.setError(null); }
             @Override public void afterTextChanged(Editable s) {}
         });
-
         editTextPassword.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { textInputLayoutPassword.setError(null); }

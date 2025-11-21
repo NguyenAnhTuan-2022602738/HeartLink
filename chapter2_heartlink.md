@@ -74,8 +74,6 @@ Hệ thống HeartLink cung cấp các chức năng chính sau:
 **\* Quản lý Người dùng**
 
 - Quản lý người dùng (xem, khóa, xóa).
-- Xử lý các báo cáo vi phạm.
-- Gửi thông báo hệ thống.
 - Thống kê hoạt động (số người dùng mới, lượt Match, số cuộc trò chuyện, tỷ lệ báo cáo).
 
 ### Yêu cầu phi chức năng

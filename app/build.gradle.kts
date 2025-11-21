@@ -66,12 +66,19 @@ dependencies {
     implementation(libs.cloudinary.core)
     implementation(libs.play.services.auth)
 
+    // Chart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     // Emoji
     implementation("com.vanniktech:emoji-google:0.8.0")
 
     // Splash Screen
     implementation("androidx.core:core-splashscreen:1.2.0")
     implementation("androidx.preference:preference:1.2.1")
+
+    // Lifecycle
+    implementation("androidx.lifecycle:lifecycle-process:2.8.4")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

@@ -74,7 +74,7 @@
                         android:layout_height="match_parent"
                         android:contentDescription="@string/matches_action_skip"
                         android:src="@drawable/ic_home_dislike"
-                        android:tint="@android:color/white" />
+                        app:tint="@android:color/white" />
 
                 </FrameLayout>
 
@@ -100,7 +100,7 @@
                         android:layout_height="match_parent"
                         android:contentDescription="@string/matches_action_like_back"
                         android:src="@drawable/ic_home_like"
-                        android:tint="@android:color/white" />
+                        app:tint="@android:color/white" />
 
                 </FrameLayout>
             </LinearLayout>

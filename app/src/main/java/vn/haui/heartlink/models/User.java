@@ -1,8 +1,10 @@
 package vn.haui.heartlink.models;
 
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.ServerValue;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * User model for Firebase Realtime Database
@@ -27,6 +29,9 @@ public class User {
     private Boolean notificationsEnabled;
     private boolean online;
     private long lastSeen;
+    private String role; // "User" or "Admin"
+    private boolean blocked;
+    public Object createdAt;
 
     public User() {
         // Default constructor required for Firebase
@@ -38,6 +43,9 @@ public class User {
         this.profileComplete = false;
         this.online = false;
         this.lastSeen = 0; // Initialize with a default value
+        this.role = "User"; // Default role
+        this.blocked = false; // Default blocked status
+        this.createdAt = ServerValue.TIMESTAMP;
     }
 
     // Getters
@@ -117,6 +125,27 @@ public class User {
         return lastSeen;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public Object getCreatedAt() {
+        return createdAt;
+    }
+
+    @Exclude
+    public long getCreatedAtTimestamp() {
+        if (createdAt instanceof Long) {
+            return (Long) createdAt;
+        }
+        return 0;
+    }
+
+
     // Setters
     public void setUid(String uid) {
         this.uid = uid;
@@ -134,7 +163,7 @@ public class User {
         this.gender = gender;
     }
 
-    public void setDateOfBirth(String dateOfBirth) {
+public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -192,5 +221,17 @@ public class User {
 
     public void setLastSeen(long lastSeen) {
         this.lastSeen = lastSeen;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
+
+    public void setCreatedAt(long timestamp) {
+        this.createdAt = timestamp;
     }
 }

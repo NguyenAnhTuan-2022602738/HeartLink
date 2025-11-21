@@ -97,7 +97,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/ic_home_like"
-            android:tint="@color/home_nav_active"
+            app:tint="@color/home_nav_active"
             android:scaleType="fitCenter" />
 
     </FrameLayout>

@@ -26,7 +26,7 @@
             android:contentDescription="@string/home_back_content_description"
             android:padding="12dp"
             android:src="@drawable/ic_back_arrow"
-            android:tint="@color/home_nav_active"
+            app:tint="@color/home_nav_active"
             android:visibility="invisible"
             tools:visibility="visible" />
 
@@ -55,7 +55,7 @@
                 android:layout_marginTop="4dp"
                 android:drawablePadding="6dp"
                 android:drawableStart="@drawable/ic_home_location"
-                android:drawableTint="@color/home_subtitle"
+                app:drawableTint="@color/home_subtitle"
                 android:text="@string/home_location"
                 android:textColor="@color/home_subtitle"
                 android:textSize="14sp" />

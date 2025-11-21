@@ -3,6 +3,27 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#4CAF50</color>
+    <color name="grey_100">#F5F5F5</color>
+
+    <!-- Admin Panel Colors -->
+    <color name="admin_toolbar_start">#D94A5D</color>
+    <color name="admin_toolbar_end">#E94057</color>
+    <color name="admin_background">#FFF1F3F6</color>
+
+    <color name="admin_stat_green">#1DB954</color>
+    <color name="admin_stat_blue">#2D76F4</color>
+    <color name="admin_stat_orange">#FF7B00</color>
+    <color name="admin_stat_red">#F44336</color>
+
+    <color name="admin_card_border_blue">#5D9CEC</color>
+    <color name="admin_card_border_pink">#EC407A</color>
+    <color name="admin_card_border_purple">#AB47BC</color>
+    <color name="admin_card_border_red">#EF5350</color>
+
+    <color name="admin_card_icon_bg_blue">#E3F2FD</color>
+    <color name="admin_card_icon_bg_pink">#FCE4EC</color>
+    <color name="admin_card_icon_bg_purple">#F3E5F5</color>
+    <color name="admin_text_green">#4CAF50</color>
 
     <!-- App Theme Colors -->
     <color name="colorPrimary">#E94057</color>

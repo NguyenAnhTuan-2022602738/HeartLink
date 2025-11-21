@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -149,11 +150,10 @@ public class LocationPermissionActivity extends AppCompatActivity {
     }
 
     private void onPermissionGranted() {
-        if (!hasLocationPermission()) {
-            Toast.makeText(this, R.string.location_permission_denied_message, Toast.LENGTH_SHORT).show();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // This check is required by Lint, but in this flow, permission is already granted.
             return;
         }
-
         setProcessing(true);
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, tokenSource.getToken())
@@ -167,9 +167,8 @@ public class LocationPermissionActivity extends AppCompatActivity {
     }
 
     private void fetchLastKnownLocation() {
-        if (!hasLocationPermission()) {
-            setProcessing(false);
-            Toast.makeText(this, R.string.location_permission_denied_message, Toast.LENGTH_SHORT).show();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // This check is required by Lint.
             return;
         }
 

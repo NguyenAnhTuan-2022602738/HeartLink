@@ -66,7 +66,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         configureGoogleSignIn();
 
-        // Find Views
         TextView registerTitle = findViewById(R.id.register_title);
         TextView loginLink = findViewById(R.id.login_text_on_register);
         editTextEmail = findViewById(R.id.edit_text_email);
@@ -214,47 +213,28 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void addTextWatchers() {
         editTextEmail.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                textInputLayoutEmail.setError(null);
-            }
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { textInputLayoutEmail.setError(null); }
+            @Override public void afterTextChanged(Editable s) {}
         });
 
         editTextPassword.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                textInputLayoutPassword.setError(null);
-            }
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { textInputLayoutPassword.setError(null); }
+            @Override public void afterTextChanged(Editable s) {}
         });
 
         editTextConfirmPassword.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                textInputLayoutConfirmPassword.setError(null);
-            }
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { textInputLayoutConfirmPassword.setError(null); }
+            @Override public void afterTextChanged(Editable s) {}
         });
     }
 
     private void applyTitleGradient(TextView registerTitle) {
         int color1 = ContextCompat.getColor(this, R.color.colorPrimary);
         int color2 = ContextCompat.getColor(this, R.color.colorAccent);
-
-        Shader textShader = new LinearGradient(0, 0, registerTitle.getPaint().measureText(registerTitle.getText().toString()), registerTitle.getTextSize(),
-                new int[]{color1, color2},
-                null, Shader.TileMode.CLAMP);
-
+        Shader textShader = new LinearGradient(0, 0, registerTitle.getPaint().measureText(registerTitle.getText().toString()), registerTitle.getTextSize(), new int[]{color1, color2}, null, Shader.TileMode.CLAMP);
         registerTitle.getPaint().setShader(textShader);
     }
 

@@ -245,4 +245,7 @@
     <string name="chat_user_blocked_message">Bạn đã chặn người dùng này.</string>
     <string name="chat_user_is_blocked_message">Bạn không thể trả lời cuộc trò chuyện này.</string>
 
+    <!-- Admin -->
+    <string name="user_options_content_description">User options</string>
+
 </resources>

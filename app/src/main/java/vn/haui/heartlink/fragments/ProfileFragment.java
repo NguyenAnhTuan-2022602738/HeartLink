@@ -38,6 +38,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
@@ -51,9 +54,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 import vn.haui.heartlink.R;
@@ -77,7 +82,7 @@ public class ProfileFragment extends Fragment {
 
     private ProfileInteractionListener mListener;
 
-    private static final DateTimeFormatter DOB_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final SimpleDateFormat DOB_FORMATTER = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     private final UserRepository userRepository = UserRepository.getInstance();
     private final MatchRepository matchRepository = MatchRepository.getInstance();
@@ -371,14 +376,32 @@ public class ProfileFragment extends Fragment {
     }
 
     private void performLogout() {
-        FirebaseAuth.getInstance().signOut();
-        if (getActivity() != null) {
-            Intent intent = new Intent(getActivity(), WelcomeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            getActivity().finishAffinity();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            DatabaseReference userStatusRef = FirebaseDatabase.getInstance().getReference("Users").child(currentUser.getUid());
+            Map<String, Object> statusUpdate = new HashMap<>();
+            statusUpdate.put("online", false);
+            statusUpdate.put("lastSeen", ServerValue.TIMESTAMP);
+            userStatusRef.updateChildren(statusUpdate).addOnCompleteListener(task -> {
+                FirebaseAuth.getInstance().signOut();
+                if (getActivity() != null) {
+                    Intent intent = new Intent(getActivity(), WelcomeActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    getActivity().finishAffinity();
+                }
+            });
+        } else {
+            // Fallback for cases where user is null but logout is triggered
+            if (getActivity() != null) {
+                Intent intent = new Intent(getActivity(), WelcomeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                getActivity().finishAffinity();
+            }
         }
     }
+
 
     private void showLoading(boolean show) {
         loadingView.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -396,7 +419,8 @@ public class ProfileFragment extends Fragment {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
-                LocalDate birthDate = LocalDate.parse(dobString, DOB_FORMATTER);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate birthDate = LocalDate.parse(dobString, formatter);
                 LocalDate today = LocalDate.now();
                 if (birthDate.isAfter(today)) {
                     return -1;
@@ -407,8 +431,7 @@ public class ProfileFragment extends Fragment {
             }
         } else {
             try {
-                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                Date birthDate = formatter.parse(dobString);
+                Date birthDate = DOB_FORMATTER.parse(dobString);
                 if (birthDate == null) {
                     return -1;
                 }

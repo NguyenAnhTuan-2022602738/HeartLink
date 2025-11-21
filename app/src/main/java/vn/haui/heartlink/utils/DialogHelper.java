@@ -28,9 +28,9 @@ public class DialogHelper {
         statusMessage.setText(message);
 
         if (isSuccess) {
-            statusIcon.setImageResource(R.drawable.ic_success);
+            statusIcon.setImageResource(R.drawable.ic_check); // Using available icon
         } else {
-            statusIcon.setImageResource(R.drawable.ic_error);
+            statusIcon.setImageResource(R.drawable.ic_home_dislike); // Using available icon
         }
 
         final AlertDialog dialog = builder.create();

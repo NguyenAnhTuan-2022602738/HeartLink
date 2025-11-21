@@ -3,19 +3,29 @@ package vn.haui.heartlink;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import vn.haui.heartlink.utils.ChatRepository;
 import vn.haui.heartlink.utils.LikesNotificationManager;
 import vn.haui.heartlink.utils.MatchRepository;
 import vn.haui.heartlink.utils.MessagesNotificationManager;
 
-public class HeartLinkApplication extends Application implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class HeartLinkApplication extends Application implements SharedPreferences.OnSharedPreferenceChangeListener, LifecycleObserver {
 
     private ChildEventListener likesListener;
     private ChildEventListener messagesListener;
@@ -27,6 +37,17 @@ public class HeartLinkApplication extends Application implements SharedPreferenc
         EmojiManager.install(new GoogleEmojiProvider());
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         setupNotificationListeners();
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    public void onAppBackgrounded() {
+        updateUserStatus(false);
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    public void onAppForegrounded() {
+        updateUserStatus(true);
     }
 
     @Override
@@ -48,6 +69,19 @@ public class HeartLinkApplication extends Application implements SharedPreferenc
             }
         } else {
             stopListeners();
+        }
+    }
+
+    private void updateUserStatus(boolean isOnline) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            DatabaseReference userStatusRef = FirebaseDatabase.getInstance().getReference("Users").child(currentUser.getUid());
+            Map<String, Object> statusUpdate = new HashMap<>();
+            statusUpdate.put("online", isOnline);
+            if (!isOnline) {
+                statusUpdate.put("lastSeen", ServerValue.TIMESTAMP);
+            }
+            userStatusRef.updateChildren(statusUpdate);
         }
     }
 

@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements DiscoveryFragment
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
         final View root = findViewById(R.id.main);
@@ -179,12 +178,10 @@ public class MainActivity extends AppCompatActivity implements DiscoveryFragment
     private void setupPresenceHandling() {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return;
+            return; // No user logged in
         }
         String uid = firebaseUser.getUid();
-        DatabaseReference userStatusRef = FirebaseDatabase.getInstance().getReference("/users/" + uid);
+        DatabaseReference userStatusRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
         DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
 
         connectedRef.addValueEventListener(new ValueEventListener() {
@@ -193,17 +190,14 @@ public class MainActivity extends AppCompatActivity implements DiscoveryFragment
                 boolean connected = snapshot.getValue(Boolean.class) != null && snapshot.getValue(Boolean.class);
                 if (connected) {
                     userStatusRef.child("online").setValue(true);
-                    userStatusRef.child("lastSeen").setValue(ServerValue.TIMESTAMP);
                     userStatusRef.child("online").onDisconnect().setValue(false);
                     userStatusRef.child("lastSeen").onDisconnect().setValue(ServerValue.TIMESTAMP);
-                } else {
-                    // Handled by onDisconnect()
-                }
+                } 
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Log error
+                // Log error if needed
             }
         });
     }
