@@ -78,6 +78,8 @@
         android:layout_marginTop="48dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:text="@string/match_success_title_placeholder"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
         android:textColor="@color/colorPrimary"

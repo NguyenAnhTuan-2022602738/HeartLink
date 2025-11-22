@@ -1,139 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <ImageView
-        android:id="@+id/card_profile_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-    android:contentDescription="@string/home_user_name_age"
-    android:scaleType="centerCrop"
-    android:src="@drawable/welcome_person_2"
-    tools:src="@drawable/welcome_person_2" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="240dp"
-        android:layout_gravity="bottom"
-        android:background="@drawable/bg_home_card_gradient" />
-
-    <LinearLayout
-        android:id="@+id/card_distance_chip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:background="@drawable/bg_home_distance"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="6dp">
-
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:src="@drawable/ic_home_location" />
-
-        <TextView
-            android:id="@+id/card_distance_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:text="@string/home_user_distance"
-            android:textColor="@android:color/white"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/card_more_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|end"
-        android:layout_margin="20dp"
-        android:src="@drawable/ic_home_more_vertical" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="24dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/card_user_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/home_user_name_age"
-            android:textColor="@android:color/white"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/card_user_interest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/home_user_interest"
-            android:textColor="@android:color/white"
-            android:textSize="16sp" />
-
-    </LinearLayout>
+    android:layout_height="match_parent"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp">
 
     <FrameLayout
-        android:id="@+id/card_like_overlay"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_gravity="center"
-        android:alpha="0"
-        android:background="@drawable/bg_home_action_secondary"
-        android:padding="28dp"
-        android:visibility="visible">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <ImageView
+            android:id="@+id/card_profile_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_home_like"
-            app:tint="@color/home_nav_active"
-            android:scaleType="fitCenter" />
+            android:contentDescription="@string/home_user_name_age"
+            android:scaleType="centerCrop"
+            android:src="@drawable/welcome_person_2"
+            tools:src="@drawable/welcome_person_2" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bg_home_card_gradient" />
+
+        <LinearLayout
+            android:id="@+id/card_distance_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:background="@drawable/bg_home_distance"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_home_location" />
+
+            <TextView
+                android:id="@+id/card_distance_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/home_user_distance"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/card_more_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:layout_margin="20dp"
+            android:src="@drawable/ic_home_more_vertical" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="24dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/card_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/home_user_name_age"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/card_user_interest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/home_user_interest"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/card_like_overlay"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:alpha="0"
+            android:background="@drawable/bg_home_action_secondary"
+            android:padding="28dp"
+            android:visibility="visible">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_home_like"
+                app:tint="@color/home_nav_active"
+                android:scaleType="fitCenter" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/card_pass_overlay"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:alpha="0"
+            android:background="@drawable/bg_home_action_secondary"
+            android:padding="28dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_home_dislike"
+                android:scaleType="fitCenter" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/card_superlike_overlay"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:alpha="0"
+            android:background="@drawable/bg_home_action_secondary"
+            android:padding="28dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_home_superlike"
+                android:scaleType="fitCenter" />
+
+        </FrameLayout>
 
     </FrameLayout>
 
-    <FrameLayout
-        android:id="@+id/card_pass_overlay"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_gravity="center"
-        android:alpha="0"
-        android:background="@drawable/bg_home_action_secondary"
-        android:padding="28dp">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_home_dislike"
-            android:scaleType="fitCenter" />
-
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/card_superlike_overlay"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_gravity="center"
-        android:alpha="0"
-        android:background="@drawable/bg_home_action_secondary"
-        android:padding="28dp">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_home_superlike"
-            android:scaleType="fitCenter" />
-
-    </FrameLayout>
-
-</FrameLayout>
+</com.google.android.material.card.MaterialCardView>

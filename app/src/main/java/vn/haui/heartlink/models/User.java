@@ -1,14 +1,11 @@
 package vn.haui.heartlink.models;
 
 import com.google.firebase.database.Exclude;
+import com.google.firebase.database.PropertyName;
 import com.google.firebase.database.ServerValue;
 
 import java.util.List;
-import java.util.Map;
 
-/**
- * User model for Firebase Realtime Database
- */
 public class User {
     private String uid;
     private String email;
@@ -129,6 +126,7 @@ public class User {
         return role;
     }
 
+    @PropertyName("blocked")
     public boolean isBlocked() {
         return blocked;
     }
@@ -163,7 +161,7 @@ public class User {
         this.gender = gender;
     }
 
-public void setDateOfBirth(String dateOfBirth) {
+    public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -227,6 +225,7 @@ public void setDateOfBirth(String dateOfBirth) {
         this.role = role;
     }
 
+    @PropertyName("blocked")
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
     }
