@@ -53,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import vn.haui.heartlink.R;
+import vn.haui.heartlink.activities.MainActivity;
 import vn.haui.heartlink.activities.MatchSuccessActivity;
 import vn.haui.heartlink.adapters.DiscoveryCardAdapter;
 import vn.haui.heartlink.models.DiscoveryProfile;
@@ -530,6 +531,12 @@ public class DiscoveryFragment extends Fragment {
             return;
         }
 
+        // Notify MainActivity TRƯỚC khi tạo match để add vào selfInitiatedMatches
+        // Điều này ngăn MainActivity listener hiển thị dialog cho người swipe
+        if (navigationListener != null && profile.getUser().getUid() != null) {
+            navigationListener.onMatchCreatedByUser(profile.getUser().getUid());
+        }
+
         matchRepository.likeUser(currentUser, profile.getUser(), isSuperLike, new MatchRepository.MatchResultCallback() {
             @Override
             public void onLikeRecorded() {
@@ -561,12 +568,16 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void launchMatchSuccess(DiscoveryProfile profile) {
-        if (getContext() == null) return;
-        String partnerName = profile.getUser() != null && !TextUtils.isEmpty(profile.getUser().getName())
+        if (getContext() == null || profile.getUser() == null) return;
+         if (navigationListener != null) {
+             navigationListener.onMatchCreatedByUser(profile.getUser().getUid());
+         }
+        String partnerName = !TextUtils.isEmpty(profile.getUser().getName())
                 ? profile.getUser().getName()
                 : profile.getDisplayName();
         startActivity(MatchSuccessActivity.createIntent(
                 getContext(),
+                profile.getUser().getUid(), // Correctly pass partnerId here
                 partnerName,
                 profile.getPhotoUrl(),
                 extractPrimaryPhoto(currentUser)));
@@ -755,5 +766,6 @@ public class DiscoveryFragment extends Fragment {
     public interface NavigationListener {
         void onNavigateToMatches();
         void onNavigateToMessages();
+        void onMatchCreatedByUser(String partnerId);
     }
 }

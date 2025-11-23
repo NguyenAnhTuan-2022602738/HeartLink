@@ -18,6 +18,7 @@ public final class Constants {
     public static final String EXTRA_USER_ID = "extra_user_id";
     public static final String EXTRA_MATCH_ID = "extra_match_id";
     public static final String EXTRA_CHAT_ID = "extra_chat_id";
+    public static final String EXTRA_MATCH_PARTNER_ID = "extra_match_partner_id"; // Added this line
     public static final String EXTRA_MATCH_PARTNER_NAME = "extra_match_partner_name";
     public static final String EXTRA_MATCH_PARTNER_PHOTO_URL = "extra_match_partner_photo_url";
     public static final String EXTRA_MATCH_SELF_PHOTO_URL = "extra_match_self_photo_url";

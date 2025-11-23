@@ -66,6 +66,9 @@ dependencies {
     implementation(libs.cloudinary.core)
     implementation(libs.play.services.auth)
 
+    // Circle ImageView
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+
     // Chart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 

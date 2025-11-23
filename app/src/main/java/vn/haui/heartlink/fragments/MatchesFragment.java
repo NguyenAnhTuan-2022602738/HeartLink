@@ -209,9 +209,10 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
         }
 
         if (interactions.isEmpty()) {
+            matchesAdapter.submitItems(Collections.emptyList());
+            if (matchesRecyclerView != null) matchesRecyclerView.setVisibility(View.GONE);
+            if (emptyStateView != null) emptyStateView.setVisibility(View.VISIBLE);
             showLoading(false);
-            if(matchesRecyclerView != null) matchesRecyclerView.setVisibility(View.GONE);
-            if(emptyStateView != null) emptyStateView.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -609,7 +610,7 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
                 ? currentUser.getPhotoUrls().get(0)
                 : null;
 
-        startActivity(MatchSuccessActivity.createIntent(getContext(), partnerName, partnerPhoto, selfPhoto));
+        startActivity(MatchSuccessActivity.createIntent(getContext(), interaction.partnerUid, partnerName, partnerPhoto, selfPhoto));
     }
 
     @Nullable

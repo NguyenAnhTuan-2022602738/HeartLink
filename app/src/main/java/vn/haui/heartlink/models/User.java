@@ -26,7 +26,7 @@ public class User {
     private Boolean notificationsEnabled;
     private boolean online;
     private long lastSeen;
-    private String role; // "User" or "Admin"
+    private String role;
     private boolean blocked;
     public Object createdAt;
 
@@ -39,9 +39,9 @@ public class User {
         this.email = email;
         this.profileComplete = false;
         this.online = false;
-        this.lastSeen = 0; // Initialize with a default value
-        this.role = "User"; // Default role
-        this.blocked = false; // Default blocked status
+        this.lastSeen = 0;
+        this.role = "User";
+        this.blocked = false;
         this.createdAt = ServerValue.TIMESTAMP;
     }
 

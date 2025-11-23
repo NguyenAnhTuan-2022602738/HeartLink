@@ -221,7 +221,7 @@ public class MessagesFragment extends Fragment implements
 
         boolean hasActive = !items.isEmpty();
         activeUsersList.setVisibility(hasActive ? View.VISIBLE : View.GONE);
-        activeLabel.setVisibility(hasActive ? View.VISIBLE : View.GONE);
+        activeLabel.setVisibility(hasActive ? View.GONE : View.VISIBLE);
     }
 
     private long getPartnerInteraction(@NonNull String userId) {
@@ -457,6 +457,23 @@ public class MessagesFragment extends Fragment implements
     @Override
     public void onThreadClicked(@NonNull MessageThreadsAdapter.ThreadItem item) {
         openChat(item.getPartnerUid(), item.getDisplayName(), item.getPhotoUrl());
+    }
+
+    public void openChatWithUser(@NonNull String userId) {
+        PartnerInfo partnerInfo = partners.get(userId);
+        String displayName = "";
+        String photoUrl = null;
+
+        if (partnerInfo != null) {
+            displayName = partnerInfo.displayName;
+            photoUrl = partnerInfo.photoUrl;
+        } else {
+            // Fallback: Try to fetch user data if not in partners map
+            // This might happen if the fragment isn't fully loaded or for a new match
+            // For simplicity, we'll use a placeholder for now and rely on ChatBottomSheetFragment to fetch if needed
+            displayName = getString(R.string.profile_name_fallback); // Default name
+        }
+        openChat(userId, displayName, photoUrl);
     }
 
     private void openChat(@NonNull String partnerUid,

@@ -22,7 +22,6 @@ import java.util.Map;
 import vn.haui.heartlink.Constants;
 import vn.haui.heartlink.models.Match;
 import vn.haui.heartlink.models.User;
-import vn.haui.heartlink.utils.ChatRepository;
 
 public final class MatchRepository {
 
@@ -223,6 +222,14 @@ public final class MatchRepository {
     }
 
     public void removeInteractionsListener(@NonNull String userId, @NonNull ValueEventListener listener) {
+        matchInteractionsRef.child(userId).removeEventListener(listener);
+    }
+
+    public void addInteractionListener(@NonNull String userId, @NonNull ChildEventListener listener) {
+        matchInteractionsRef.child(userId).addChildEventListener(listener);
+    }
+
+    public void removeInteractionListener(@NonNull String userId, @NonNull ChildEventListener listener) {
         matchInteractionsRef.child(userId).removeEventListener(listener);
     }
 

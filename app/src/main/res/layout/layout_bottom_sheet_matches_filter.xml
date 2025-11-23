@@ -34,19 +34,19 @@
         android:id="@+id/filter_all"
         style="@style/BottomSheetFilterOption"
         android:text="Tất cả"
-        app:drawableStartCompat="@drawable/ic_check" />
+        app:drawableStartCompat="@drawable/ic_all" />
 
     <TextView
         android:id="@+id/filter_matched"
         style="@style/BottomSheetFilterOption"
         android:text="Ghép đôi"
-        app:drawableStartCompat="@drawable/ic_favorite" />
+        app:drawableStartCompat="@drawable/ic_match" />
 
     <TextView
         android:id="@+id/filter_liked"
         style="@style/BottomSheetFilterOption"
         android:text="Đã thích"
-        app:drawableStartCompat="@drawable/ic_home_like" />
+        app:drawableStartCompat="@drawable/ic_heart_filled" />
 
     <TextView
         android:id="@+id/filter_superliked"

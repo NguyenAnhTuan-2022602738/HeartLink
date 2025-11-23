@@ -7,7 +7,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
@@ -29,10 +28,12 @@ import vn.haui.heartlink.R;
 public class MatchSuccessActivity extends AppCompatActivity {
 
     public static Intent createIntent(Context context,
+                                      @Nullable String partnerId,
                                       @Nullable String partnerName,
                                       @Nullable String partnerPhotoUrl,
                                       @Nullable String selfPhotoUrl) {
         Intent intent = new Intent(context, MatchSuccessActivity.class);
+        intent.putExtra(Constants.EXTRA_MATCH_PARTNER_ID, partnerId);
         intent.putExtra(Constants.EXTRA_MATCH_PARTNER_NAME, partnerName);
         intent.putExtra(Constants.EXTRA_MATCH_PARTNER_PHOTO_URL, partnerPhotoUrl);
         intent.putExtra(Constants.EXTRA_MATCH_SELF_PHOTO_URL, selfPhotoUrl);
@@ -72,6 +73,7 @@ public class MatchSuccessActivity extends AppCompatActivity {
         MaterialButton continueButton = findViewById(R.id.continue_swiping_button);
 
         Intent intent = getIntent();
+        String partnerId = intent.getStringExtra(Constants.EXTRA_MATCH_PARTNER_ID);
         String partnerName = intent.getStringExtra(Constants.EXTRA_MATCH_PARTNER_NAME);
         String partnerPhoto = intent.getStringExtra(Constants.EXTRA_MATCH_PARTNER_PHOTO_URL);
         String currentPhoto = intent.getStringExtra(Constants.EXTRA_MATCH_SELF_PHOTO_URL);
@@ -86,11 +88,25 @@ public class MatchSuccessActivity extends AppCompatActivity {
         loadImage(partnerImage, partnerPhoto);
         loadImage(currentImage, currentPhoto);
 
-        waveButton.setOnClickListener(v -> Toast.makeText(
-                MatchSuccessActivity.this,
-                R.string.match_wave_placeholder,
-                Toast.LENGTH_SHORT
-        ).show());
+        final String finalPartnerId = partnerId; // capture for lambda
+
+        waveButton.setOnClickListener(v -> {
+            if (!TextUtils.isEmpty(finalPartnerId)) {
+                Intent messageIntent = new Intent(MatchSuccessActivity.this, MainActivity.class);
+                messageIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                messageIntent.putExtra("NAVIGATE_TO", "MESSAGES");
+                messageIntent.putExtra("CHAT_WITH_USER_ID", finalPartnerId);
+                startActivity(messageIntent);
+                finish();
+            } else {
+                // Fallback if partnerId is not available, maybe just go to messages tab
+                Intent messageIntent = new Intent(MatchSuccessActivity.this, MainActivity.class);
+                messageIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                messageIntent.putExtra("NAVIGATE_TO", "MESSAGES");
+                startActivity(messageIntent);
+                finish();
+            }
+        });
 
         continueButton.setOnClickListener(v -> finish());
     }
