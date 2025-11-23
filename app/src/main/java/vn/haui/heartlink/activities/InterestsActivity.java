@@ -287,8 +287,8 @@ public class InterestsActivity extends AppCompatActivity {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         cardView.setOutlineSpotShadowColor(ContextCompat.getColor(itemView.getContext(), R.color.colorPrimary));
                         cardView.setOutlineAmbientShadowColor(ContextCompat.getColor(itemView.getContext(), R.color.colorPrimary));
-                        titleView.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.white));
-                        iconView.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.white));
+                        titleView.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.interest_selected ));
+                        iconView.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.interest_selected));
                     }
                 } else {
                     cardView.setCardElevation(0);

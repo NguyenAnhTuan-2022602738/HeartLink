@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/white"
     tools:context=".activities.ProfileInfoActivity">
 
     <!-- Header -->
@@ -14,8 +14,8 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_back_button"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_home_icon_button"
         android:padding="12dp"
         android:src="@drawable/ic_back_arrow"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,8 +105,9 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:hint="Họ đệm"
+        android:textFontWeight="600"
         android:elevation="4dp"
-        app:boxBackgroundColor="@android:color/white"
+        app:boxBackgroundColor="@color/bg_text_input"
         app:boxCornerRadiusBottomEnd="16dp"
         app:boxCornerRadiusBottomStart="16dp"
         app:boxCornerRadiusTopEnd="16dp"
@@ -123,7 +124,8 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_regular"
             android:inputType="textPersonName"
-            android:textColor="#333333"/>
+            android:textFontWeight="1000"
+            android:textColor="@color/textColorPrimary"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -135,9 +137,10 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
+        android:textFontWeight="600"
         android:hint="Tên"
         android:elevation="4dp"
-        app:boxBackgroundColor="@android:color/white"
+        app:boxBackgroundColor="@color/bg_text_input"
         app:boxCornerRadiusBottomEnd="16dp"
         app:boxCornerRadiusBottomStart="16dp"
         app:boxCornerRadiusTopEnd="16dp"
@@ -153,8 +156,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat_regular"
+            android:textFontWeight="1000"
             android:inputType="textPersonName"
-            android:textColor="#333333"/>
+            android:textColor="@color/textColorPrimary"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 

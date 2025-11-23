@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/white"
     tools:context=".activities.GenderSelectionActivity">
 
     <!-- Header -->
@@ -14,8 +14,8 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginStart="44dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_back_button"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_home_icon_button"
         android:padding="12dp"
         android:src="@drawable/ic_back_arrow"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +87,7 @@
             android:layout_marginTop="8dp"
             android:fontFamily="@font/montserrat_bold"
             android:text="Nam"
-            android:textColor="@android:color/white"
+            android:textColor="@color/white"
             android:textSize="18sp" />
     </LinearLayout>
 
@@ -116,7 +116,7 @@
             android:layout_marginTop="8dp"
             android:fontFamily="@font/montserrat_bold"
             android:text="Nữ"
-            android:textColor="@color/textColorPrimary"
+            android:textColor="@color/white"
             android:textSize="18sp" />
     </LinearLayout>
 
@@ -140,6 +140,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="48dp"
         android:background="@drawable/button_rounded_red"
+        app:backgroundTint="@null"
         android:fontFamily="@font/montserrat_bold"
         android:text="Tiếp tục"
         android:textAllCaps="false"

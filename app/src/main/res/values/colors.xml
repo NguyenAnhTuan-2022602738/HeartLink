@@ -4,6 +4,13 @@
     <color name="white">#FFFFFFFF</color>
     <color name="green">#4CAF50</color>
     <color name="grey_100">#F5F5F5</color>
+    <color name="interest_selected">#FFFFFFFF</color>
+    <color name="interest_chip_background_custom">#FFFFFFFF</color>
+    <color name="interest_chip_text_custom">#E94057</color>
+    <color name="bg_text_input">#FFFFFFFF</color>
+    <color name="bg_date_selection">#FFF1F2</color>
+
+
 
     <!-- Admin Panel Colors -->
     <color name="admin_toolbar_start">#D94A5D</color>

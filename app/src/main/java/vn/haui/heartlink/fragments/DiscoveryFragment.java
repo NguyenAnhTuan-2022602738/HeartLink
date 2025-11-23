@@ -86,7 +86,7 @@ public class DiscoveryFragment extends Fragment {
 
     private final UserRepository userRepository = UserRepository.getInstance();
     private final MatchRepository matchRepository = MatchRepository.getInstance();
-    private final ExecutorService geocoderExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService geocoderExecutor;
 
     @Nullable
     private User currentUser;
@@ -122,6 +122,7 @@ public class DiscoveryFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        geocoderExecutor = Executors.newSingleThreadExecutor();
         bindViews(view);
         setupCardStack();
         hookupActions();
@@ -134,6 +135,10 @@ public class DiscoveryFragment extends Fragment {
         if (currentUser != null && interactionsListener != null) {
             matchRepository.removeInteractionsListener(currentUser.getUid(), interactionsListener);
         }
+        if (geocoderExecutor != null && !geocoderExecutor.isShutdown()) {
+            geocoderExecutor.shutdownNow();
+        }
+        geocoderExecutor = null;
     }
 
     private void bindViews(View view) {
@@ -150,6 +155,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void setupCardStack() {
+        if (!isAdded()) return;
         cardAdapter = new DiscoveryCardAdapter();
         cardStackLayoutManager = new CardStackLayoutManager(getContext(), new CardStackListener() {
             @Override
@@ -224,6 +230,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void loadCurrentUser() {
+        if (!isAdded()) return;
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
             Toast.makeText(getContext(), R.string.error_generic, Toast.LENGTH_SHORT).show();
@@ -234,6 +241,7 @@ public class DiscoveryFragment extends Fragment {
         showLoading(true);
         userRepository.getUserData(firebaseUser.getUid())
                 .addOnSuccessListener(snapshot -> {
+                    if (!isAdded()) return;
                     currentUser = snapshot.getValue(User.class);
                     if (currentUser == null) {
                         showLoading(false);
@@ -249,19 +257,21 @@ public class DiscoveryFragment extends Fragment {
                     loadSuggestions();
                 })
                 .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
                     showLoading(false);
                     showError(e.getLocalizedMessage());
                 });
     }
 
     private void loadSuggestions() {
-        if (currentUser == null || TextUtils.isEmpty(currentUser.getUid())) {
+        if (!isAdded() || currentUser == null || TextUtils.isEmpty(currentUser.getUid())) {
             return;
         }
 
         interactionsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) return;
                 excludedUserIds.clear();
                 for (DataSnapshot child : snapshot.getChildren()) {
                     String otherUid = child.getKey();
@@ -274,6 +284,7 @@ public class DiscoveryFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                if (!isAdded()) return;
                 excludedUserIds.clear();
                 fetchAllUsers();
             }
@@ -282,15 +293,18 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void fetchAllUsers() {
+        if (!isAdded()) return;
         userRepository.getAllUsers()
                 .addOnSuccessListener(this::handleSuggestionsSnapshot)
                 .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
                     showLoading(false);
                     showError(e.getLocalizedMessage());
                 });
     }
 
     private void handleSuggestionsSnapshot(DataSnapshot snapshot) {
+        if (!isAdded() || filterPreferences == null) return;
         discoveryProfiles.clear();
 
         if (currentUser == null) {
@@ -303,7 +317,8 @@ public class DiscoveryFragment extends Fragment {
         if (filterPreferences.hasCustomLocation()) {
             baseLat = filterPreferences.getLocationLatitude();
             baseLng = filterPreferences.getLocationLongitude();
-        } else {
+        }
+ else {
             baseLat = currentUser.getLatitude();
             baseLng = currentUser.getLongitude();
         }
@@ -377,11 +392,13 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void showLoading(boolean show) {
+        if (!isAdded()) return;
         loadingIndicator.setVisibility(show ? View.VISIBLE : View.GONE);
         cardStackView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
     }
 
     private void updateEmptyState() {
+        if (!isAdded()) return;
         boolean isEmpty = discoveryProfiles.isEmpty();
         emptyStateView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         cardStackView.setVisibility(isEmpty ? View.INVISIBLE : View.VISIBLE);
@@ -396,7 +413,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void updateLocationText() {
-        if (currentUser == null
+        if (!isAdded() || currentUser == null
                 || currentUser.getLatitude() == null
                 || currentUser.getLongitude() == null
                 || (currentUser.getLocationVisible() != null && !currentUser.getLocationVisible())) {
@@ -405,9 +422,15 @@ public class DiscoveryFragment extends Fragment {
             return;
         }
 
+        // Check if the executor is shut down or null before submitting a task
+        if (geocoderExecutor == null || geocoderExecutor.isShutdown()) {
+            return;
+        }
+
         geocoderExecutor.execute(() -> {
-            if (getContext() == null || !Geocoder.isPresent()) {
+            if (getContext() == null || !Geocoder.isPresent() || !isAdded()) {
                 if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     currentLocationLabel = null;
                     updateLocationDisplay();
                 });
@@ -431,17 +454,20 @@ public class DiscoveryFragment extends Fragment {
                         label = getString(R.string.home_location_placeholder);
                     }
                     if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                        if (!isAdded()) return;
                         currentLocationLabel = label;
                         updateLocationDisplay();
                     });
                 } else {
                     if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                        if (!isAdded()) return;
                         currentLocationLabel = null;
                         updateLocationDisplay();
                     });
                 }
             } catch (IOException e) {
                 if (getActivity() != null) getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     currentLocationLabel = null;
                     updateLocationDisplay();
                 });
@@ -450,7 +476,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void performSwipe(Direction direction) {
-        if (cardAdapter.getItemCount() == 0) {
+        if (!isAdded() || cardAdapter.getItemCount() == 0) {
             return;
         }
         SwipeAnimationSetting setting = new SwipeAnimationSetting.Builder()
@@ -462,7 +488,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void updateOverlay(Direction direction, float ratio) {
-        if (Float.isNaN(ratio) || Float.isInfinite(ratio)) {
+        if (!isAdded() || Float.isNaN(ratio) || Float.isInfinite(ratio)) {
             resetOverlay();
             return;
         }
@@ -483,20 +509,23 @@ public class DiscoveryFragment extends Fragment {
 
         if (direction == Direction.Right) {
             likeOverlay.setAlpha(normalized);
-        } else if (direction == Direction.Left) {
+        }
+        if (direction == Direction.Left) {
             passOverlay.setAlpha(normalized);
-        } else if (direction == Direction.Top) {
+        }
+        if (direction == Direction.Top) {
             superlikeOverlay.setAlpha(normalized);
         }
     }
 
     private void resetOverlay() {
+        if (!isAdded()) return;
         View topView = cardStackLayoutManager.getTopView();
         resetOverlay(topView);
     }
 
     private void resetOverlay(@Nullable View view) {
-        if (view == null) {
+        if (!isAdded() || view == null) {
             return;
         }
         View likeOverlay = view.findViewById(R.id.card_like_overlay);
@@ -518,6 +547,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void handlePass(DiscoveryProfile profile) {
+        if (!isAdded()) return;
         Toast.makeText(getContext(), getString(R.string.home_button_dislike), Toast.LENGTH_SHORT).show();
     }
 
@@ -526,7 +556,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void processSwipeAction(DiscoveryProfile profile, boolean isSuperLike) {
-        if (currentUser == null || profile == null || profile.getUser() == null) {
+        if (!isAdded() || currentUser == null || profile == null || profile.getUser() == null) {
             showError(getString(R.string.match_creation_error, getString(R.string.error_generic)));
             return;
         }
@@ -540,6 +570,7 @@ public class DiscoveryFragment extends Fragment {
         matchRepository.likeUser(currentUser, profile.getUser(), isSuperLike, new MatchRepository.MatchResultCallback() {
             @Override
             public void onLikeRecorded() {
+                if (!isAdded()) return;
                 int messageRes = isSuperLike
                         ? R.string.match_superlike_sent
                         : R.string.match_like_sent;
@@ -548,17 +579,20 @@ public class DiscoveryFragment extends Fragment {
 
             @Override
             public void onMatchCreated() {
-                if (getActivity() != null) getActivity().runOnUiThread(() -> launchMatchSuccess(profile));
+                if (!isAdded() || getActivity() == null) return;
+                getActivity().runOnUiThread(() -> launchMatchSuccess(profile));
             }
 
             @Override
             public void onAlreadyMatched() {
-                if (getActivity() != null) getActivity().runOnUiThread(() -> launchMatchSuccess(profile));
+                if (!isAdded() || getActivity() == null) return;
+                getActivity().runOnUiThread(() -> launchMatchSuccess(profile));
             }
 
             @Override
             public void onError(@NonNull Exception throwable) {
-                if (getActivity() != null) getActivity().runOnUiThread(() -> showError(getString(R.string.match_creation_error, throwable.getLocalizedMessage())));
+                if (!isAdded() || getActivity() == null) return;
+                getActivity().runOnUiThread(() -> showError(getString(R.string.match_creation_error, throwable.getLocalizedMessage())));
             }
         });
 
@@ -568,7 +602,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void launchMatchSuccess(DiscoveryProfile profile) {
-        if (getContext() == null || profile.getUser() == null) return;
+        if (!isAdded() || getContext() == null || profile.getUser() == null) return;
          if (navigationListener != null) {
              navigationListener.onMatchCreatedByUser(profile.getUser().getUid());
          }
@@ -593,14 +627,15 @@ public class DiscoveryFragment extends Fragment {
         String normalizedCandidate = candidateGender.trim().toLowerCase(Locale.ROOT);
         if (FilterPreferences.INTEREST_FEMALE.equalsIgnoreCase(interestedIn)) {
             return normalizedCandidate.startsWith("f") || normalizedCandidate.contains("nữ");
-        } else if (FilterPreferences.INTEREST_MALE.equalsIgnoreCase(interestedIn)) {
+        }
+        if (FilterPreferences.INTEREST_MALE.equalsIgnoreCase(interestedIn)) {
             return normalizedCandidate.startsWith("m") || normalizedCandidate.contains("nam");
         }
         return true;
     }
 
     private void openFilterBottomSheet() {
-        if (getFragmentManager() == null) return;
+        if (!isAdded() || getFragmentManager() == null) return;
         FilterBottomSheetDialog dialog = FilterBottomSheetDialog.newInstance(filterPreferences, getActiveLocationLabel());
         dialog.setFilterApplyListener(new FilterBottomSheetDialog.FilterApplyListener() {
             @Override
@@ -641,12 +676,13 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void loadFilterPreferences() {
-        if (getContext() == null) return;
+        if (!isAdded() || getContext() == null) return;
         SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         if (!prefs.contains(KEY_INTERESTED_IN)) {
             filterPreferences = buildDefaultFilters();
             saveFilterPreferences();
-        } else {
+        }
+ else {
             String interestedIn = prefs.getString(KEY_INTERESTED_IN, FilterPreferences.INTEREST_BOTH);
             int minAge = prefs.getInt(KEY_MIN_AGE, 18);
             int maxAge = prefs.getInt(KEY_MAX_AGE, 35);
@@ -661,7 +697,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void saveFilterPreferences() {
-        if (getContext() == null) return;
+        if (!isAdded() || getContext() == null) return;
         SharedPreferences.Editor editor = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
         editor.putString(KEY_INTERESTED_IN, filterPreferences.getInterestedIn());
         editor.putInt(KEY_MIN_AGE, filterPreferences.getMinAge());
@@ -678,6 +714,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private void updateLocationDisplay() {
+        if (!isAdded()) return;
         String locationLabel = getActiveLocationLabel();
         if (!TextUtils.isEmpty(locationLabel)) {
             locationTextView.setText(locationLabel);
@@ -698,6 +735,7 @@ public class DiscoveryFragment extends Fragment {
     }
 
     private String buildDisplayName(User user) {
+        if (!isAdded()) return "";
         String name = !TextUtils.isEmpty(user.getName()) ? user.getName() : getString(R.string.home_user_name_age);
         int age = calculateAge(user.getDateOfBirth());
         if (age > 0) {
@@ -716,7 +754,8 @@ public class DiscoveryFragment extends Fragment {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault());
                 LocalDate birthDate = LocalDate.parse(dob, formatter);
                 return Period.between(birthDate, LocalDate.now()).getYears();
-            } else {
+            }
+ else {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 Date date = sdf.parse(dob);
                 if (date == null) {
@@ -725,7 +764,8 @@ public class DiscoveryFragment extends Fragment {
                 long ageInMillis = System.currentTimeMillis() - date.getTime();
                 return (int) (ageInMillis / (1000L * 60 * 60 * 24 * 365));
             }
-        } catch (ParseException | java.time.format.DateTimeParseException e) {
+        }
+ catch (ParseException | java.time.format.DateTimeParseException e) {
             return -1;
         }
     }
@@ -755,12 +795,6 @@ public class DiscoveryFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         navigationListener = null;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        geocoderExecutor.shutdownNow();
     }
 
     public interface NavigationListener {

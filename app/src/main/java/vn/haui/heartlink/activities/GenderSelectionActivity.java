@@ -94,11 +94,11 @@ public class GenderSelectionActivity extends AppCompatActivity {
             maleIcon.setColorFilter(ContextCompat.getColor(this, android.R.color.white), PorterDuff.Mode.SRC_IN);
 
             femaleOption.setBackgroundResource(R.drawable.gender_option_unselected);
-            femaleText.setTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
+            femaleText.setTextColor(ContextCompat.getColor(this, R.color.white));
             femaleIcon.clearColorFilter();
         } else {
             maleOption.setBackgroundResource(R.drawable.gender_option_unselected);
-            maleText.setTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
+            maleText.setTextColor(ContextCompat.getColor(this, R.color.white));
             maleIcon.clearColorFilter();
 
             femaleOption.setBackgroundResource(R.drawable.gender_option_selected);

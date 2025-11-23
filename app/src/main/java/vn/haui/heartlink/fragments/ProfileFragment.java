@@ -4,6 +4,7 @@ import androidx.appcompat.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
@@ -34,6 +36,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.materialswitch.MaterialSwitch; // Import MaterialSwitch
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -59,6 +62,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import vn.haui.heartlink.R;
@@ -83,9 +87,12 @@ public class ProfileFragment extends Fragment {
     private ProfileInteractionListener mListener;
 
     private static final SimpleDateFormat DOB_FORMATTER = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private static final String PREFS_NAME = "HeartLinkPrefs";
+    private static final String KEY_DARK_MODE = "darkModeEnabled";
 
     private final UserRepository userRepository = UserRepository.getInstance();
     private final MatchRepository matchRepository = MatchRepository.getInstance();
+    private ExecutorService geocoderExecutor;
 
     private View rootView;
     private NestedScrollView scrollView;
@@ -114,6 +121,7 @@ public class ProfileFragment extends Fragment {
     private ImageButton editSeekingButton;
     private TextView notificationStatusView;
     private ImageButton editNotificationButton;
+    private MaterialSwitch darkModeSwitch; // Declare MaterialSwitch
 
     @Nullable
     private FirebaseUser firebaseUser;
@@ -139,9 +147,43 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        geocoderExecutor = Executors.newSingleThreadExecutor();
         rootView = view;
         bindViews(view);
         setupActions();
+        setupDarkModeSwitch();
+    }
+    
+    private void setupDarkModeSwitch() {
+        if (!isAdded() || darkModeSwitch == null) return;
+        
+        SharedPreferences preferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean darkModeEnabled = preferences.getBoolean(KEY_DARK_MODE, false);
+        
+        // Set giá trị ban đầu KHÔNG có animation để tránh trigger listener
+        darkModeSwitch.setChecked(darkModeEnabled);
+        
+        // Sử dụng setOnClickListener thay vì setOnCheckedChangeListener
+        // Điều này chỉ trigger khi USER click, không trigger khi setChecked() programmatically
+        darkModeSwitch.setOnClickListener(v -> {
+            if (!isAdded()) return;
+            
+            boolean newValue = darkModeSwitch.isChecked();
+            
+            // Lưu giá trị mới
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(KEY_DARK_MODE, newValue);
+            editor.apply();
+
+            // Áp dụng theme mới
+            int newMode = newValue ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+            AppCompatDelegate.setDefaultNightMode(newMode);
+            
+            // Recreate activity để apply theme
+            if (getActivity() != null && !getActivity().isFinishing()) {
+                getActivity().recreate();
+            }
+        });
     }
 
     @Override
@@ -156,6 +198,10 @@ public class ProfileFragment extends Fragment {
         if (firebaseUser != null && interactionsListener != null) {
             matchRepository.removeInteractionsListener(firebaseUser.getUid(), interactionsListener);
         }
+        if (geocoderExecutor != null && !geocoderExecutor.isShutdown()) {
+            geocoderExecutor.shutdownNow();
+        }
+        geocoderExecutor = null;
     }
 
     public void refreshProfile() {
@@ -187,6 +233,7 @@ public class ProfileFragment extends Fragment {
         editSeekingButton = view.findViewById(R.id.profile_settings_edit_seeking);
         notificationStatusView = view.findViewById(R.id.profile_settings_notification_status);
         editNotificationButton = view.findViewById(R.id.profile_settings_edit_notification);
+        darkModeSwitch = view.findViewById(R.id.profile_settings_dark_mode_switch); // Bind MaterialSwitch
 
         if (photosRecyclerView != null) {
             photosRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -199,11 +246,13 @@ public class ProfileFragment extends Fragment {
         optionsButton.setOnClickListener(v -> showLogoutDialog());
 
         editButton.setOnClickListener(v -> {
+            if (!isAdded()) return;
             Intent intent = new Intent(getActivity(), ProfileInfoActivity.class);
             intent.putExtra("IS_EDIT_MODE", true);
             startActivity(intent);
         });
         editInterestsAction.setOnClickListener(v -> {
+            if (!isAdded()) return;
             Intent intent = new Intent(getActivity(), InterestsActivity.class);
             intent.putExtra("IS_EDIT_MODE", true);
             startActivity(intent);
@@ -211,11 +260,13 @@ public class ProfileFragment extends Fragment {
         addPhotoAction.setOnClickListener(v -> openPhotoManager());
         cameraBadgeView.setOnClickListener(v -> openPhotoManager());
         editGenderButton.setOnClickListener(v -> {
+            if (!isAdded()) return;
             Intent intent = new Intent(getActivity(), GenderSelectionActivity.class);
             intent.putExtra("IS_EDIT_MODE", true);
             startActivity(intent);
         });
         editSeekingButton.setOnClickListener(v -> {
+            if (!isAdded()) return;
             Intent intent = new Intent(getActivity(), SeekingActivity.class);
             intent.putExtra("IS_EDIT_MODE", true);
             startActivity(intent);
@@ -226,12 +277,14 @@ public class ProfileFragment extends Fragment {
             }
         });
         editNotificationButton.setOnClickListener(v -> {
+            if (!isAdded()) return;
             Intent intent = new Intent(getActivity(), NotificationPermissionActivity.class);
             startActivity(intent);
         });
     }
 
     private void loadUserProfile() {
+        if (!isAdded()) return;
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser == null) {
             showError(getString(R.string.profile_settings_load_error));
@@ -241,14 +294,19 @@ public class ProfileFragment extends Fragment {
 
         showLoading(true);
         userRepository.getUserData(firebaseUser.getUid())
-                .addOnSuccessListener(this::handleProfileSnapshot)
+                .addOnSuccessListener(snapshot -> {
+                    if (!isAdded()) return;
+                    handleProfileSnapshot(snapshot);
+                })
                 .addOnFailureListener(throwable -> {
+                    if (!isAdded()) return;
                     showLoading(false);
                     showError(getString(R.string.profile_settings_load_error));
                 });
     }
 
     private void handleProfileSnapshot(@NonNull DataSnapshot snapshot) {
+        if (!isAdded()) return;
         showLoading(false);
         User user = snapshot.getValue(User.class);
         if (user == null) {
@@ -294,6 +352,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void bindUser(@NonNull User user) {
+        if (!isAdded()) return;
         String primaryPhotoUrl = null;
         List<String> photos = user.getPhotoUrls();
         if (photos != null && !photos.isEmpty()) {
@@ -336,24 +395,24 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateNotificationStatus() {
-        if (getContext() != null) {
-            boolean areNotificationsEnabled = NotificationManagerCompat.from(getContext()).areNotificationsEnabled();
-            if (areNotificationsEnabled) {
-                notificationStatusView.setText("Đã bật");
-            } else {
-                notificationStatusView.setText("Đã tắt");
-            }
+        if (!isAdded() || getContext() == null) return;
+        boolean areNotificationsEnabled = NotificationManagerCompat.from(getContext()).areNotificationsEnabled();
+        if (areNotificationsEnabled) {
+            notificationStatusView.setText("Đã bật");
+        } else {
+            notificationStatusView.setText("Đã tắt");
         }
     }
 
     private void openPhotoManager() {
+        if (!isAdded()) return;
         Intent intent = new Intent(getActivity(), PhotoUploadActivity.class);
         intent.putExtra("IS_EDIT_MODE", true);
         startActivity(intent);
     }
 
     private void showLogoutDialog() {
-        if (getContext() == null) return;
+        if (!isAdded() || getContext() == null) return;
 
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_logout_confirmation, null);
         AlertDialog dialog = new MaterialAlertDialogBuilder(getContext())
@@ -376,6 +435,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void performLogout() {
+        if (!isAdded()) return;
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             DatabaseReference userStatusRef = FirebaseDatabase.getInstance().getReference("Users").child(currentUser.getUid());
@@ -384,7 +444,7 @@ public class ProfileFragment extends Fragment {
             statusUpdate.put("lastSeen", ServerValue.TIMESTAMP);
             userStatusRef.updateChildren(statusUpdate).addOnCompleteListener(task -> {
                 FirebaseAuth.getInstance().signOut();
-                if (getActivity() != null) {
+                if (getActivity() != null && isAdded()) {
                     Intent intent = new Intent(getActivity(), WelcomeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
@@ -393,7 +453,7 @@ public class ProfileFragment extends Fragment {
             });
         } else {
             // Fallback for cases where user is null but logout is triggered
-            if (getActivity() != null) {
+            if (getActivity() != null && isAdded()) {
                 Intent intent = new Intent(getActivity(), WelcomeActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
@@ -404,13 +464,14 @@ public class ProfileFragment extends Fragment {
 
 
     private void showLoading(boolean show) {
+        if (!isAdded()) return;
         loadingView.setVisibility(show ? View.VISIBLE : View.GONE);
         scrollView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
     }
 
     private void showError(@NonNull String message) {
-        if (getView() != null)
-            Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+        if (!isAdded() || getView() == null) return;
+        Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
     }
 
     private int calculateAge(@Nullable String dobString) {
@@ -450,6 +511,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateLocation(@NonNull User user) {
+        if (!isAdded()) return;
         boolean hasCoordinates = user.getLatitude() != null && user.getLongitude() != null;
         boolean isVisible = user.getLocationVisible() == null || Boolean.TRUE.equals(user.getLocationVisible());
 
@@ -463,12 +525,20 @@ public class ProfileFragment extends Fragment {
     }
 
     private void getAddressFromCoordinates(double latitude, double longitude) {
-        if (getContext() == null || !Geocoder.isPresent()) {
-            locationValueView.setText(R.string.profile_settings_location_enabled);
+        if (getContext() == null || !Geocoder.isPresent() || geocoderExecutor == null || geocoderExecutor.isShutdown()) {
+            if (isAdded()) {
+                locationValueView.setText(R.string.profile_settings_location_enabled);
+            }
             return;
         }
 
-        Executors.newSingleThreadExecutor().execute(() -> {
+        geocoderExecutor.execute(() -> {
+            if (getContext() == null || !Geocoder.isPresent()) {
+                if (getActivity() != null && isAdded()) getActivity().runOnUiThread(() -> {
+                    locationValueView.setText(R.string.profile_settings_location_enabled);
+                });
+                return;
+            }
             Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
             String locationText = getString(R.string.profile_settings_location_enabled);
             try {
@@ -499,7 +569,7 @@ public class ProfileFragment extends Fragment {
                 // Fallback to the default text
             } finally {
                 final String finalLocationText = locationText;
-                if (getActivity() != null) {
+                if (getActivity() != null && isAdded()) {
                     getActivity().runOnUiThread(() -> {
                         locationValueView.setText(finalLocationText);
                     });
@@ -510,7 +580,7 @@ public class ProfileFragment extends Fragment {
 
 
     private void updateInterests(@Nullable List<String> interests) {
-        if (interestsGroup == null || interestsEmptyView == null || getContext() == null) {
+        if (!isAdded() || interestsGroup == null || interestsEmptyView == null || getContext() == null) {
             return;
         }
         interestsGroup.removeAllViews();
@@ -546,7 +616,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updatePhotos(@Nullable List<String> photos) {
-        if (photosRecyclerView == null || photosEmptyView == null) {
+        if (!isAdded() || photosRecyclerView == null || photosEmptyView == null) {
             return;
         }
         List<String> sanitized = new ArrayList<>();
@@ -569,13 +639,14 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadInteractionStats(@Nullable String uid) {
-        if (TextUtils.isEmpty(uid)) {
+        if (!isAdded() || TextUtils.isEmpty(uid)) {
             updateStatsViews(0, 0, 0);
             return;
         }
         interactionsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) return;
                 int likes = 0;
                 int matches = 0;
                 int superLikes = 0;
@@ -599,6 +670,7 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                if (!isAdded()) return;
                 updateStatsViews(0, 0, 0);
             }
         };
@@ -606,6 +678,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateStatsViews(int likes, int matches, int superLikes) {
+        if (!isAdded()) return;
         likesCountView.setText(String.valueOf(likes));
         matchesCountView.setText(String.valueOf(matches));
         superLikesCountView.setText(String.valueOf(superLikes));

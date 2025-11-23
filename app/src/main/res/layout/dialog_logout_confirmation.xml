@@ -46,7 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Đăng xuất"
-            android:backgroundTint="@color/colorError" />
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/colorPrimary" />
 
     </LinearLayout>
 </LinearLayout>

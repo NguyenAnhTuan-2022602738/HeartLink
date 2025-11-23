@@ -1,8 +1,10 @@
 package vn.haui.heartlink;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -27,6 +29,9 @@ import vn.haui.heartlink.utils.MessagesNotificationManager;
 
 public class HeartLinkApplication extends Application implements SharedPreferences.OnSharedPreferenceChangeListener, LifecycleObserver {
 
+    private static final String PREFS_NAME = "HeartLinkPrefs";
+    private static final String KEY_DARK_MODE = "darkModeEnabled";
+    
     private ChildEventListener likesListener;
     private ChildEventListener messagesListener;
     private String currentUserId;
@@ -34,10 +39,29 @@ public class HeartLinkApplication extends Application implements SharedPreferenc
     @Override
     public void onCreate() {
         super.onCreate();
+        
+        // Apply dark mode setting TRƯỚC KHI tạo bất kỳ activity nào
+        applyDarkModeSetting();
+        
         EmojiManager.install(new GoogleEmojiProvider());
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         setupNotificationListeners();
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+    }
+    
+    /**
+     * Áp dụng dark mode setting từ SharedPreferences
+     * Method này được gọi ngay khi app khởi động để đảm bảo theme được apply cho tất cả activities
+     */
+    private void applyDarkModeSetting() {
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean darkModeEnabled = preferences.getBoolean(KEY_DARK_MODE, false);
+        
+        if (darkModeEnabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)

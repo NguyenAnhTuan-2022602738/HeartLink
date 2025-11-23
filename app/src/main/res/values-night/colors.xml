@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Basic Colors for Dark Mode -->
+    <color name="black">#FFFFFFFF</color> <!-- Becomes white in dark mode -->
+    <color name="white">#FF121212</color> <!-- Becomes a dark grey in dark mode -->
+    <color name="green">#66BB6A</color> <!-- Adjusted green for dark mode -->
+    <color name="grey_100">#FF212121</color> <!-- Darkened grey for dark mode -->
+    <color name="interest_chip_background_custom">#383838</color>
+    <color name="interest_chip_text_custom">#FFFFFFFF</color>
+    <color name="bg_text_input">#3A3A3A</color>
+    <color name="bg_date_selection">#FFF1F2</color>
+
+    <!-- Admin Panel Colors (Adjusted for Dark Mode) -->
+    <color name="admin_toolbar_start">#C23A4D</color>
+    <color name="admin_toolbar_end">#D93047</color>
+    <color name="admin_background">#FF1A1A1A</color>
+
+    <color name="admin_stat_green">#2ECC71</color>
+    <color name="admin_stat_blue">#3498DB</color>
+    <color name="admin_stat_orange">#F39C12</color>
+    <color name="admin_stat_red">#E74C3C</color>
+
+    <color name="admin_card_border_blue">#2196F3</color>
+    <color name="admin_card_border_pink">#FF4081</color>
+    <color name="admin_card_border_purple">#9C27B0</color>
+    <color name="admin_card_border_red">#F44336</color>
+
+    <color name="admin_card_icon_bg_blue">#1976D2</color>
+    <color name="admin_card_icon_bg_pink">#C2185B</color>
+    <color name="admin_card_icon_bg_purple">#7B1FA2</color>
+    <color name="admin_text_green">#66BB6A</color>
+
+    <!-- App Theme Colors (Adjusted for Dark Mode) -->
+    <color name="colorPrimary">#E94057</color>
+    <color name="colorAccent">#FF9800</color>
+    <color name="colorBackground">#FF121212</color> <!-- Dark background -->
+    <color name="textColorPrimary">#FFFFFFFF</color> <!-- Light text -->
+    <color name="textColorSecondary">#FFBBBBBB</color> <!-- Lighter grey text -->
+    <color name="colorError">#CF6679</color> <!-- Adjusted error color -->
+
+    <!-- Welcome Screen (Adjusted for Dark Mode) -->
+    <color name="welcome_background">#E94057</color>
+    <color name="welcome_subtitle">#FFFFFF</color>
+
+    <!-- Interest Screen Palette (Adjusted for Dark Mode) -->
+    <color name="interest_gradient_start">#FFBB33</color>
+    <color name="interest_gradient_end">#E94057</color>
+    <color name="interest_chip_stroke_color">#FF882233</color>
+    <color name="interest_chip_icon_default">#E94057</color>
+    <color name="interest_chip_text_default">#E94057</color>
+    <color name="interest_chip_shadow">#4DE94057</color>
+
+    <!-- Photo Upload Palette (Adjusted for Dark Mode) -->
+    <color name="photo_slot_placeholder_stroke">#FF333333</color>
+    <color name="photo_slot_filled_stroke">#FF666666</color>
+    <color name="photo_slot_background">#FF212121</color>
+    <color name="photo_slot_plus_background">#FFD32F2F</color>
+    <color name="photo_slot_plus_icon">#FFFFFFFF</color>
+
+    <!-- Avatar Background Colors (Adjusted for Dark Mode) -->
+    <color name="avatar_bg_yellow">#FFC107</color>
+    <color name="avatar_bg_purple">#8E24AA</color>
+
+    <!-- Home Screen Palette (Adjusted for Dark Mode) -->
+    <color name="home_background">#FF121212</color>
+    <color name="home_title">#FFFFFFFF</color>
+    <color name="home_subtitle">#FFBBBBBB</color>
+    <color name="home_distance_bg">#80333232</color>
+    <color name="home_overlay_start">#00000000</color>
+    <color name="home_overlay_end">#B3000000</color>
+    <color name="home_action_secondary_bg">#FF333333</color>
+    <color name="home_action_dislike_icon">#FFC62828</color>
+    <color name="home_action_superlike_icon">#F44336</color>
+    <color name="home_action_primary_start">#FFD81B60</color>
+    <color name="home_action_primary_end">#FFE94057</color>
+    <color name="home_nav_inactive">#FFFAFA</color>
+    <color name="home_nav_active">#E94057</color>
+    <color name="home_nav_indicator">#E94057</color>
+
+    <!-- Match Screen Palette (Adjusted for Dark Mode) -->
+    <color name="match_secondary_button_bg">#FF424242</color>
+    <color name="matches_divider">#FF333333</color>
+    <color name="matches_action_secondary_bg">#4D000000</color>
+    <color name="matches_overlay_end">#B3000000</color> <!-- Reverted to light mode value -->
+    <color name="matches_status_text">#CCFFFFFF</color> <!-- Reverted to light mode value -->
+    <color name="match_action_primary">#E94057</color>
+    <color name="match_status_online">#4CAF50</color>
+    <color name="messages_timestamp">#FF9E9E9E</color>
+    <color name="messages_thread_preview">#FFBBBBBB</color>
+    <color name="messages_list_divider">#1AFFFFFF</color>
+    <color name="chat_background">#FF212121</color>
+
+    <!-- Profile Detail Palette (Adjusted for Dark Mode) -->
+    <color name="profile_overlay_start">#00000000</color>
+    <color name="profile_overlay_end">#E6FFFFFF</color>
+    <color name="profile_content_background">#FF121212</color>
+    <color name="profile_section_title">#FFFFFFFF</color>
+    <color name="profile_section_subtitle">#FFBBBBBB</color>
+    <color name="profile_chip_background">#FF333333</color>
+    <color name="profile_chip_stroke">#FF666666</color>
+
+    <!-- Profile Settings Palette (Adjusted for Dark Mode) -->
+    <color name="profile_settings_header_start">#FF121212</color>
+    <color name="profile_settings_header_end">#FF212121</color>
+    <color name="profile_settings_badge_bg">#4DE94057</color>
+    <color name="matches_list_divider">#FF333333</color>
+
+    <!-- Gradient for Splash (Adjusted for Dark Mode) -->
+    <color name="splashGradientStart">#FF212121</color>
+    <color name="splashGradientEnd">#FF333333</color>
+</resources>

@@ -1,7 +1,9 @@
 package vn.haui.heartlink.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -34,9 +37,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +57,9 @@ import vn.haui.heartlink.utils.MatchRepository;
 import vn.haui.heartlink.utils.UserRepository;
 
 public class MainActivity extends AppCompatActivity implements DiscoveryFragment.NavigationListener, ProfileFragment.ProfileInteractionListener {
+
+    private static final String PREFS_NAME = "HeartLinkPrefs";
+    private static final String KEY_DARK_MODE = "darkModeEnabled";
 
     private View discoverTab, matchesTab, messagesTab, profileTab;
     private ImageView discoverIndicator, matchesIndicator, messagesIndicator, profileIndicator;
@@ -91,10 +97,14 @@ public class MainActivity extends AppCompatActivity implements DiscoveryFragment
             return insets;
         });
 
+        // Update status bar và navigation bar colors dựa trên dark mode setting
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean darkModeEnabled = preferences.getBoolean(KEY_DARK_MODE, false);
+        
         WindowInsetsControllerCompat controller = ViewCompat.getWindowInsetsController(root);
         if (controller != null) {
-            controller.setAppearanceLightStatusBars(true);
-            controller.setAppearanceLightNavigationBars(true);
+            controller.setAppearanceLightStatusBars(!darkModeEnabled);
+            controller.setAppearanceLightNavigationBars(!darkModeEnabled);
         }
 
         bindViews();
