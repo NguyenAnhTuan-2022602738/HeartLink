@@ -43,7 +43,7 @@ public class SeekingActivity extends AppCompatActivity {
         continueButton = findViewById(R.id.continue_button_seeking);
 
         if (isEditMode) {
-            continueButton.setText("Lưu");
+            continueButton.setText(getString(R.string.save));
             skipButton.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
             loadUserSeekingPreference();

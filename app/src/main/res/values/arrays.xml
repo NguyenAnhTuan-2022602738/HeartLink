@@ -5,19 +5,19 @@
         <item>35</item>
     </array>
     <string-array name="interest_names">
-        <item>Photography</item>
-        <item>Shopping</item>
+        <item>Nhiếp ảnh</item>
+        <item>Mua sắm</item>
         <item>Karaoke</item>
         <item>Yoga</item>
-        <item>Cooking</item>
-        <item>Tennis</item>
-        <item>Running</item>
-        <item>Swimming</item>
-        <item>Art</item>
-        <item>Traveling</item>
-        <item>Extreme</item>
-        <item>Music</item>
-        <item>Drink</item>
-        <item>Video games</item>
+        <item>Nấu ăn</item>
+        <item>Quần vợt</item>
+        <item>Chạy bộ</item>
+        <item>Bơi lội</item>
+        <item>Nghệ thuật</item>
+        <item>Du lịch</item>
+        <item>Thể thao mạo hiểm</item>
+        <item>Âm nhạc</item>
+        <item>Đồ uống</item>
+        <item>Trò chơi điện tử</item>
     </string-array>
 </resources>

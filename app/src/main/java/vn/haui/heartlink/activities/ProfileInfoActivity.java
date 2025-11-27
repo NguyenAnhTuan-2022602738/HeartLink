@@ -82,7 +82,7 @@ public class ProfileInfoActivity extends AppCompatActivity {
         selectedDay = c.get(Calendar.DAY_OF_MONTH);
 
         if (isEditMode) {
-            confirmButton.setText("Lưu");
+            confirmButton.setText(getString(R.string.save));
         }
 
         backButton.setOnClickListener(v -> onBackPressed());

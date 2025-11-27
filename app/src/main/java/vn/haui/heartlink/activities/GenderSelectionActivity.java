@@ -60,7 +60,7 @@ public class GenderSelectionActivity extends AppCompatActivity {
         continueButton = findViewById(R.id.continue_button_gender);
 
         if (isEditMode) {
-            continueButton.setText("Lưu");
+            continueButton.setText(getString(R.string.save));
             loadUserGender();
         } else {
             updateSelectionUI();

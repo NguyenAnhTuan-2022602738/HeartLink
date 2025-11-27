@@ -112,9 +112,9 @@ public class NotificationPermissionActivity extends AppCompatActivity {
 
     private void updateButtonState() {
         if (isNotificationsEnabled()) {
-            allowButton.setText("Tắt thông báo");
+            allowButton.setText(getString(R.string.notification_permission_denied));
         } else {
-            allowButton.setText("Bật thông báo");
+            allowButton.setText(getString(R.string.notification_permission_allow));
         }
     }
 

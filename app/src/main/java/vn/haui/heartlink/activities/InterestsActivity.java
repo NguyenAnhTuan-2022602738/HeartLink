@@ -58,7 +58,7 @@ public class InterestsActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.interests_recycler_view);
 
         if (isEditMode) {
-            continueButton.setText("Lưu");
+            continueButton.setText(getString(R.string.save));
             skipButton.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
         } else {
@@ -130,9 +130,12 @@ public class InterestsActivity extends AppCompatActivity {
             UserRepository.getInstance().getUserData(currentUser.getUid()).addOnSuccessListener(dataSnapshot -> {
                 if (dataSnapshot.exists()) {
                     Map<String, Object> data = (Map<String, Object>) dataSnapshot.getValue();
-                    List<String> interests = (List<String>) data.get("interests");
-                    if (interests != null) {
-                        adapter.setSelectedInterests(interests);
+                    List<String> interestKeys = (List<String>) data.get("interests");
+                    if (interestKeys != null) {
+                        // Convert keys to display names for current language
+                        List<String> displayNames = vn.haui.heartlink.utils.InterestMapper.keysToDisplayNames(
+                                InterestsActivity.this, interestKeys);
+                        adapter.setSelectedInterests(displayNames);
                     }
                 }
             });
@@ -148,8 +151,12 @@ public class InterestsActivity extends AppCompatActivity {
             return;
         }
 
+        // Convert display names to keys for database storage
+        List<String> interestKeys = vn.haui.heartlink.utils.InterestMapper.displayNamesToKeys(
+                InterestsActivity.this, interests);
+
         Map<String, Object> updates = new HashMap<>();
-        updates.put("interests", interests);
+        updates.put("interests", interestKeys);
 
         continueButton.setEnabled(false);
 

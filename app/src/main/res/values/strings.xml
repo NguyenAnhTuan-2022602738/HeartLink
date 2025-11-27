@@ -8,8 +8,8 @@
     <string name="welcome_login_button">Đăng nhập</string>
     <string name="welcome_register_button">Đăng ký</string>
 
-    <string name="content_desc_previous_month">Previous month</string>
-    <string name="content_desc_next_month">Next month</string>
+    <string name="content_desc_previous_month">Tháng trước</string>
+    <string name="content_desc_next_month">Tháng sau</string>
     <string name="save">Lưu</string>
     <string name="skip">Bỏ qua</string>
     <string name="continue_label">Tiếp tục</string>
@@ -103,6 +103,8 @@
     <string name="matches_message_placeholder">Tính năng nhắn tin sẽ sớm ra mắt!</string>
     <string name="matches_like_error_missing_profile">Không thể xử lý lượt thích lúc này. Vui lòng thử lại.</string>
     <string name="matches_skip_success">Đã ẩn lượt thích này.</string>
+    <string name="matches_status_you_liked">Bạn đã thích</string>
+    <string name="matches_status_you_superliked">Bạn đã gửi Super Like</string>
 
     <!-- Profile Detail Screen -->
     <string name="profile_location_title">Địa điểm</string>
@@ -126,6 +128,15 @@
     <string name="profile_age_fallback">%1$d tuổi</string>
 
     <!-- Profile Settings Screen -->
+    <string name="profile_settings_title_text">Cá nhân</string>
+    <string name="profile_settings_edit_profile_button">Chỉnh sửa hồ sơ</string>
+    <string name="profile_settings_superlikes_text">Super Like</string>
+    <string name="profile_settings_gender_label">Giới tính</string>
+    <string name="profile_settings_seeking_label">Đang tìm kiếm</string>
+    <string name="profile_settings_my_photos_label">Ảnh của tôi</string>
+    <string name="profile_settings_notifications_label">Thông báo</string>
+    <string name="profile_settings_dark_mode_label">Chế độ tối</string>
+    <string name="profile_settings_language_label">Ngôn ngữ</string>
     <string name="profile_settings_title">Quản lý hồ sơ</string>
     <string name="profile_settings_header_subtitle">Cập nhật thông tin để những kết nối phù hợp tìm thấy bạn dễ dàng hơn.</string>
     <string name="profile_settings_options_content_desc">Mở cài đặt bổ sung</string>
@@ -179,6 +190,8 @@
     <string name="profile_location_placeholder">Thêm địa điểm của bạn</string>
     <string name="profile_settings_location_enabled">Đã bật chia sẻ vị trí</string>
     <string name="profile_settings_location_hidden">Đã tắt chia sẻ vị trí</string>
+    <string name="profile_settings_enable_location">Bật chia sẻ vị trí</string>
+    <string name="profile_settings_disable_location">Tắt chia sẻ vị trí</string>
     <string name="profile_settings_preview_button">Xem trước</string>
     <string name="profile_settings_edit_button">Chỉnh sửa</string>
     <string name="profile_settings_basic_info_label">Thông tin cơ bản</string>
@@ -188,6 +201,23 @@
     <string name="profile_settings_likes_label">Lượt thích</string>
     <string name="profile_settings_matches_label">Lượt ghép đôi</string>
     <string name="profile_settings_superlikes_label">Lượt siêu thích</string>
+
+    <string name="gender_male">Nam</string>
+    <string name="gender_female">Nữ</string>
+    <string name="seeking_title">Bạn Đang Tìm Kiếm....</string>
+    <string name="seeking_subtitle">Hãy cung cấp cho chúng tôi mối quan hệ mà bạn muốn</string>
+    <string name="seeking_friend_select">Một mối quan hệ bạn bè</string>
+    <string name="seeking_chat_select">Tìm người trò chuyện</string>
+    <string name="seeking_no_strings_select">Mối quan hệ không ràng buộc</string>
+    <string name="seeking_later_select">Thiết lập sau</string>
+    <string name="seeking_friend">Một người bạn</string>
+    <string name="seeking_chat">Tìm người trò chuyện</string>
+    <string name="seeking_no_strings">Không ràng buộc</string>
+    <string name="seeking_later">Để sau</string>
+    <string name="notification_status_on">Đã bật</string>
+    <string name="notification_status_off">Đã tắt</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="dark_mode">Chế độ tối</string>
 
     <!-- Discovery Filter -->
     <string name="filter_title">Bộ lọc</string>
@@ -217,6 +247,11 @@
     <string name="notification_incoming_like_unknown">Một người dùng</string>
     <string name="incoming_like_snackbar">%1$s vừa thích bạn</string>
     <string name="matches_open_button">Xem</string>
+    <string name="notification_dialog_new_like_title">Lượt thích mới!</string>
+    <string name="notification_dialog_new_like_message">%1$s vừa thích bạn.</string>
+    <string name="notification_dialog_view_profile">Xem hồ sơ</string>
+    <string name="notification_dialog_dismiss">Bỏ qua</string>
+
 
     <!-- Messages & Chat -->
     <string name="messages_title">Tin nhắn</string>
@@ -247,5 +282,24 @@
 
     <!-- Admin -->
     <string name="user_options_content_description">User options</string>
+
+    <!--activity_gender_selection-->
+    <string name="gender_selection_title">Giới tính của bạn là?</string>
+    <string name="gender_selection_Subtitle">Hãy cho chúng tôi biết giới tính của bạn</string>
+
+    <!--activity_profile_info-->
+    <string name="profile_info_title">Thông tin cá nhân</string>
+    <string name="profile_info_subtitle">Hãy cho chúng tôi biết chút\nthông tin về bạn nha</string>
+    <string name="profile_info_lastname_hint">Họ đệm</string>
+    <string name="profile_info_firstname_hint">Tên</string>
+    <string name="profile_info_birthday_hint">Chọn ngày sinh của bạn</string>
+    <string name="confirm">Xác nhận</string>
+
+    <!-- Matches Filter Bottom Sheet -->
+    <string name="matches_filter_title">Lọc kết nối</string>
+    <string name="matches_filter_all">Tất cả</string>
+    <string name="matches_filter_matched">Ghép đôi</string>
+    <string name="matches_filter_liked">Đã thích</string>
+    <string name="matches_filter_superliked">Super Like</string>
 
 </resources>

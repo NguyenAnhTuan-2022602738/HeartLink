@@ -38,6 +38,9 @@ public final class LikesNotificationManager {
      */
     public static void showLikeNotification(@NonNull Context context,
                                             @NonNull MatchRepository.IncomingLike like) {
+        // Wrap context with user's preferred language
+        context = LocaleHelper.wrapContext(context);
+        
         NotificationManagerCompat manager = NotificationManagerCompat.from(context);
         ensureChannel(context, manager);
 

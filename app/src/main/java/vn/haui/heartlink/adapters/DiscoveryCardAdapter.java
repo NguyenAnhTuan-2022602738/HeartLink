@@ -54,7 +54,7 @@ public class DiscoveryCardAdapter extends RecyclerView.Adapter<DiscoveryCardAdap
         String distanceText = formatDistance(profile.getDistanceKm());
         holder.distanceText.setText(distanceText);
         holder.nameText.setText(profile.getDisplayName());
-        holder.subtitleText.setText(getSeekingDisplayString(profile.getSubtitle()));
+        holder.subtitleText.setText(getSeekingDisplayString(holder.itemView.getContext(), profile.getSubtitle()));
 
         if (profile.getPhotoUrl() != null && !profile.getPhotoUrl().isEmpty()) {
             Glide.with(holder.profileImage.getContext())
@@ -71,19 +71,19 @@ public class DiscoveryCardAdapter extends RecyclerView.Adapter<DiscoveryCardAdap
     holder.superlikeOverlay.setAlpha(0f);
     }
 
-    private String getSeekingDisplayString(String seekingType) {
+    private String getSeekingDisplayString(android.content.Context context, String seekingType) {
         if (seekingType == null) {
             return "";
         }
         switch (seekingType) {
             case "friend":
-                return "Một người bạn";
+                return context.getString(R.string.seeking_friend);
             case "chat":
-                return "Tìm người trò chuyện";
+                return context.getString(R.string.seeking_chat);
             case "no_strings":
-                return "Không ràng buộc";
+                return context.getString(R.string.seeking_no_strings);
             case "later":
-                return "Để sau";
+                return context.getString(R.string.seeking_later);
             default:
                 return seekingType;
         }

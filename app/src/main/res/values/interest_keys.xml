@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Interest keys - these are stored in database and never change -->
+    <string-array name="interest_keys">
+        <item>photography</item>
+        <item>shopping</item>
+        <item>karaoke</item>
+        <item>yoga</item>
+        <item>cooking</item>
+        <item>tennis</item>
+        <item>running</item>
+        <item>swimming</item>
+        <item>art</item>
+        <item>traveling</item>
+        <item>extreme</item>
+        <item>music</item>
+        <item>drink</item>
+        <item>video_games</item>
+    </string-array>
+</resources>

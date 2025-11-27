@@ -34,6 +34,9 @@ public final class MessagesNotificationManager {
      * @param message The new message data.
      */
     public static void showMessageNotification(@NonNull Context context, @NonNull NewMessage message) {
+        // Wrap context with user's preferred language
+        context = LocaleHelper.wrapContext(context);
+        
         NotificationManagerCompat manager = NotificationManagerCompat.from(context);
         ensureChannel(context, manager);
 

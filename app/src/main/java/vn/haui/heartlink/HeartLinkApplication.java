@@ -3,6 +3,8 @@ package vn.haui.heartlink;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.Lifecycle;
@@ -20,6 +22,7 @@ import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import vn.haui.heartlink.utils.ChatRepository;
@@ -31,7 +34,8 @@ public class HeartLinkApplication extends Application implements SharedPreferenc
 
     private static final String PREFS_NAME = "HeartLinkPrefs";
     private static final String KEY_DARK_MODE = "darkModeEnabled";
-    
+    private static final String KEY_LANGUAGE = "language";
+
     private ChildEventListener likesListener;
     private ChildEventListener messagesListener;
     private String currentUserId;
@@ -39,16 +43,17 @@ public class HeartLinkApplication extends Application implements SharedPreferenc
     @Override
     public void onCreate() {
         super.onCreate();
-        
+
         // Apply dark mode setting TRƯỚC KHI tạo bất kỳ activity nào
         applyDarkModeSetting();
-        
+        applyLanguageSetting();
+
         EmojiManager.install(new GoogleEmojiProvider());
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         setupNotificationListeners();
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
-    
+
     /**
      * Áp dụng dark mode setting từ SharedPreferences
      * Method này được gọi ngay khi app khởi động để đảm bảo theme được apply cho tất cả activities
@@ -56,12 +61,23 @@ public class HeartLinkApplication extends Application implements SharedPreferenc
     private void applyDarkModeSetting() {
         SharedPreferences preferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         boolean darkModeEnabled = preferences.getBoolean(KEY_DARK_MODE, false);
-        
+
         if (darkModeEnabled) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
+    }
+
+    private void applyLanguageSetting() {
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String language = preferences.getString(KEY_LANGUAGE, "vi");
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
+        Resources resources = getResources();
+        Configuration config = resources.getConfiguration();
+        config.setLocale(locale);
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)

@@ -1,0 +1,304 @@
+<resources>
+    <string name="app_name">HeartLink</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">HeartLink</string>
+    <string name="welcome_subtitle">Find your other half</string>
+    <string name="welcome_login_button">Login</string>
+    <string name="welcome_register_button">Register</string>
+    <string name="content_desc_navigate_back">Back</string>
+
+    <string name="content_desc_previous_month">Previous month</string>
+    <string name="content_desc_next_month">Next month</string>
+    <string name="save">Save</string>
+    <string name="skip">Skip</string>
+    <string name="continue_label">Continue</string>
+    <string name="seeking_select_option_warning">Please select an option before continuing</string>
+    <string name="interests_title">Your Interests</string>
+    <string name="interests_subtitle">Choose a few interests and let everyone know what you\'re passionate about.</string>
+    <string name="interests_selection_count">Selected %1$d (minimum %2$d)</string>
+    <string name="interests_selection_counter_default">Selected 0 (minimum 3)</string>
+    <string name="interests_min_selection_message">Please select at least 3 interests</string>
+    <string name="interests_save_error">Could not save interests: %1$s</string>
+    <string name="seeking_save_error">Error saving seeking type: %1$s</string>
+    <string name="error_user_not_found">Error: User information not found</string>
+    <string name="photo_upload_title">Import your photos</string>
+    <string name="photo_upload_subtitle">Show us your best photos to make a good impression.</string>
+    <string name="photo_upload_min_message">Please select at least one photo to continue</string>
+    <string name="photo_upload_save_error">Could not save photos: %1$s</string>
+    <string name="photo_upload_uploading">Uploading photos...</string>
+    <string name="photo_upload_uploading_progress">Uploading photo %1$d/%2$d...</string>
+    <string name="photo_upload_uploading_error">Could not upload photos. Please try again.</string>
+    <string name="photo_upload_missing_cloudinary">Cloudinary is not configured. Please set up your account information.</string>
+    <string name="location_permission_title">Find friends</string>
+    <string name="location_permission_subtitle">You can find friends from your location to connect.</string>
+    <string name="location_permission_allow">Allow location access</string>
+    <string name="location_permission_manual">Enter manually</string>
+    <string name="location_permission_granted_message">Location permission enabled!</string>
+    <string name="location_permission_denied_message">Location permission not granted. You can enter it manually.</string>
+    <string name="location_fetch_error">Could not get current location. Please try again or enter manually.</string>
+    <string name="location_save_error">Could not save location: %1$s</string>
+    <string name="notification_permission_title">Enable notifications</string>
+    <string name="notification_permission_subtitle">Receive push notifications when you get a match or a message.</string>
+    <string name="notification_permission_allow">Enable notifications</string>
+    <string name="notification_permission_granted">Notifications have been enabled!</string>
+    <string name="notification_permission_denied">You can re-enable notifications in settings.</string>
+    <string name="notification_save_error">Could not save notification settings: %1$s</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">Discovery</string>
+    <string name="home_location">Hanoi, Vietnam</string>
+    <string name="home_user_distance">1 km away</string>
+    <string name="home_user_name_age">Ha Ly, 23</string>
+    <string name="home_user_interest">Listening to music</string>
+    <string name="home_button_dislike">Dislike</string>
+    <string name="home_button_like">Like</string>
+    <string name="home_button_superlike">Superlike</string>
+    <string name="home_nav_discover">Discover</string>
+    <string name="home_nav_matches">Matches</string>
+    <string name="home_nav_messages">Messages</string>
+    <string name="home_nav_profile">Profile</string>
+    <string name="home_location_placeholder">Updating location…</string>
+    <string name="home_empty_state">No suitable suggestions right now.\nTry updating your filters or check back later!</string>
+    <string name="error_generic">An error occurred. Please try again.</string>
+
+    <!-- Match Success Screen -->
+    <string name="match_success_title">You matched with %1$s!</string>
+    <string name="match_success_title_placeholder">It\'s a Match!</string>
+    <string name="match_success_subtitle">Start a conversation now.</string>
+    <string name="match_success_wave">Wave Hello</string>
+    <string name="match_success_continue">Keep Swiping</string>
+    <string name="match_success_unknown_person">a new friend</string>
+    <string name="match_wave_placeholder">Messaging feature is coming soon!</string>
+    <string name="match_like_sent">Like sent!</string>
+    <string name="match_superlike_sent">Superlike sent!</string>
+    <string name="match_creation_error">Could not process like: %1$s</string>
+
+    <!-- Matches Screen -->
+    <string name="matches_title">Matches</string>
+    <string name="matches_subtitle">This is a list of people who have liked you and your matches.</string>
+    <string name="matches_empty_state">No connections yet. Check back later!</string>
+    <string name="matches_section_today">Today</string>
+    <string name="matches_section_yesterday">Yesterday</string>
+    <string name="matches_section_earlier">Earlier</string>
+    <string name="matches_action_remove">Remove connection</string>
+    <string name="matches_action_chat">Open chat</string>
+    <string name="matches_action_like_back">Like back</string>
+    <string name="matches_action_skip">Skip</string>
+    <string name="matches_action_message">Message</string>
+    <string name="matches_action_unlike">Unlike</string>
+    <string name="matches_action_coming_soon">Feature coming soon!</string>
+    <string name="matches_status_matched">Matched</string>
+    <string name="matches_status_liked_you">Liked you</string>
+    <string name="matches_status_superliked_you">Superliked you</string>
+    <string name="matches_message_placeholder">Messaging feature is coming soon!</string>
+    <string name="matches_like_error_missing_profile">Could not process like at this time. Please try again.</string>
+    <string name="matches_skip_success">This like has been hidden.</string>
+    <string name="matches_status_you_liked">You liked</string>
+    <string name="matches_status_you_superliked">You sent a Super Like</string>
+
+    <!-- Profile Detail Screen -->
+    <string name="profile_location_title">Location</string>
+    <string name="profile_distance_placeholder">--</string>
+    <string name="profile_bio_title">About</string>
+    <string name="profile_bio_placeholder">This user has not updated their bio.</string>
+    <string name="profile_read_more">Read more</string>
+    <string name="profile_read_less">Show less</string>
+    <string name="profile_interests_title">Interests</string>
+    <string name="profile_interests_empty">No interests updated.</string>
+    <string name="profile_photos_title">Gallery</string>
+    <string name="profile_photos_view_all">View all</string>
+    <string name="profile_location_unknown">Updating</string>
+    <string name="profile_job_placeholder">HeartLink User</string>
+    <string name="profile_distance_unit">%1$.0f km away</string>
+    <string name="profile_action_like">Like profile</string>
+    <string name="profile_action_dislike">Skip profile</string>
+    <string name="profile_action_superlike">Superlike profile</string>
+    <string name="profile_name_with_age">%1$s, %2$d</string>
+    <string name="profile_name_fallback">HeartLink User</string>
+    <string name="profile_age_fallback">%1$d years old</string>
+
+    <!-- Profile Settings Screen -->
+    <string name="profile_settings_title_text">Profile</string>
+    <string name="profile_settings_edit_profile_button">Edit Profile</string>
+    <string name="profile_settings_superlikes_text">Super Likes</string>
+    <string name="profile_settings_gender_label">Gender</string>
+    <string name="profile_settings_seeking_label">Seeking</string>
+    <string name="profile_settings_my_photos_label">My Photos</string>
+    <string name="profile_settings_notifications_label">Notifications</string>
+    <string name="profile_settings_dark_mode_label">Dark Mode</string>
+    <string name="profile_settings_language_label">Language</string>
+    <string name="profile_settings_title">Manage Profile</string>
+    <string name="profile_settings_header_subtitle">Update your information to be found more easily by suitable connections.</string>
+    <string name="profile_settings_view_profile">View my profile</string>
+    <string name="profile_settings_missing_badge">Missing info</string>
+    <string name="profile_settings_section_profile">Personal Profile</string>
+    <string name="profile_settings_section_permissions">Permissions &amp; Notifications</string>
+    <string name="profile_settings_section_account">Account</string>
+    <string name="profile_settings_row_basic_info_title">Basic Information</string>
+    <string name="profile_settings_row_basic_info_desc">Name, date of birth, bio</string>
+    <string name="profile_settings_row_interests_title">Interests</string>
+    <string name="profile_settings_row_interests_desc">Manage the topics you love</string>
+    <string name="profile_settings_row_photos_title">Photo Gallery</string>
+    <string name="profile_settings_row_photos_desc">Update your most outstanding photos</string>
+    <string name="profile_settings_row_location_title">Show Location</string>
+    <string name="profile_settings_row_location_desc">Let connections know your area</string>
+    <string name="profile_settings_row_notifications_title">Push Notifications</string>
+    <string name="profile_settings_row_notifications_desc">Get notified of new matches or messages</string>
+    <string name="profile_settings_logout_title">Logout</string>
+    <string name="profile_settings_logout_desc">Sign out of your current account</string>
+    <string name="profile_settings_status_complete">Complete</string>
+    <string name="profile_settings_status_missing">Missing</string>
+    <string name="profile_settings_status_count_interests">%1$d interests</string>
+    <string name="profile_settings_status_missing_interests">Not selected</string>
+    <string name="profile_settings_status_count_photos">%1$d photos</string>
+    <string name="profile_settings_status_missing_photos">No photos yet</string>
+    <string name="profile_settings_completion_ready">Your profile is ready to be shown.</string>
+    <string name="profile_settings_completion_missing">Complete your information to make your profile stand out.</string>
+    <string name="profile_settings_completion_progress">Profile completion (%1$d/3)</string>
+    <string name="profile_settings_permission_update_error">Could not update settings: %1$s</string>
+    <string name="profile_settings_permission_updated">Settings updated.</string>
+    <string name="profile_settings_load_error">Could not load profile information.</string>
+    <string name="profile_settings_logout_confirm_title">Logout from HeartLink?</string>
+    <string name="profile_settings_logout_confirm_message">You will need to log back in to continue using the app.</string>
+    <string name="profile_settings_logout_confirm_positive">Logout</string>
+    <string name="profile_settings_logout_confirm_negative">Cancel</string>
+    <string name="profile_settings_stats_likes">Likes</string>
+    <string name="profile_settings_stats_matches">Matches</string>
+    <string name="profile_settings_stats_superlikes">Superlikes</string>
+    <string name="profile_settings_section_info">Basic Info</string>
+    <string name="profile_settings_location_label">Where you live</string>
+    <string name="profile_settings_job_label">Job</string>
+    <string name="profile_settings_education_label">Education</string>
+    <string name="profile_edit_info_button">Edit info</string>
+    <string name="profile_settings_interests_label">Interests</string>
+    <string name="profile_settings_edit_action">Edit</string>
+    <string name="profile_settings_interests_empty">You haven\'t updated your interests yet.</string>
+    <string name="profile_settings_photos_label">Photo Gallery</string>
+    <string name="profile_settings_add_photo">Add photo</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="seeking_title">What Are You Looking For....</string>
+    <string name="seeking_subtitle">Tell us the relationship you want</string>
+    <string name="seeking_friend_select">A friendship relationship</string>
+    <string name="seeking_chat_select">Someone to chat with</string>
+    <string name="seeking_no_strings_select">No strings attached relationship</string>
+    <string name="seeking_later_select">Set up later</string>
+    <string name="seeking_friend">A friend</string>
+    <string name="seeking_chat">Someone to chat with</string>
+    <string name="seeking_no_strings">No strings attached</string>
+    <string name="seeking_later">I\'ll decide later</string>
+    <string name="notification_status_on">On</string>
+    <string name="notification_status_off">Off</string>
+
+    <!-- Discovery Filter -->
+    <string name="filter_title">Filters</string>
+    <string name="filter_action_clear">Clear</string>
+    <string name="filter_action_apply">Apply</string>
+    <string name="filter_interested_in">Interested in</string>
+    <string name="filter_interest_female">Women</string>
+    <string name="filter_interest_male">Men</string>
+    <string name="filter_interest_both">Both</string>
+    <string name="filter_location_label">Location</string>
+    <string name="filter_location_placeholder">Select location</string>
+    <string name="filter_location_pick">Pick a location</string>
+    <string name="filter_location_dialog_title">Enter location</string>
+    <string name="filter_location_input_hint">E.g., North Tu Liem, Hanoi</string>
+    <string name="filter_location_use_current">Use current location</string>
+    <string name="filter_location_error">Could not find location. Please try again.</string>
+    <string name="filter_distance">Distance</string>
+    <string name="filter_age">Age</string>
+    <string name="action_apply">Apply</string>
+
+    <!-- Notifications -->
+    <string name="notification_new_message_channel_name">New Messages</string>
+    <string name="notification_incoming_like_channel_name">New Likes</string>
+    <string name="notification_incoming_like_channel_description">Notifications for new likes</string>
+    <string name="notification_incoming_like_title">Someone liked you!</string>
+    <string name="notification_incoming_like_message">%1$s just liked you on HeartLink.</string>
+    <string name="notification_incoming_like_unknown">A user</string>
+    <string name="incoming_like_snackbar">%1$s just liked you</string>
+    <string name="matches_open_button">View</string>
+    <string name="notification_dialog_new_like_title">New Like!</string>
+    <string name="notification_dialog_new_like_message">%1$s just liked you.</string>
+    <string name="notification_dialog_view_profile">View Profile</string>
+    <string name="notification_dialog_dismiss">Dismiss</string>
+
+    <!-- Messages & Chat -->
+    <string name="messages_title">Messages</string>
+    <string name="messages_subtitle">Where you keep in touch with your connections.</string>
+    <string name="messages_search_hint">Search by name or message</string>
+    <string name="messages_active_label">Active</string>
+    <string name="messages_threads_label">Conversations</string>
+    <string name="messages_empty_state">No messages yet. Start your first conversation!</string>
+    <string name="messages_thread_prompt">Say hello to %1$s</string>
+    <string name="chat_input_hint">Send something interesting...</string>
+    <string name="chat_partner_status_active">Active</string>
+    <string name="chat_partner_status_offline">Offline</string>
+    <string name="chat_partner_status_just_now">Active just now</string>
+    <string name="chat_partner_status_minutes_ago">Active %1$d minutes ago</string>
+    <string name="chat_partner_status_hours_ago">Active %1$d hours ago</string>
+    <string name="chat_partner_status_days_ago">Active %1$d days ago</string>
+    <string name="chat_user_blocked_message">You have blocked this user.</string>
+    <string name="chat_user_is_blocked_message">You cannot reply to this conversation.</string>
+    
+    <string name="language">Language</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="profile_location_placeholder">Add your location</string>
+    <string name="profile_settings_options_content_description">Select</string>
+
+    <!-- Missing Content Descriptions and Additional Strings -->
+    <string name="default_web_client_id" translatable="false">661106646521-qejn3mksds62odsqmbsedfnsj9a79nj5.apps.googleusercontent.com</string>
+    <string name="location_permission_illustration_desc">Location permission illustration</string>
+    <string name="notification_permission_illustration_desc">Notification permission illustration</string>
+    <string name="home_filter_content_description">Dating filter</string>
+    <string name="home_back_content_description">Back</string>
+    <string name="match_partner_image_content_description">Match partner photo</string>
+    <string name="match_current_image_content_description">Your photo</string>
+    <string name="matches_filter_content_description">Matches list filter</string>
+    <string name="matches_back_content_description">Close matches screen</string>
+    <string name="profile_settings_options_content_desc">Open additional settings</string>
+    <string name="profile_settings_photos_empty">You haven\'t uploaded any photos yet.</string>
+    <string name="profile_settings_location_enabled">Location sharing enabled</string>
+    <string name="profile_settings_location_hidden">Location sharing disabled</string>
+    <string name="profile_settings_enable_location">Enable location sharing</string>
+    <string name="profile_settings_disable_location">Disable location sharing</string>
+    <string name="profile_settings_preview_button">Preview</string>
+    <string name="profile_settings_edit_button">Edit</string>
+    <string name="profile_settings_basic_info_label">Basic Info</string>
+    <string name="profile_settings_add_photo_action">Add Photo</string>
+    <string name="profile_settings_stats_label">Statistics</string>
+    <string name="profile_settings_likes_label">Likes</string>
+    <string name="profile_settings_matches_label">Matches</string>
+    <string name="profile_settings_superlikes_label">Superlikes</string>
+    <string name="messages_filter_content_description">Message list filter</string>
+    <string name="messages_search_content_description">Search conversations</string>
+    <string name="messages_active_avatar_content_description">Active user avatar</string>
+    <string name="messages_thread_avatar_content_description">Conversation avatar</string>
+    <string name="chat_partner_avatar_content_description">Chat partner avatar</string>
+    <string name="chat_more_actions_content_description">Open more chat actions</string>
+    <string name="chat_send_content_description">Send message</string>
+    <string name="chat_extra_action_content_description">Open quick options</string>
+    <string name="chat_voice_action_content_description">Send voice message</string>
+    <string name="user_options_content_description">User options</string>
+
+    <!--activity_gender_selection-->
+    <string name="gender_selection_title">What is your gender?</string>
+    <string name="gender_selection_Subtitle">Let us know your gender</string>
+
+    <!--activity_profile_info-->
+    <string name="profile_info_title">Personal Information</string>
+    <string name="profile_info_subtitle">Tell us a little bit\nabout yourself</string>
+    <string name="profile_info_lastname_hint">Last name</string>
+    <string name="profile_info_firstname_hint">First name</string>
+    <string name="profile_info_birthday_hint">Select your birthday</string>
+    <string name="confirm">Confirm</string>
+
+    <!-- Matches Filter Bottom Sheet -->
+    <string name="matches_filter_title">Filter Connections</string>
+    <string name="matches_filter_all">All</string>
+    <string name="matches_filter_matched">Matched</string>
+    <string name="matches_filter_liked">Liked</string>
+    <string name="matches_filter_superliked">Super Like</string>
+
+</resources>

@@ -370,9 +370,9 @@ public class MatchesFragment extends Fragment implements MatchesAdapter.MatchAct
         }
         if (interaction.isSentLike()) {
             if (MatchRepository.isSuperLike(interaction.type)) {
-                return "Bạn đã gửi Super Like";
+                return getString(R.string.matches_status_you_superliked);
             }
-            return "Bạn đã thích";
+            return getString(R.string.matches_status_you_liked);
         }
 
         return "";

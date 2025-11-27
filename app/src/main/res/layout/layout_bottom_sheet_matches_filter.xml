@@ -21,7 +21,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Lọc kết nối"
+        android:text="@string/matches_filter_title"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         android:textColor="?android:attr/textColorPrimary" />
 
@@ -33,25 +33,25 @@
     <TextView
         android:id="@+id/filter_all"
         style="@style/BottomSheetFilterOption"
-        android:text="Tất cả"
+        android:text="@string/matches_filter_all"
         app:drawableStartCompat="@drawable/ic_all" />
 
     <TextView
         android:id="@+id/filter_matched"
         style="@style/BottomSheetFilterOption"
-        android:text="Ghép đôi"
+        android:text="@string/matches_filter_matched"
         app:drawableStartCompat="@drawable/ic_match" />
 
     <TextView
         android:id="@+id/filter_liked"
         style="@style/BottomSheetFilterOption"
-        android:text="Đã thích"
+        android:text="@string/matches_filter_liked"
         app:drawableStartCompat="@drawable/ic_heart_filled" />
 
     <TextView
         android:id="@+id/filter_superliked"
         style="@style/BottomSheetFilterOption"
-        android:text="Super Like"
+        android:text="@string/matches_filter_superliked"
         app:drawableStartCompat="@drawable/ic_home_superlike" />
 
 </LinearLayout>

@@ -117,12 +117,12 @@ public class LocationPermissionActivity extends AppCompatActivity {
 
     private void updateUi() {
         if (!hasLocationPermission()) {
-            allowButton.setText("Cho phép truy cập vị trí");
+            allowButton.setText(getString(R.string.location_permission_allow));
         } else {
             if (locationSharingEnabled) {
-                allowButton.setText("Tắt chia sẻ vị trí");
+                allowButton.setText(R.string.profile_settings_disable_location);
             } else {
-                allowButton.setText("Bật chia sẻ vị trí");
+                allowButton.setText(R.string.location_permission_allow);
             }
         }
     }
@@ -213,7 +213,7 @@ public class LocationPermissionActivity extends AppCompatActivity {
                             R.string.location_permission_granted_message, Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(LocationPermissionActivity.this,
-                            "Đã tắt chia sẻ vị trí", Toast.LENGTH_SHORT).show();
+                            R.string.profile_settings_location_hidden, Toast.LENGTH_SHORT).show();
                 }
 
                 if (isEditMode) {

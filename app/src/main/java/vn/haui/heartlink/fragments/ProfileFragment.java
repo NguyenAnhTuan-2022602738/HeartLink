@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -89,6 +91,7 @@ public class ProfileFragment extends Fragment {
     private static final SimpleDateFormat DOB_FORMATTER = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
     private static final String PREFS_NAME = "HeartLinkPrefs";
     private static final String KEY_DARK_MODE = "darkModeEnabled";
+    private static final String KEY_LANGUAGE = "language";
 
     private final UserRepository userRepository = UserRepository.getInstance();
     private final MatchRepository matchRepository = MatchRepository.getInstance();
@@ -121,7 +124,8 @@ public class ProfileFragment extends Fragment {
     private ImageButton editSeekingButton;
     private TextView notificationStatusView;
     private ImageButton editNotificationButton;
-    private MaterialSwitch darkModeSwitch; // Declare MaterialSwitch
+    private MaterialSwitch darkModeSwitch;
+    private MaterialSwitch languageSwitch;
 
     @Nullable
     private FirebaseUser firebaseUser;
@@ -152,34 +156,53 @@ public class ProfileFragment extends Fragment {
         bindViews(view);
         setupActions();
         setupDarkModeSwitch();
+        setupLanguageSwitch();
     }
-    
+
     private void setupDarkModeSwitch() {
         if (!isAdded() || darkModeSwitch == null) return;
-        
+
         SharedPreferences preferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         boolean darkModeEnabled = preferences.getBoolean(KEY_DARK_MODE, false);
-        
-        // Set giá trị ban đầu KHÔNG có animation để tránh trigger listener
+
         darkModeSwitch.setChecked(darkModeEnabled);
-        
-        // Sử dụng setOnClickListener thay vì setOnCheckedChangeListener
-        // Điều này chỉ trigger khi USER click, không trigger khi setChecked() programmatically
+
         darkModeSwitch.setOnClickListener(v -> {
             if (!isAdded()) return;
-            
+
             boolean newValue = darkModeSwitch.isChecked();
-            
-            // Lưu giá trị mới
+
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean(KEY_DARK_MODE, newValue);
             editor.apply();
 
-            // Áp dụng theme mới
             int newMode = newValue ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
             AppCompatDelegate.setDefaultNightMode(newMode);
-            
-            // Recreate activity để apply theme
+
+            if (getActivity() != null && !getActivity().isFinishing()) {
+                getActivity().recreate();
+            }
+        });
+    }
+
+    private void setupLanguageSwitch() {
+        if (!isAdded() || languageSwitch == null) return;
+
+        SharedPreferences preferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String currentLanguage = preferences.getString(KEY_LANGUAGE, "vi");
+
+        languageSwitch.setChecked("en".equals(currentLanguage));
+
+        languageSwitch.setOnClickListener(v -> {
+            if (!isAdded()) return;
+
+            boolean isChecked = languageSwitch.isChecked();
+            String newLanguage = isChecked ? "en" : "vi";
+
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(KEY_LANGUAGE, newLanguage);
+            editor.apply();
+
             if (getActivity() != null && !getActivity().isFinishing()) {
                 getActivity().recreate();
             }
@@ -233,7 +256,8 @@ public class ProfileFragment extends Fragment {
         editSeekingButton = view.findViewById(R.id.profile_settings_edit_seeking);
         notificationStatusView = view.findViewById(R.id.profile_settings_notification_status);
         editNotificationButton = view.findViewById(R.id.profile_settings_edit_notification);
-        darkModeSwitch = view.findViewById(R.id.profile_settings_dark_mode_switch); // Bind MaterialSwitch
+        darkModeSwitch = view.findViewById(R.id.profile_settings_dark_mode_switch);
+        languageSwitch = view.findViewById(R.id.profile_settings_language_switch);
 
         if (photosRecyclerView != null) {
             photosRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -325,9 +349,9 @@ public class ProfileFragment extends Fragment {
         }
         switch (gender) {
             case "male":
-                return "Nam";
+                return getString(R.string.gender_male);
             case "female":
-                return "Nữ";
+                return getString(R.string.gender_female);
             default:
                 return gender;
         }
@@ -339,13 +363,13 @@ public class ProfileFragment extends Fragment {
         }
         switch (seekingType) {
             case "friend":
-                return "Một người bạn";
+                return getString(R.string.seeking_friend);
             case "chat":
-                return "Tìm người trò chuyện";
+                return getString(R.string.seeking_chat);
             case "no_strings":
-                return "Không ràng buộc";
+                return getString(R.string.seeking_no_strings);
             case "later":
-                return "Để sau";
+                return getString(R.string.seeking_later);
             default:
                 return seekingType;
         }
@@ -398,9 +422,9 @@ public class ProfileFragment extends Fragment {
         if (!isAdded() || getContext() == null) return;
         boolean areNotificationsEnabled = NotificationManagerCompat.from(getContext()).areNotificationsEnabled();
         if (areNotificationsEnabled) {
-            notificationStatusView.setText("Đã bật");
+            notificationStatusView.setText(getString(R.string.notification_status_on));
         } else {
-            notificationStatusView.setText("Đã tắt");
+            notificationStatusView.setText(getString(R.string.notification_status_off));
         }
     }
 
@@ -579,6 +603,7 @@ public class ProfileFragment extends Fragment {
     }
 
 
+
     private void updateInterests(@Nullable List<String> interests) {
         if (!isAdded() || interestsGroup == null || interestsEmptyView == null || getContext() == null) {
             return;
@@ -589,8 +614,13 @@ public class ProfileFragment extends Fragment {
             interestsEmptyView.setVisibility(View.VISIBLE);
             return;
         }
+        
+        // Convert keys to display names for current language
+        List<String> displayNames = vn.haui.heartlink.utils.InterestMapper.keysToDisplayNames(
+                getContext(), interests);
+        
         List<String> sanitized = new ArrayList<>();
-        for (String entry : interests) {
+        for (String entry : displayNames) {
             if (!TextUtils.isEmpty(entry)) {
                 sanitized.add(entry);
             }

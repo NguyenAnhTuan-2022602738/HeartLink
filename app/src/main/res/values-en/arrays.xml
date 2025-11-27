@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="initial_age_range">
+        <item>18</item>
+        <item>35</item>
+    </array>
+    <string-array name="interest_names">
+        <item>Photography</item>
+        <item>Shopping</item>
+        <item>Karaoke</item>
+        <item>Yoga</item>
+        <item>Cooking</item>
+        <item>Tennis</item>
+        <item>Running</item>
+        <item>Swimming</item>
+        <item>Art</item>
+        <item>Traveling</item>
+        <item>Extreme</item>
+        <item>Music</item>
+        <item>Drink</item>
+        <item>Video games</item>
+    </string-array>
+</resources>

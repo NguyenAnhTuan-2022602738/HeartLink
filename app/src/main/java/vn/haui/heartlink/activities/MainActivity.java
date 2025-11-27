@@ -87,6 +87,15 @@ public class MainActivity extends AppCompatActivity implements DiscoveryFragment
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Apply language setting first
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String language = prefs.getString("language", "vi");
+        java.util.Locale locale = new java.util.Locale(language);
+        java.util.Locale.setDefault(locale);
+        android.content.res.Configuration config = new android.content.res.Configuration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

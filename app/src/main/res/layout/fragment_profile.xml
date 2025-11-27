@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Cá nhân"
+        android:text="@string/profile_settings_title_text"
         android:textColor="@color/home_title"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -100,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
-                android:text="Chỉnh sửa hồ sơ"
+                android:text="@string/profile_settings_edit_profile_button"
                 android:textColor="@android:color/white"
                 app:backgroundTint="@color/colorPrimary"
                 app:icon="@drawable/ic_edit"
@@ -149,7 +149,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Lượt thích"
+                            android:text="@string/profile_settings_stats_likes"
                             android:textColor="@color/home_subtitle"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -189,7 +189,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Ghép đôi"
+                            android:text="@string/profile_settings_stats_matches"
                             android:textColor="@color/home_subtitle"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -230,7 +230,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Super Like"
+                            android:text="@string/profile_settings_superlikes_text"
                             android:textColor="@color/home_subtitle"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -269,7 +269,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
-                            android:text="Vị trí"
+                            android:text="@string/profile_location_title"
                             android:textColor="@color/home_title"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -325,7 +325,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
-                            android:text="Giới tính"
+                            android:text="@string/profile_settings_gender_label"
                             android:textColor="@color/home_title"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -380,7 +380,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
-                            android:text="Đang tìm kiếm"
+                            android:text="@string/profile_settings_seeking_label"
                             android:textColor="@color/home_title"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -435,7 +435,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
-                            android:text="Sở thích"
+                            android:text="@string/profile_interests_title"
                             android:textColor="@color/home_title"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -493,7 +493,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Ảnh của tôi"
+                            android:text="@string/profile_settings_my_photos_label"
                             android:textColor="@color/home_title"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -502,7 +502,7 @@
                             android:id="@+id/profile_settings_add_photo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Thêm ảnh"
+                            android:text="@string/profile_settings_add_photo"
                             android:textColor="@color/match_action_primary"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -558,7 +558,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
-                            android:text="Thông báo"
+                            android:text="@string/profile_settings_notifications_label"
                             android:textColor="@color/home_title"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -610,13 +610,53 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="12dp"
-                        android:text="Chế độ tối"
+                        android:text="@string/profile_settings_dark_mode_label"
                         android:textColor="@color/home_title"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/profile_settings_dark_mode_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_language"
+                        app:tint="@color/colorPrimary"
+                        android:contentDescription="Language Icon" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="@string/profile_settings_language_label"
+                        android:textColor="@color/home_title"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/profile_settings_language_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </LinearLayout>

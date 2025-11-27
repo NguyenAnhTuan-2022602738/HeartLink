@@ -68,7 +68,7 @@ public class PhotoUploadActivity extends AppCompatActivity {
         continueButton = findViewById(R.id.continue_button_photo);
 
         if (isEditMode) {
-            continueButton.setText("Lưu");
+            continueButton.setText(getString(R.string.save));
             skipButton.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
         } else {
