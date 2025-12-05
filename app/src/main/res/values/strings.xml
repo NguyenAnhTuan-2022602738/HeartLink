@@ -43,6 +43,8 @@
     <string name="notification_permission_title">Bật thông báo</string>
     <string name="notification_permission_subtitle">Nhận thông báo đẩy khi bạn có lượt ghép đôi hoặc nhận được tin nhắn.</string>
     <string name="notification_permission_allow">Bật thông báo</string>
+    <string name="notification_permission_turn_on">Bật thông báo</string>
+    <string name="notification_permission_turn_off">Tắt thông báo</string>
     <string name="notification_permission_granted">Thông báo đã được bật!</string>
     <string name="notification_permission_denied">Bạn có thể bật lại thông báo trong phần cài đặt.</string>
     <string name="notification_permission_illustration_desc">Minh họa bật thông báo</string>

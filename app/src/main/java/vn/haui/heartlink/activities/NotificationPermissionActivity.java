@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
@@ -31,7 +30,7 @@ import vn.haui.heartlink.utils.UserRepository;
 /**
  * Final onboarding screen prompting the user to enable push notifications.
  */
-public class NotificationPermissionActivity extends AppCompatActivity {
+public class NotificationPermissionActivity extends BaseActivity {
 
     private ActivityResultLauncher<String> notificationPermissionLauncher;
     private Button allowButton;
@@ -112,9 +111,9 @@ public class NotificationPermissionActivity extends AppCompatActivity {
 
     private void updateButtonState() {
         if (isNotificationsEnabled()) {
-            allowButton.setText(getString(R.string.notification_permission_denied));
+            allowButton.setText(getString(R.string.notification_permission_turn_off));
         } else {
-            allowButton.setText(getString(R.string.notification_permission_allow));
+            allowButton.setText(getString(R.string.notification_permission_turn_on));
         }
     }
 

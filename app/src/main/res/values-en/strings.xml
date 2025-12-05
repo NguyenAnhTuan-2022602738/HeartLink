@@ -41,6 +41,8 @@
     <string name="notification_permission_title">Enable notifications</string>
     <string name="notification_permission_subtitle">Receive push notifications when you get a match or a message.</string>
     <string name="notification_permission_allow">Enable notifications</string>
+    <string name="notification_permission_turn_on">Turn on notifications</string>
+    <string name="notification_permission_turn_off">Turn off notifications</string>
     <string name="notification_permission_granted">Notifications have been enabled!</string>
     <string name="notification_permission_denied">You can re-enable notifications in settings.</string>
     <string name="notification_save_error">Could not save notification settings: %1$s</string>
