@@ -1,7 +1,9 @@
 package vn.haui.heartlink.fragments;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -131,7 +133,29 @@ public class MessagesFragment extends Fragment implements
     private void setupClicks(View view) {
         ImageButton filterButton = view.findViewById(R.id.messages_filter_button);
         filterButton.setOnClickListener(v -> Toast.makeText(getContext(), R.string.matches_action_coming_soon, Toast.LENGTH_SHORT).show());
-        searchField.setOnEditorActionListener((textView, actionId, keyEvent) -> false);
+        searchField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String query = s.toString().trim();
+                boolean isSearching = !TextUtils.isEmpty(query);
+
+                if (isSearching) {
+                    activeLabel.setVisibility(View.GONE);
+                    activeUsersList.setVisibility(View.GONE);
+                } else {
+                    refreshActiveUsers();
+                }
+                refreshThreadItems();
+            }
+        });
     }
 
     private void loadContent() {
@@ -221,7 +245,7 @@ public class MessagesFragment extends Fragment implements
 
         boolean hasActive = !items.isEmpty();
         activeUsersList.setVisibility(hasActive ? View.VISIBLE : View.GONE);
-        activeLabel.setVisibility(hasActive ? View.GONE : View.VISIBLE);
+        activeLabel.setVisibility(hasActive ? View.VISIBLE : View.GONE);
     }
 
     private long getPartnerInteraction(@NonNull String userId) {
@@ -264,10 +288,23 @@ public class MessagesFragment extends Fragment implements
             items.add(buildThreadItem(partner, thread));
         }
 
-        Collections.sort(items, Comparator.comparingLong(MessageThreadsAdapter.ThreadItem::getLastTimestamp).reversed());
-        threadsAdapter.submitList(items);
+        String searchQuery = searchField.getText().toString().toLowerCase().trim();
+        List<MessageThreadsAdapter.ThreadItem> filteredItems;
+        if (!TextUtils.isEmpty(searchQuery)) {
+            filteredItems = new ArrayList<>();
+            for (MessageThreadsAdapter.ThreadItem item : items) {
+                if (item.getDisplayName().toLowerCase().contains(searchQuery)) {
+                    filteredItems.add(item);
+                }
+            }
+        } else {
+            filteredItems = items;
+        }
 
-        boolean hasThreads = !items.isEmpty();
+        Collections.sort(filteredItems, Comparator.comparingLong(MessageThreadsAdapter.ThreadItem::getLastTimestamp).reversed());
+        threadsAdapter.submitList(filteredItems);
+
+        boolean hasThreads = !filteredItems.isEmpty();
         threadsList.setVisibility(hasThreads ? View.VISIBLE : View.GONE);
         threadsLabel.setVisibility(hasThreads ? View.VISIBLE : View.GONE);
         emptyStateView.setVisibility(hasThreads ? View.GONE : View.VISIBLE);

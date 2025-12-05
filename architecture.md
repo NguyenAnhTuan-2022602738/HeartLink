@@ -1,314 +1,555 @@
-# Kiến Trúc Phát Triển Dự Án HeartLink
+# HeartLink - Architecture Documentation
 
-## 1. Tổng Quan Dự Án
-
-HeartLink là một ứng dụng hẹn hò (dating app) trên nền tảng Android, được phát triển bằng ngôn ngữ Java. Ứng dụng cho phép người dùng tạo hồ sơ cá nhân, tìm kiếm và kết nối với những người phù hợp dựa trên sở thích, vị trí và các tiêu chí khác.
-
-## 2. Công Nghệ Và Kiến Trúc
-
-### 2.1. Nền Tảng Và Ngôn Ngữ
-- **Platform**: Android (Java)
-- **Build System**: Gradle
-- **Version Control**: Git
-- **Backend**: Firebase (Authentication, Firestore Database, Storage, Cloud Messaging)
-
-### 2.2. Kiến Trúc Ứng Dụng
-- **Architecture Pattern**: MVVM (Model-View-ViewModel) với Repository Pattern
-- **UI Framework**: Android Views với Material Design Components
-- **Dependency Injection**: Manual dependency injection (không sử dụng DI framework)
-- **Database**: Firebase Firestore (NoSQL)
-- **Storage**: Firebase Storage cho media files
-
-## 3. Cấu Trúc Project
-
-```
-HeartLink/
-├── app/
-│   ├── build.gradle.kts          # Cấu hình build cho app module
-│   ├── proguard-rules.pro        # Rules cho code obfuscation
-│   ├── src/
-│   │   ├── androidTest/          # Unit tests
-│   │   ├── main/
-│   │   │   ├── AndroidManifest.xml
-│   │   │   ├── java/vn/haui/heartlink/
-│   │   │   │   ├── activities/   # UI Activities (19 activities)
-│   │   │   │   ├── adapters/     # RecyclerView Adapters
-│   │   │   │   ├── models/       # Data Models
-│   │   │   │   ├── repositories/ # Data Access Layer
-│   │   │   │   ├── utils/        # Utility Classes
-│   │   │   │   └── fragments/    # UI Fragments (nếu có)
-│   │   │   └── res/              # Resources (layouts, drawables, values)
-│   │   └── test/                 # Unit tests
-│   └── build/                    # Build outputs
-├── gradle/
-│   └── wrapper/                  # Gradle wrapper
-├── build.gradle.kts              # Root build file
-├── settings.gradle.kts           # Project settings
-├── gradle.properties             # Gradle properties
-└── local.properties              # Local properties
-```
-
-## 4. Các Thành Phần Chính
-
-### 4.1. Activities (19 Activities)
-Các activities được chia thành các nhóm chức năng:
-
-#### Onboarding Flow:
-- **SplashActivity**: Màn hình splash khi khởi động app
-- **WelcomeActivity**: Màn hình chào mừng
-- **GenderSelectionActivity**: Chọn giới tính
-- **ProfileInfoActivity**: Nhập thông tin cơ bản (tên, ngày sinh)
-- **SeekingActivity**: Chọn mục đích tìm kiếm
-- **InterestsActivity**: Chọn sở thích cá nhân
-- **PhotoUploadActivity**: Upload ảnh đại diện
-- **LocationPermissionActivity**: Xin quyền truy cập vị trí
-- **NotificationPermissionActivity**: Xin quyền gửi thông báo
-
-#### Authentication:
-- **LoginActivity**: Đăng nhập
-- **RegisterActivity**: Đăng ký tài khoản
-- **OtpVerificationActivity**: Xác thực OTP
-
-#### Main Features:
-- **MainActivity**: Activity chính, điều hướng giữa các tab
-- **MatchesActivity**: Danh sách các matches
-- **MessagesActivity**: Danh sách tin nhắn
-- **ChatActivity**: Giao diện chat với một người
-- **MatchSuccessActivity**: Thông báo khi có match mới
-
-#### Profile Management:
-- **ProfileDetailActivity**: Xem chi tiết profile của người khác
-- **ProfileSettingsActivity**: Cài đặt và quản lý profile cá nhân
-
-### 4.2. Models (Data Models)
-- **User.java**: Model cho thông tin người dùng
-- **ChatMessage.java**: Model cho tin nhắn chat
-- **Match.java**: Model cho thông tin match
-- **DiscoveryProfile.java**: Model cho profile hiển thị trong discovery
-
-### 4.3. Repositories (Data Access Layer)
-- **UserRepository.java**: Quản lý dữ liệu người dùng
-- **MatchRepository.java**: Quản lý dữ liệu matches và interactions
-- **ChatRepository.java**: Quản lý dữ liệu chat
-- **ReportRepository.java**: Quản lý báo cáo và block users
-
-### 4.4. Adapters (UI Adapters)
-- **DiscoveryCardAdapter.java**: Adapter cho danh sách profile trong discovery
-- **ProfilePhotoAdapter.java**: Adapter cho danh sách ảnh profile
-- **MatchesAdapter.java**: Adapter cho danh sách matches
-- **MessagesAdapter.java**: Adapter cho danh sách tin nhắn
-
-### 4.5. Utils (Utility Classes)
-- **FirebaseHelper.java**: Helper cho Firebase operations
-- **NavigationHelper.java**: Helper cho navigation logic
-- **LocationHelper.java**: Helper cho location services
-- **PermissionHelper.java**: Helper cho permission management
-
-## 5. Use Cases (Trường Hợp Sử Dụng)
-
-### 5.1. UC_Authentication (Xác thực)
-- Đăng ký tài khoản mới
-- Đăng nhập bằng email/password
-- Xác thực OTP
-- Khôi phục mật khẩu
-- Đăng xuất
-
-### 5.2. UC_Profile (Hồ sơ cá nhân)
-- Thiết lập profile ban đầu (onboarding)
-- Chỉnh sửa thông tin cá nhân
-- Upload và quản lý ảnh
-- Cài đặt sở thích
-- Quản lý quyền riêng tư (location, notifications)
-
-### 5.3. UC_Discovery (Khám phá)
-- Swipe để like/dislike profiles
-- Lọc profiles theo tiêu chí (giới tính, độ tuổi, khoảng cách)
-- Xem chi tiết profile
-- Thuật toán gợi ý profiles
-
-### 5.4. UC_Matching (Kết nối)
-- Tạo match khi hai người like lẫn nhau
-- Hiển thị danh sách matches
-- Thông báo match mới
-- Quản lý danh sách matches
-
-### 5.5. UC_Chat (Trò chuyện)
-- Gửi và nhận tin nhắn
-- Hiển thị danh sách cuộc trò chuyện
-- Real-time messaging
-- Đánh dấu tin nhắn đã đọc
-
-### 5.6. UC_Safety (An toàn)
-- Báo cáo người dùng vi phạm
-- Chặn người dùng
-- Quản lý danh sách chặn
-
-## 6. Database Schema
-
-### 6.1. Users Collection
-```json
-{
-  "uid": "firebase_user_id",
-  "email": "user@example.com",
-  "name": "Nguyễn Văn A",
-  "gender": "male|female",
-  "dateOfBirth": "15/05/1995",
-  "bio": "Mô tả về bản thân",
-  "photoUrls": ["url1", "url2", "url3"],
-  "seekingGender": "male|female|both",
-  "seekingAgeMin": 18,
-  "seekingAgeMax": 50,
-  "seekingType": "friend|chat|relationship|no_strings|later",
-  "interests": ["Đá bóng", "Xem phim", "Du lịch"],
-  "profileComplete": true,
-  "latitude": 21.0285,
-  "longitude": 105.8542,
-  "locationVisible": true,
-  "notificationsEnabled": true
-}
-```
-
-### 6.2. Matches Collection
-```json
-{
-  "matchId": "unique_match_id",
-  "userId1": "user1_id",
-  "userId2": "user2_id",
-  "matchedAt": 1638360000000,
-  "status": "active|inactive"
-}
-```
-
-### 6.3. Chat Threads Collection
-```json
-{
-  "chatId": "unique_chat_id",
-  "participants": {
-    "user1_id": true,
-    "user2_id": true
-  },
-  "lastMessage": "Nội dung tin nhắn cuối",
-  "lastSenderId": "sender_id",
-  "lastMessageAt": 1638360000000
-}
-```
-
-### 6.4. Messages Subcollection (trong Chat Threads)
-```json
-{
-  "messageId": "unique_message_id",
-  "senderId": "sender_id",
-  "content": "Nội dung tin nhắn",
-  "timestamp": 1638360000000,
-  "type": "text|image",
-  "readBy": {
-    "user1_id": true,
-    "user2_id": false
-  }
-}
-```
-
-## 7. API Integration
-
-### 7.1. Firebase Services
-- **Firebase Authentication**: Xác thực người dùng
-- **Cloud Firestore**: Database NoSQL
-- **Firebase Storage**: Lưu trữ file media
-- **Firebase Cloud Messaging**: Push notifications
-- **Firebase Analytics**: Phân tích sử dụng app
-
-### 7.2. Third-party Libraries
-- **Glide**: Image loading và caching
-- **Material Components**: UI components
-- **Google Play Services**: Location services, maps
-- **AndroidX Libraries**: Modern Android APIs
-
-## 8. Security Considerations
-
-### 8.1. Authentication
-- Firebase Authentication cho secure login
-- Email verification cho account validation
-- Password reset functionality
-
-### 8.2. Data Privacy
-- User consent cho location permissions
-- Option to hide location
-- Data encryption trong transit và at rest
-
-### 8.3. Content Moderation
-- User reporting system
-- Block/unblock functionality
-- Content guidelines enforcement
-
-## 9. Performance Optimization
-
-### 9.1. UI Performance
-- RecyclerView với ViewHolder pattern
-- Image caching với Glide
-- Lazy loading cho images và data
-
-### 9.2. Network Performance
-- Firebase offline capabilities
-- Efficient data querying
-- Pagination cho large datasets
-
-### 9.3. Memory Management
-- Proper lifecycle management
-- Memory leak prevention
-- Efficient bitmap handling
-
-## 10. Testing Strategy
-
-### 10.1. Unit Testing
-- JUnit cho logic testing
-- Mockito cho dependency mocking
-- Repository layer testing
-
-### 10.2. Integration Testing
-- Firebase emulator testing
-- API integration testing
-- Database operation testing
-
-### 10.3. UI Testing
-- Espresso cho UI automation
-- Activity lifecycle testing
-- User flow testing
-
-## 11. Deployment & CI/CD
-
-### 11.1. Build Process
-- Gradle build system
-- Automated signing configuration
-- ProGuard cho code obfuscation
-
-### 11.2. Distribution
-- Google Play Store deployment
-- Beta testing với Google Play Beta
-- Crash reporting với Firebase Crashlytics
-
-### 11.3. Version Management
-- Semantic versioning
-- Automated build numbering
-- Release notes management
-
-## 12. Future Enhancements
-
-### 12.1. Planned Features
-- Video calling integration
-- Advanced matching algorithms
-- Premium subscription features
-- Social media integration
-
-### 12.2. Technical Improvements
-- Migration to Kotlin
-- Implementation of DI framework (Dagger/Hilt)
-- Offline-first architecture
-- GraphQL API integration
+## 📋 Tổng quan dự án
+**HeartLink** là ứng dụng Android hẹn hò (Dating App) được xây dựng với Firebase Backend, hỗ trợ đa ngôn ngữ (Tiếng Việt/Tiếng Anh), và tích hợp đầy đủ tính năng swipe, match, chat.
 
 ---
 
-**Tác giả**: GitHub Copilot  
-**Ngày tạo**: 7 tháng 11, 2025  
-**Version**: 1.0  
-**Project**: HeartLink Dating App</content>
-<parameter name="filePath">c:\Users\cuida\Documents\and\HeartLink\architecture.md
+## 🏗️ Kiến trúc ứng dụng
+
+### Architecture Pattern: **Modified MVVM + Repository Pattern**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Presentation Layer                    │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │  Activities  │  │  Fragments   │  │   Adapters   │  │
+│  └──────────────┘  └──────────────┘  └──────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                           ↓
+┌─────────────────────────────────────────────────────────┐
+│                     Business Layer                       │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │ Repositories │  │    Utils     │  │   Managers   │  │
+│  └──────────────┘  └──────────────┘  └──────────────┘  │
+└─────────────────────────────────────────────────────────┘
+                           ↓
+┌─────────────────────────────────────────────────────────┐
+│                       Data Layer                         │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │   Firebase   │  │ SharedPrefs  │  │    Models    │  │
+│  │   Realtime   │  │              │  │              │  │
+│  │   Database   │  │              │  │              │  │
+│  └──────────────┘  └──────────────┘  └──────────────┘  │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 Cấu trúc thư mục chi tiết
+
+### **Java Source Code** (`app/src/main/java/vn/haui/heartlink/`)
+
+```
+vn.haui.heartlink/
+│
+├── 📄 HeartLinkApplication.java
+│   └── Application class chính, khởi tạo Firebase, Emoji, Dark Mode, Localization
+│
+├── 📁 activities/ (16 files)
+│   ├── MainActivity.java              → Màn hình chính với bottom navigation
+│   ├── WelcomeActivity.java           → Màn hình chào mừng
+│   ├── LoginActivity.java             → Đăng nhập
+│   ├── RegisterActivity.java          → Đăng ký
+│   ├── GenderSelectionActivity.java   → Chọn giới tính
+│   ├── SeekingActivity.java           → Chọn mục đích hẹn hò
+│   ├── InterestsActivity.java         → Chọn sở thích
+│   ├── PhotoUploadActivity.java       → Tải ảnh lên
+│   ├── LocationPermissionActivity.java → Yêu cầu quyền vị trí
+│   ├── NotificationPermissionActivity.java → Yêu cầu quyền thông báo
+│   ├── ProfileInfoActivity.java       → Nhập thông tin cá nhân
+│   ├── ProfileDetailActivity.java     → Chi tiết hồ sơ người khác
+│   ├── MatchSuccessActivity.java      → Màn hình ghép đôi thành công
+│   └── ...
+│
+├── 📁 fragments/ (6 files)
+│   ├── DiscoveryFragment.java         → Tab khám phá (swipe cards)
+│   ├── MatchesFragment.java           → Tab danh sách matches
+│   ├── MessagesFragment.java          → Tab tin nhắn
+│   ├── ProfileFragment.java           → Tab hồ sơ cá nhân
+│   ├── ChatBottomSheetFragment.java   → Bottom sheet chat
+│   └── MatchesFilterBottomSheetFragment.java → Lọc matches
+│
+├── 📁 adapters/ (7 files)
+│   ├── DiscoveryCardAdapter.java      → Adapter cho card stack swipe
+│   ├── MatchesAdapter.java            → Adapter danh sách matches
+│   ├── MessagesAdapter.java           → Adapter danh sách conversations
+│   ├── ChatAdapter.java               → Adapter tin nhắn trong chat
+│   ├── ProfilePhotoAdapter.java       → Adapter gallery ảnh
+│   ├── UsersAdapter.java              → Adapter danh sách users (admin)
+│   └── InterestChipAdapter.java       → Adapter chips sở thích
+│
+├── 📁 models/ (7 files)
+│   ├── User.java                      → Model người dùng
+│   ├── DiscoveryProfile.java          → Model cho discovery card
+│   ├── FilterPreferences.java         → Model bộ lọc
+│   ├── ChatMessage.java               → Model tin nhắn
+│   ├── Conversation.java              → Model cuộc trò chuyện
+│   └── ...
+│
+├── 📁 utils/ (12 files)
+│   ├── UserRepository.java            → Repository quản lý users
+│   ├── MatchRepository.java           → Repository quản lý matches
+│   ├── ChatRepository.java            → Repository quản lý chat
+│   ├── LikesNotificationManager.java  → Quản lý thông báo like
+│   ├── MessagesNotificationManager.java → Quản lý thông báo message
+│   ├── LocaleHelper.java              → Helper xử lý đa ngôn ngữ
+│   ├── InterestMapper.java            → Mapper cho interests localization
+│   ├── CloudinaryHelper.java          → Upload ảnh lên Cloudinary
+│   └── ...
+│
+├── 📁 ui/ (4 files)
+│   ├── GradientTextView.java          → Custom TextView với gradient
+│   ├── FilterBottomSheetDialog.java   → Bottom sheet filter discovery
+│   └── ...
+│
+└── 📁 admin/ (4 files)
+    └── Admin related activities/fragments
+
+```
+
+### **Resources** (`app/src/main/res/`)
+
+```
+res/
+│
+├── 📁 layout/ (48 files)
+│   ├── activity_main.xml
+│   ├── fragment_discovery.xml
+│   ├── item_discovery_card.xml
+│   ├── dialog_in_app_notification.xml
+│   └── ...
+│
+├── 📁 values/
+│   ├── strings.xml                    → Strings tiếng Việt (mặc định)
+│   ├── arrays.xml                     → Danh sách interests (VI)
+│   ├── interest_keys.xml              → Keys cố định cho interests
+│   ├── colors.xml
+│   ├── themes.xml
+│   ├── styles.xml
+│   └── dimens.xml
+│
+├── 📁 values-en/
+│   ├── strings.xml                    → Strings tiếng Anh
+│   └── arrays.xml                     → Danh sách interests (EN)
+│
+├── 📁 values-night/
+│   ├── colors.xml                     → Colors cho dark mode
+│   └── themes.xml                     → Theme cho dark mode
+│
+├── 📁 drawable/ (159 files)
+│   └── Icons, backgrounds, shapes
+│
+├── 📁 anim/ (6 files)
+│   └── Animations (slide, fade, etc)
+│
+├── 📁 font/ (3 files)
+│   └── Custom fonts (Montserrat)
+│
+└── 📁 menu/ (4 files)
+    └── Bottom navigation, options menus
+```
+
+---
+
+## 🔧 Các layer chính
+
+### **1. Presentation Layer**
+
+#### **Activities**
+- Quản lý lifecycle và UI flow
+- Navigation giữa các màn hình
+- Không chứa business logic
+
+#### **Fragments**
+- Tái sử dụng UI components
+- Nhẹ hơn Activities
+- Sử dụng trong ViewPager, Bottom Navigation
+
+#### **Adapters**
+- RecyclerView adapters
+- Binding data vào UI
+- ViewHolder pattern
+
+### **2. Business Layer**
+
+#### **Repositories**
+```java
+UserRepository.getInstance()
+  ├── getUserData(uid)
+  ├── updateUser(uid, data)
+  └── getAllUsers()
+
+MatchRepository.getInstance()
+  ├── likeUser(user, target, isSuperLike)
+  ├── listenForIncomingLikes(uid, callback)
+  └── removeInteraction(uid, targetUid)
+
+ChatRepository.getInstance()
+  ├── ensureDirectChat(uid1, uid2)
+  ├── sendMessage(chatId, message)
+  └── listenForNewMessages(uid, callback)
+```
+
+**Pattern:** Singleton pattern cho tất cả Repositories
+
+#### **Utils & Helpers**
+- `LocaleHelper`: Xử lý đa ngôn ngữ
+- `InterestMapper`: Map interests keys ↔ display names
+- `CloudinaryHelper`: Upload media
+- Notification Managers: Tạo push notifications
+
+### **3. Data Layer**
+
+#### **Firebase Realtime Database Structure**
+```
+firebase/
+├── Users/
+│   └── {uid}/
+│       ├── name
+│       ├── email
+│       ├── gender
+│       ├── dateOfBirth
+│       ├── interests: ["photography", "cooking", ...]
+│       ├── photoUrls: [...]
+│       ├── latitude, longitude
+│       └── ...
+│
+├── Matches/
+│   └── {uid}/
+│       └── {partnerUid}/
+│           ├── status: "matched" | "liked" | "received_like"
+│           ├── type: "like" | "superlike"
+│           ├── likedAt
+│           └── matchedAt
+│
+└── Chats/
+    └── {chatId}/
+        ├── members: [uid1, uid2]
+        └── messages/
+            └── {messageId}/
+                ├── senderId
+                ├── text
+                └── timestamp
+```
+
+#### **SharedPreferences**
+```java
+HeartLinkPrefs/
+├── darkModeEnabled: boolean
+├── language: "vi" | "en"
+└── ...
+
+FilterPrefs/
+├── interestedIn: "male" | "female" | "both"
+├── minAge, maxAge
+├── maxDistance
+└── ...
+```
+
+---
+
+## 🌍 Đa ngôn ngữ (Localization)
+
+### **Strategy: Resource-based + Runtime wrapping**
+
+#### **1. String Resources**
+```xml
+values/strings.xml         → Tiếng Việt (default)
+values-en/strings.xml      → Tiếng Anh
+```
+
+#### **2. Dynamic Localization**
+```java
+// Application level
+HeartLinkApplication.onCreate() 
+  → applyLanguageSetting()
+
+// Runtime context wrapping (cho notifications)
+LocaleHelper.wrapContext(context)
+  → Wrap với locale từ SharedPreferences
+```
+
+#### **3. Interests Localization**
+```
+Database stores: ["photography", "cooking", "yoga"]
+              ↓
+InterestMapper.keysToDisplayNames()
+              ↓
+Display shows: ["Nhiếp ảnh", "Nấu ăn", "Yoga"] (VI)
+          or: ["Photography", "Cooking", "Yoga"] (EN)
+```
+
+**Advantage:** Database consistent, UI follows user preference
+
+---
+
+## 🎯 Design Patterns sử dụng
+
+### **1. Singleton Pattern**
+```java
+UserRepository.getInstance()
+MatchRepository.getInstance()
+ChatRepository.getInstance()
+```
+
+### **2. Repository Pattern**
+- Tách biệt data access logic khỏi UI
+- Single source of truth
+- Dễ test và maintain
+
+### **3. Observer Pattern**
+```java
+FirebaseDatabase.addValueEventListener()
+  → Realtime updates
+  → Auto UI refresh
+```
+
+### **4. Adapter Pattern**
+- RecyclerView Adapters
+- ViewHolder pattern
+- DiffUtil cho performance
+
+### **5. Builder Pattern**
+```java
+NotificationCompat.Builder()
+  .setTitle()
+  .setContentText()
+  .build()
+```
+
+### **6. Callback Pattern**
+```java
+interface MatchResultCallback {
+    void onLikeRecorded();
+    void onMatchCreated();
+    void onError(Exception e);
+}
+```
+
+---
+
+## 🔐 Security & Best Practices
+
+### **1. Firebase Security Rules**
+```javascript
+// Users: Chỉ đọc public info, chỉ chủ sở hữu mới sửa
+// Matches: Chỉ 2 người liên quan mới đọc/ghi
+// Chats: Chỉ members mới truy cập
+```
+
+### **2. Data Privacy**
+- Location có toggle visible/hidden
+- Interests stored as keys (không expose raw data)
+- Photos upload qua Cloudinary (secure URLs)
+
+### **3. Performance**
+- RecyclerView với ViewHolder pattern
+- Glide cho image loading + caching
+- Firebase pagination cho large lists
+- DiffUtil cho efficient updates
+
+---
+
+## 📱 User Flow
+
+```
+Launch App
+    ↓
+Welcome Screen ────────→ Login/Register
+    ↓
+Gender Selection
+    ↓
+Profile Info (Name, DOB)
+    ↓
+Seeking Type Selection
+    ↓
+Interests Selection
+    ↓
+Photo Upload
+    ↓
+Location Permission
+    ↓
+Notification Permission
+    ↓
+Main App
+    ├── 🔍 Discovery (Swipe)
+    ├── 💕 Matches
+    ├── 💬 Messages
+    └── 👤 Profile
+```
+
+---
+
+## 🚀 Tính năng chính
+
+### **Discovery (Swipe)**
+- CardStackView for swipe gestures
+- Distance-based filtering
+- Age, gender, interests filtering
+- Like / Superlike / Pass
+- Real-time match detection
+
+### **Matching**
+- Mutual likes → Instant match
+- Notification on incoming likes
+- Filter matches (All, Matched, Liked, Superliked)
+- In-app notification dialog
+
+### **Messaging**
+- Direct chat between matches
+- Real-time message sync
+- Emoji support (EmojiManager)
+- Message notifications
+
+### **Profile**
+- Complete profile setup
+- Photo gallery
+- Interests display (localized)
+- Stats (Likes, Matches, Superlikes)
+- Settings (Dark mode, Language, Notifications)
+
+---
+
+## 🛠️ Tech Stack
+
+### **Core**
+- **Language:** Java
+- **Min SDK:** 24 (Android 7.0)
+- **Target SDK:** 34 (Android 14)
+
+### **Architecture**
+- Modified MVVM
+- Repository Pattern
+- Singleton Pattern
+
+### **Backend**
+- Firebase Realtime Database
+- Firebase Authentication
+- Firebase Cloud Storage (via Cloudinary)
+
+### **UI Libraries**
+- Material Design 3
+- CardStackView (Swipe cards)
+- CircleImageView
+- Glide (Image loading)
+- EmojiCompat (Emoji support)
+
+### **Localization**
+- Android Resources (values/values-en)
+- Runtime locale switching
+- Context wrapping for notifications
+
+---
+
+## 📊 Data Flow Example: Like Feature
+
+```
+1. User swipes right on DiscoveryFragment
+        ↓
+2. DiscoveryFragment.handleLike()
+        ↓
+3. MatchRepository.likeUser(currentUser, targetUser, false)
+        ↓
+4. Firebase: Update /Matches/{uid}/{targetUid}
+        ↓
+5a. If mutual → status: "matched"
+    → Callback: onMatchCreated()
+    → Show MatchSuccessActivity
+        ↓
+5b. If one-sided → status: "liked"
+    → Callback: onLikeRecorded()
+    → Toast: "Like sent!"
+        ↓
+6. Target user's listener (if online)
+    → HeartLinkApplication.likesListener
+    → LikesNotificationManager.showLikeNotification()
+    → System notification appears
+```
+
+---
+
+## 🎨 UI/UX Principles
+
+1. **Material Design 3** guidelines
+2. **Gradient themes** (colorPrimary, colorAccent)
+3. **Dark mode** support
+4. **Smooth animations** (fade, slide, scale)
+5. **Responsive layouts** (ConstraintLayout, RecyclerView)
+6. **Empty states** handling
+7. **Loading states** (ProgressBar, shimmer)
+8. **Error handling** (Snackbar, Toast)
+
+---
+
+## 📝 Naming Conventions
+
+### **Java Classes**
+- Activities: `*Activity.java` (e.g. `MainActivity.java`)
+- Fragments: `*Fragment.java` (e.g. `DiscoveryFragment.java`)
+- Adapters: `*Adapter.java` (e.g. `MatchesAdapter.java`)
+- Models: `*.java` (e.g. `User.java`)
+- Utils: `*Helper.java`, `*Manager.java`, `*Repository.java`
+
+### **Resources**
+- Layouts: `activity_*.xml`, `fragment_*.xml`, `item_*.xml`, `dialog_*.xml`
+- IDs: `snake_case` (e.g. `user_avatar`, `matches_list`)
+- Colors: `colorPrimary`, `textColorPrimary`
+- Strings: `screen_component_description` (e.g. `matches_status_liked_you`)
+
+---
+
+## 🔄 State Management
+
+### **User Session**
+- Firebase Authentication (persistent)
+- Auto login if session active
+
+### **UI State**
+- Fragment lifecycle-aware
+- ViewModel pattern (minimal - mostly in Repositories)
+- LiveData-like observers via Firebase listeners
+
+### **App State**
+- SharedPreferences for settings
+- Application class for global state
+
+---
+
+## 📈 Future Improvements
+
+1. **Architecture:**
+   - Full MVVM with ViewModels
+   - Dependency Injection (Hilt/Dagger)
+   - Coroutines/RxJava for async
+
+2. **Features:**
+   - Voice/Video calls
+   - Stories/Feed
+   - Advanced matching algorithm
+   - In-app purchases (premium features)
+
+3. **Performance:**
+   - Pagination for large lists
+   - Image compression
+   - Offline support
+
+4. **Testing:**
+   - Unit tests for Repositories
+   - UI tests with Espresso
+   - Integration tests
+
+---
+
+## 📄 License & Credits
+
+**Project:** HeartLink - Dating Application  
+**Author:** Nguyen Anh Tuan  
+**Year:** 2024  
+**University:** Hanoi University of Industry (HAUI)
+
+---
+
+**Document Version:** 1.0  
+**Last Updated:** November 27, 2025  
+**Generated by:** Antigravity AI Assistant
